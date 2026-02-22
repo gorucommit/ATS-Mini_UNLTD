@@ -36,6 +36,7 @@ const char* lastError();
 void apply(const app::AppState& state);
 void applyRuntimeSettings(const app::AppState& state);
 bool seek(app::AppState& state, int8_t direction);
+bool lastSeekAborted();
 void setMuted(bool muted);
 bool readSignalQuality(uint8_t* rssi, uint8_t* snr);
 bool pollRdsGroup(RdsGroupSnapshot* snapshot);

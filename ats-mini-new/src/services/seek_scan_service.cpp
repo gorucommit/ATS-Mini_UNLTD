@@ -15,6 +15,8 @@ constexpr uint8_t kFoundSourceScan = 0x01;
 constexpr uint8_t kFoundSourceSeek = 0x02;
 
 constexpr uint16_t kFmScanStepKhz = 10;  // 100 kHz
+constexpr uint16_t kFmRawMergeDistanceKhz = kFmScanStepKhz;      // 100 kHz in FM storage units (10 kHz units).
+constexpr uint16_t kFmFoundDedupeDistanceKhz = kFmScanStepKhz - 1;  // Avoid merging adjacent 100 kHz channels.
 
 enum class Operation : uint8_t {
   None = 0,
@@ -64,6 +66,13 @@ uint8_t g_segmentIndex = 0;
 RawHit g_rawHits[kMaxRawHits]{};
 uint8_t g_rawHitCount = 0;
 
+FoundStation g_fmScanTemp[kMaxFoundStations]{};
+uint8_t g_fmScanTempCount = 0;
+bool g_fmScanInitialized = false;
+bool g_fmScanHasFirstHit = false;
+uint16_t g_fmScanFirstHitKhz = 0;
+uint16_t g_fmScanLastHitKhz = 0;
+
 bool g_scanAwaitingMeasure = false;
 uint32_t g_nextActionMs = 0;
 uint16_t g_scanCurrentKhz = 0;
@@ -72,6 +81,8 @@ uint16_t g_scanBestKhz = 0;
 uint8_t g_scanBestRssi = 0;
 uint16_t g_scanVisited = 0;
 uint16_t g_scanSettleMs = 80;
+
+void resetFmScanState();
 
 inline bool isFmFamily(const app::Modulation modulation) {
   return modulation == app::Modulation::FM;
@@ -132,6 +143,7 @@ void clearOperationState(app::AppState& state) {
   g_operation = Operation::None;
   g_cancelRequested = false;
   g_scanAwaitingMeasure = false;
+  resetFmScanState();
 
   state.seekScan.active = false;
   state.seekScan.seeking = false;
@@ -245,6 +257,67 @@ void addOrUpdateFound(uint16_t frequencyKhz, uint8_t rssi, uint8_t sourceMask, u
   sortFoundStations();
 }
 
+uint16_t absDeltaKhz(uint16_t lhs, uint16_t rhs) {
+  return lhs > rhs ? static_cast<uint16_t>(lhs - rhs) : static_cast<uint16_t>(rhs - lhs);
+}
+
+void resetFmScanState() {
+  g_fmScanTempCount = 0;
+  g_fmScanInitialized = false;
+  g_fmScanHasFirstHit = false;
+  g_fmScanFirstHitKhz = 0;
+  g_fmScanLastHitKhz = 0;
+}
+
+void addOrUpdateFmScanTemp(uint16_t frequencyKhz, uint8_t rssi) {
+  for (uint8_t i = 0; i < g_fmScanTempCount; ++i) {
+    FoundStation& entry = g_fmScanTemp[i];
+    if (absDeltaKhz(entry.frequencyKhz, frequencyKhz) <= kFmFoundDedupeDistanceKhz) {
+      if (rssi > entry.rssi) {
+        entry.rssi = rssi;
+        entry.frequencyKhz = frequencyKhz;
+      }
+      return;
+    }
+  }
+
+  if (g_fmScanTempCount < kMaxFoundStations) {
+    g_fmScanTemp[g_fmScanTempCount++] = {frequencyKhz, rssi, kFoundSourceScan};
+    return;
+  }
+
+  uint8_t weakest = 0;
+  for (uint8_t i = 1; i < g_fmScanTempCount; ++i) {
+    if (g_fmScanTemp[i].rssi < g_fmScanTemp[weakest].rssi) {
+      weakest = i;
+    }
+  }
+
+  if (rssi <= g_fmScanTemp[weakest].rssi) {
+    return;
+  }
+
+  g_fmScanTemp[weakest] = {frequencyKhz, rssi, kFoundSourceScan};
+}
+
+bool fmScanWrappedToStart(uint16_t frequencyKhz) {
+  if (!g_fmScanHasFirstHit) {
+    return false;
+  }
+
+  if (g_direction >= 0) {
+    if (frequencyKhz <= g_fmScanLastHitKhz) {
+      return true;
+    }
+  } else {
+    if (frequencyKhz >= g_fmScanLastHitKhz) {
+      return true;
+    }
+  }
+
+  return absDeltaKhz(frequencyKhz, g_fmScanFirstHitKhz) <= kFmFoundDedupeDistanceKhz;
+}
+
 bool addSegment(uint16_t minKhz, uint16_t maxKhz, uint16_t stepKhz) {
   if (g_segmentCount >= kMaxScanSegments || stepKhz == 0) {
     return false;
@@ -335,9 +408,18 @@ bool alignMwSegmentToRaster(uint16_t& minKhz, uint16_t& maxKhz, const app::AppSt
   return true;
 }
 
-uint16_t mergeDistanceKhzFor(const app::AppState& state) {
+uint16_t rawHitMergeDistanceKhzFor(const app::AppState& state) {
   if (state.radio.modulation == app::Modulation::FM) {
-    return 100;
+    return kFmRawMergeDistanceKhz;
+  }
+
+  // Spec: AM/SW raw-hit cluster merge uses regional MW spacing (9/10 kHz).
+  return mwSpacingKhzFor(state.global.fmRegion);
+}
+
+uint16_t foundDedupeDistanceKhzFor(const app::AppState& state) {
+  if (state.radio.modulation == app::Modulation::FM) {
+    return kFmFoundDedupeDistanceKhz;
   }
 
   const app::BandDef& band = app::kBandPlan[state.radio.bandIndex];
@@ -499,10 +581,11 @@ uint8_t mergeRawHits(uint16_t mergeDistanceKhz, FoundStation* merged, uint8_t ma
 }
 
 void finalizeScan(app::AppState& state) {
-  const uint16_t mergeDistanceKhz = mergeDistanceKhzFor(state);
+  const uint16_t rawMergeDistanceKhz = rawHitMergeDistanceKhzFor(state);
+  const uint16_t foundDedupeDistanceKhz = foundDedupeDistanceKhzFor(state);
 
   FoundStation merged[kMaxFoundStations]{};
-  const uint8_t mergedCount = mergeRawHits(mergeDistanceKhz, merged, kMaxFoundStations);
+  const uint8_t mergedCount = mergeRawHits(rawMergeDistanceKhz, merged, kMaxFoundStations);
 
   removeStationsBySource(kFoundSourceScan);
 
@@ -510,7 +593,7 @@ void finalizeScan(app::AppState& state) {
   uint16_t bestScanFrequency = g_scanRestoreKhz;
 
   for (uint8_t i = 0; i < mergedCount; ++i) {
-    addOrUpdateFound(merged[i].frequencyKhz, merged[i].rssi, kFoundSourceScan, mergeDistanceKhz);
+    addOrUpdateFound(merged[i].frequencyKhz, merged[i].rssi, kFoundSourceScan, foundDedupeDistanceKhz);
 
     if (merged[i].rssi >= bestScanRssi) {
       bestScanRssi = merged[i].rssi;
@@ -535,6 +618,153 @@ void finalizeScan(app::AppState& state) {
     g_scanBestRssi = 0;
     setCursorToFrequency(g_scanRestoreKhz);
   }
+}
+
+void beginFmSeekScan(app::AppState& state) {
+  g_cancelRequested = false;
+  g_nextActionMs = 0;
+  g_scanAwaitingMeasure = false;
+
+  g_scanRestoreKhz = state.radio.frequencyKhz;
+  g_scanBestKhz = state.radio.frequencyKhz;
+  g_scanBestRssi = 0;
+  g_scanVisited = 0;
+  g_rawHitCount = 0;
+
+  resetFmScanState();
+  g_fmScanInitialized = true;
+
+  const app::BandDef& band = app::kBandPlan[state.radio.bandIndex];
+  const uint16_t bandMinKhz = app::bandMinKhzFor(band, state.global.fmRegion);
+  const uint16_t bandMaxKhz = app::bandMaxKhzFor(band, state.global.fmRegion);
+  const uint16_t seedKhz = g_direction >= 0 ? bandMinKhz : bandMaxKhz;
+
+  if (state.radio.frequencyKhz != seedKhz) {
+    state.radio.frequencyKhz = seedKhz;
+    state.radio.bfoHz = 0;
+    services::radio::apply(state);
+  }
+}
+
+void finalizeFmSeekScan(app::AppState& state, bool canceled) {
+  if (canceled) {
+    state.radio.frequencyKhz = g_scanRestoreKhz;
+    state.radio.bfoHz = 0;
+    services::radio::apply(state);
+
+    g_scanBestKhz = g_scanRestoreKhz;
+    g_scanBestRssi = 0;
+    setCursorToFrequency(g_scanRestoreKhz);
+    return;
+  }
+
+  removeStationsBySource(kFoundSourceScan);
+
+  const uint16_t foundDedupeDistanceKhz = foundDedupeDistanceKhzFor(state);
+  uint8_t bestScanRssi = 0;
+  uint16_t bestScanFrequency = g_scanRestoreKhz;
+
+  for (uint8_t i = 0; i < g_fmScanTempCount; ++i) {
+    addOrUpdateFound(g_fmScanTemp[i].frequencyKhz, g_fmScanTemp[i].rssi, kFoundSourceScan, foundDedupeDistanceKhz);
+    if (g_fmScanTemp[i].rssi >= bestScanRssi) {
+      bestScanRssi = g_fmScanTemp[i].rssi;
+      bestScanFrequency = g_fmScanTemp[i].frequencyKhz;
+    }
+  }
+
+  if (g_fmScanTempCount > 0) {
+    state.radio.frequencyKhz = bestScanFrequency;
+    state.radio.bfoHz = 0;
+    services::radio::apply(state);
+    g_scanBestKhz = bestScanFrequency;
+    g_scanBestRssi = bestScanRssi;
+    setCursorToFrequency(bestScanFrequency);
+    return;
+  }
+
+  state.radio.frequencyKhz = g_scanRestoreKhz;
+  state.radio.bfoHz = 0;
+  services::radio::apply(state);
+  g_scanBestKhz = g_scanRestoreKhz;
+  g_scanBestRssi = 0;
+  setCursorToFrequency(g_scanRestoreKhz);
+}
+
+bool tickFmSeekScan(app::AppState& state) {
+  state.seekScan.active = true;
+  state.seekScan.seeking = false;
+  state.seekScan.scanning = true;
+  state.seekScan.direction = g_direction;
+
+  if (!g_fmScanInitialized) {
+    beginFmSeekScan(state);
+    state.seekScan.pointsVisited = 0;
+    state.seekScan.bestFrequencyKhz = g_scanBestKhz;
+    state.seekScan.bestRssi = g_scanBestRssi;
+    state.seekScan.foundCount = 0;
+    state.seekScan.foundIndex = -1;
+    return true;
+  }
+
+  if (g_cancelRequested) {
+    finalizeFmSeekScan(state, true);
+    clearOperationState(state);
+    return true;
+  }
+
+  const uint32_t nowMs = millis();
+  if (nowMs < g_nextActionMs) {
+    return false;
+  }
+
+  const bool found = services::radio::seek(state, g_direction);
+  const bool seekAborted = services::radio::lastSeekAborted();
+
+  uint8_t rssi = 0;
+  (void)services::radio::readSignalQuality(&rssi, nullptr);
+
+  if (seekAborted || g_cancelRequested) {
+    finalizeFmSeekScan(state, true);
+    clearOperationState(state);
+    return true;
+  }
+
+  ++g_scanVisited;
+  state.seekScan.pointsVisited = g_scanVisited;
+
+  if (!found) {
+    finalizeFmSeekScan(state, false);
+    clearOperationState(state);
+    return true;
+  }
+
+  const uint16_t foundKhz = state.radio.frequencyKhz;
+  if (g_fmScanHasFirstHit && fmScanWrappedToStart(foundKhz)) {
+    finalizeFmSeekScan(state, false);
+    clearOperationState(state);
+    return true;
+  }
+
+  addOrUpdateFmScanTemp(foundKhz, rssi);
+  if (!g_fmScanHasFirstHit) {
+    g_fmScanHasFirstHit = true;
+    g_fmScanFirstHitKhz = foundKhz;
+  }
+  g_fmScanLastHitKhz = foundKhz;
+
+  if (rssi >= g_scanBestRssi) {
+    g_scanBestRssi = rssi;
+    g_scanBestKhz = foundKhz;
+  }
+
+  state.seekScan.bestFrequencyKhz = g_scanBestKhz;
+  state.seekScan.bestRssi = g_scanBestRssi;
+  state.seekScan.foundCount = g_fmScanTempCount;
+  state.seekScan.foundIndex = -1;
+
+  // Keep a tiny defer window to allow the main loop/UI to run between blocking seek calls.
+  g_nextActionMs = nowMs + 1;
+  return true;
 }
 
 void updateContext(app::AppState& state) {
@@ -567,6 +797,7 @@ void requestScan(int8_t direction) {
   services::input::clearAbortRequest();
   g_direction = direction >= 0 ? 1 : -1;
   g_segmentCount = 0;
+  resetFmScanState();
   g_operation = Operation::ScanRunning;
 }
 
@@ -624,7 +855,7 @@ bool tick(app::AppState& state) {
     g_scanVisited = 1;
 
     if (found) {
-      addOrUpdateFound(state.radio.frequencyKhz, rssi, kFoundSourceSeek, mergeDistanceKhzFor(state));
+      addOrUpdateFound(state.radio.frequencyKhz, rssi, kFoundSourceSeek, foundDedupeDistanceKhzFor(state));
       setCursorToFrequency(state.radio.frequencyKhz);
     }
 
@@ -634,6 +865,10 @@ bool tick(app::AppState& state) {
 
     clearOperationState(state);
     return found;
+  }
+
+  if (g_operation == Operation::ScanRunning && state.radio.modulation == app::Modulation::FM) {
+    return tickFmSeekScan(state);
   }
 
   if (g_segmentCount == 0) {

@@ -663,6 +663,8 @@ bool seek(app::AppState& state, int8_t direction) {
   return found;
 }
 
+bool lastSeekAborted() { return g_seekAborted; }
+
 void setMuted(bool muted) {
   g_muted = muted;
   if (!g_ready) {

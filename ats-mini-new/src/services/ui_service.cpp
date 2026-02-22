@@ -15,6 +15,7 @@ namespace {
 constexpr int kUiWidth = 320;
 constexpr int kUiHeight = 170;
 constexpr uint32_t kUiFrameMs = 80;
+constexpr uint32_t kUiScanFrameMs = 160;
 // Match signalscale RSSI/SNR cadence:
 // poll every 80ms, but commit UI values every 8 polls (~640ms).
 constexpr uint32_t kSignalPollMs = 80;
@@ -1450,12 +1451,14 @@ void notifyVolumeAdjust(uint8_t volume) {
 
 void render(const app::AppState& state) {
   const uint32_t nowMs = millis();
-  if (nowMs - g_lastRenderMs < kUiFrameMs) {
+  const bool scanActive = state.seekScan.active && state.seekScan.scanning;
+  const uint32_t minFrameMs = scanActive ? kUiScanFrameMs : kUiFrameMs;
+  if (nowMs - g_lastRenderMs < minFrameMs) {
     return;
   }
 
   bool signalChanged = false;
-  if (nowMs - g_lastSignalPollMs >= kSignalPollMs) {
+  if (!scanActive && nowMs - g_lastSignalPollMs >= kSignalPollMs) {
     signalChanged = readSignalQuality();
     g_lastSignalPollMs = nowMs;
   }

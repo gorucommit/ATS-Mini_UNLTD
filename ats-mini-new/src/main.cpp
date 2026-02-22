@@ -869,5 +869,5 @@ void loop() {
     g_lastUiRenderMs = nowMs;
   }
 
-  delay(5);
+  delay(services::seekscan::busy() ? 1 : 5);
 }
