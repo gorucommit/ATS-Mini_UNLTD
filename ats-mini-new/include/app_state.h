@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "bandplan.h"
+#include "etm_scan.h"
 
 namespace app {
 
@@ -117,6 +118,9 @@ struct SeekScanState {
   uint16_t pointsVisited;
   uint8_t foundCount;
   int16_t foundIndex;
+  bool fineScanActive;
+  uint8_t cursorScanPass;
+  uint16_t totalPoints;
 };
 
 struct ClockState {
@@ -179,6 +183,9 @@ struct GlobalSettings {
   UiLayout uiLayout;
   BleMode bleMode;
   UsbMode usbMode;
+
+  ScanSensitivity scanSensitivity;
+  ScanSpeed scanSpeed;
 
   uint8_t memoryWriteIndex;
 };
@@ -489,6 +496,9 @@ inline AppState makeDefaultState() {
   state.seekScan.pointsVisited = 0;
   state.seekScan.foundCount = 0;
   state.seekScan.foundIndex = -1;
+  state.seekScan.fineScanActive = false;
+  state.seekScan.cursorScanPass = 0;
+  state.seekScan.totalPoints = 0;
   resetClockState(state.clock);
   resetRdsState(state.rds);
 
@@ -516,6 +526,8 @@ inline AppState makeDefaultState() {
   state.global.uiLayout = UiLayout::Standard;
   state.global.bleMode = BleMode::Off;
   state.global.usbMode = UsbMode::Auto;
+  state.global.scanSensitivity = ScanSensitivity::Medium;
+  state.global.scanSpeed = ScanSpeed::Thorough;
   state.global.memoryWriteIndex = 0;
 
   for (uint8_t i = 0; i < kBandCount; ++i) {

@@ -6,6 +6,7 @@
 
 #include "app_config.h"
 #include "app_state.h"
+#include "etm_scan.h"
 
 namespace app::settings {
 
@@ -17,10 +18,12 @@ enum class Item : uint8_t {
   SoftMute = 4,
   Theme = 5,
   UiLayout = 6,
-  About = 7,
+  ScanSens = 7,
+  ScanSpeed = 8,
+  About = 9,
 };
 
-inline constexpr uint8_t kItemCount = 8;
+inline constexpr uint8_t kItemCount = 10;
 inline constexpr uint8_t kBrightnessStep = 10;
 inline constexpr uint8_t kBrightnessMax = 250;
 inline constexpr uint8_t kBrightnessOptionCount = (kBrightnessMax / kBrightnessStep) + 1;
@@ -46,6 +49,10 @@ inline constexpr const char* itemLabel(Item item) {
       return "Theme";
     case Item::UiLayout:
       return "UI Layout";
+    case Item::ScanSens:
+      return "Scan Sens";
+    case Item::ScanSpeed:
+      return "Scan Speed";
     case Item::About:
       return "About";
   }
@@ -79,6 +86,10 @@ inline constexpr uint8_t valueCount(Item item) {
       return 3;
     case Item::UiLayout:
       return 3;
+    case Item::ScanSens:
+      return 3;  // Low, Medium, High
+    case Item::ScanSpeed:
+      return 2;  // Fast, Thorough
     case Item::About:
       return 1;
   }
@@ -163,6 +174,14 @@ inline uint8_t valueIndexForCurrent(const AppState& state, Item item) {
       const uint8_t layout = static_cast<uint8_t>(state.global.uiLayout);
       return layout > 2 ? 0 : layout;
     }
+    case Item::ScanSens: {
+      const uint8_t s = static_cast<uint8_t>(state.global.scanSensitivity);
+      return s > 2 ? 1 : s;
+    }
+    case Item::ScanSpeed: {
+      const uint8_t s = static_cast<uint8_t>(state.global.scanSpeed);
+      return s > 1 ? 1 : s;
+    }
     case Item::About:
       return 0;
   }
@@ -199,6 +218,12 @@ inline void applyValue(AppState& state, Item item, uint8_t valueIndex) {
       break;
     case Item::UiLayout:
       state.global.uiLayout = static_cast<UiLayout>(valueIndex % valueCount(item));
+      break;
+    case Item::ScanSens:
+      state.global.scanSensitivity = static_cast<app::ScanSensitivity>(valueIndex % valueCount(item));
+      break;
+    case Item::ScanSpeed:
+      state.global.scanSpeed = static_cast<app::ScanSpeed>(valueIndex % valueCount(item));
       break;
     case Item::About:
       break;
@@ -250,6 +275,15 @@ inline void formatValue(const AppState& state, Item item, char* out, size_t outS
     case Item::UiLayout:
       snprintf(out, outSize, "%s", layoutLabel(state.global.uiLayout));
       return;
+    case Item::ScanSens: {
+      static const char* kSens[] = {"Low", "Medium", "High"};
+      snprintf(out, outSize, "%s", kSens[static_cast<uint8_t>(state.global.scanSensitivity) % 3]);
+      return;
+    }
+    case Item::ScanSpeed: {
+      snprintf(out, outSize, "%s", state.global.scanSpeed == app::ScanSpeed::Thorough ? "Thorough" : "Fast");
+      return;
+    }
     case Item::About:
       snprintf(out, outSize, "%s", app::kFirmwareVersion);
       return;

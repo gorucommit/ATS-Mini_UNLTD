@@ -5,6 +5,7 @@
 #include "../../include/app_config.h"
 #include "../../include/app_services.h"
 #include "../../include/bandplan.h"
+#include "../../include/etm_scan.h"
 #include "../../include/hardware_pins.h"
 #include "../../include/patch_init.h"
 
@@ -322,12 +323,12 @@ uint8_t seekSpacingKhzFor(const app::AppState& state) {
   return 5;
 }
 
-uint8_t seekThresholdRssiFor(app::Modulation modulation) {
-  return modulation == app::Modulation::FM ? 5 : 10;
+uint8_t seekThresholdRssiFor(const app::AppState& state) {
+  return app::kEtmSensitivityTable[static_cast<uint8_t>(state.global.scanSensitivity)].rssiMin;
 }
 
-uint8_t seekThresholdSnrFor(app::Modulation modulation) {
-  return modulation == app::Modulation::FM ? 2 : 3;
+uint8_t seekThresholdSnrFor(const app::AppState& state) {
+  return app::kEtmSensitivityTable[static_cast<uint8_t>(state.global.scanSensitivity)].snrMin;
 }
 
 bool readCurrentSignalQuality(uint8_t& rssi, uint8_t& snr) {
@@ -358,7 +359,7 @@ bool isValidSeekResult(const app::AppState& state,
     return false;
   }
 
-  return rssi >= seekThresholdRssiFor(state.radio.modulation) && snr >= seekThresholdSnrFor(state.radio.modulation);
+  return rssi >= seekThresholdRssiFor(state) && snr >= seekThresholdSnrFor(state);
 }
 
 uint16_t seekGridOriginKhzFor(const app::AppState& state, uint16_t bandMinKhz) {

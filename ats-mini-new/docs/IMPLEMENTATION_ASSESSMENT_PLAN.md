@@ -294,4 +294,5 @@ These are valuable, but should remain after MVP/v0.1 stabilization:
 - Sleep: needs to be a timer, not a sleep mode, that goes into deep sleep when elapsed;
 - Squelch actually working;
 - Setting for SCAN/seek sensitivity;
-- Markers on SCAN / SEEK. 
+- Markers on SCAN / SEEK.
+- 1 minute signal history

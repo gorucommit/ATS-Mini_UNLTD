@@ -114,7 +114,7 @@ void scheduleTunePersist() {
 }
 
 void flushPendingTunePersistIfIdle() {
-  if (!g_tunePersistPending || services::seekscan::busy()) {
+  if (!g_tunePersistPending || services::etm::busy() || services::seekscan::busy()) {
     return;
   }
 
@@ -137,6 +137,10 @@ void setNowPlayingLayer() {
 
 void setOperation(app::OperationMode operation) {
   g_state.ui.operation = operation;
+  if (operation == app::OperationMode::Scan) {
+    services::etm::syncContext(g_state);
+    services::etm::navigateNearest(g_state);
+  }
   setNowPlayingLayer();
 }
 
@@ -597,7 +601,12 @@ void handleNowPlayingRotation(int8_t direction, int8_t repeats) {
       break;
 
     case app::OperationMode::Scan:
-      if (services::seekscan::navigateFound(g_state, direction)) {
+      if (direction > 0) {
+        services::etm::navigateNext(g_state);
+      } else {
+        services::etm::navigatePrev(g_state);
+      }
+      if (g_state.seekScan.foundCount > 0) {
         scheduleTunePersist();
       } else {
         g_state.seekScan.direction = direction;
@@ -634,8 +643,12 @@ void handleRotation(int8_t delta) {
     return;
   }
 
-  if (services::seekscan::busy()) {
-    services::seekscan::requestCancel();
+  if (services::etm::busy() || services::seekscan::busy()) {
+    if (services::etm::busy()) {
+      services::etm::requestCancel();
+    } else {
+      services::seekscan::requestCancel();
+    }
     return;
   }
 
@@ -667,8 +680,12 @@ void handleRotation(int8_t delta) {
 }
 
 void handleSingleClick() {
-  if (services::seekscan::busy()) {
-    services::seekscan::requestCancel();
+  if (services::etm::busy() || services::seekscan::busy()) {
+    if (services::etm::busy()) {
+      services::etm::requestCancel();
+    } else {
+      services::seekscan::requestCancel();
+    }
     return;
   }
 
@@ -694,8 +711,9 @@ void handleSingleClick() {
 }
 
 void handleDoubleClick() {
-  if (services::seekscan::busy()) {
-    services::seekscan::requestCancel();
+  if (services::etm::busy() || services::seekscan::busy()) {
+    if (services::etm::busy()) services::etm::requestCancel();
+    else services::seekscan::requestCancel();
     return;
   }
 
@@ -707,8 +725,9 @@ void handleDoubleClick() {
 }
 
 void handleTripleClick() {
-  if (services::seekscan::busy()) {
-    services::seekscan::requestCancel();
+  if (services::etm::busy() || services::seekscan::busy()) {
+    if (services::etm::busy()) services::etm::requestCancel();
+    else services::seekscan::requestCancel();
     return;
   }
 
@@ -720,17 +739,20 @@ void handleTripleClick() {
 }
 
 void handleLongPress() {
-  if (services::seekscan::busy()) {
-    services::seekscan::requestCancel();
+  if (services::etm::busy() || services::seekscan::busy()) {
+    if (services::etm::busy()) services::etm::requestCancel();
+    else services::seekscan::requestCancel();
     return;
   }
 
   switch (g_state.ui.layer) {
     case app::UiLayer::NowPlaying:
       if (g_state.ui.operation == app::OperationMode::Scan) {
-        // Drop any residual encoder movement so a same-loop delta does not immediately cancel scan start.
         (void)services::input::consumeEncoderDelta();
-        services::seekscan::requestScan(g_state.seekScan.direction >= 0 ? 1 : -1);
+        if (services::etm::requestScan(g_state)) {
+          // ETM scan started
+        }
+        // If false (e.g. SSB), scan not available; no feedback for now
       } else if (g_state.ui.operation == app::OperationMode::Tune || g_state.ui.operation == app::OperationMode::Seek) {
         g_state.ui.layer = app::UiLayer::DialPad;
       }
@@ -812,6 +834,7 @@ void setup() {
   normalizeRadioStateForBand(g_state.radio, g_state.global.fmRegion);
   app::syncPersistentStateFromRadio(g_state);
   services::seekscan::syncContext(g_state);
+  services::etm::syncContext(g_state);
   services::clock::tick(g_state);
   g_state.ui.muted = false;
 
@@ -832,6 +855,7 @@ void setup() {
 
 void loop() {
   services::seekscan::syncContext(g_state);
+  services::etm::syncContext(g_state);
 
   uint32_t clickWindowMs = app::kMultiClickWindowMs;
   if (g_state.ui.layer == app::UiLayer::QuickEdit || g_state.ui.layer == app::UiLayer::Settings) {
@@ -851,8 +875,21 @@ void loop() {
     }
   }
 
-  const bool seekScanStateChanged = services::seekscan::tick(g_state);
-  if (seekScanStateChanged && !services::seekscan::busy()) {
+  bool seekScanStateChanged = false;
+  if (services::etm::busy()) {
+    seekScanStateChanged = services::etm::tick(g_state);
+  } else if (services::seekscan::busy()) {
+    const bool wasSeeking = g_state.seekScan.seeking;
+    seekScanStateChanged = services::seekscan::tick(g_state);
+    if (wasSeeking && !services::seekscan::busy() && g_state.seekScan.foundCount > 0) {
+      uint8_t rssi = 0, snr = 0;
+      services::radio::readSignalQuality(&rssi, &snr);
+      services::etm::syncContext(g_state);
+      services::etm::addSeekResult(g_state.radio.frequencyKhz, rssi, snr);
+      services::etm::publishState(g_state);
+    }
+  }
+  if (seekScanStateChanged && !services::etm::busy() && !services::seekscan::busy()) {
     scheduleTunePersist();
   }
 
@@ -869,5 +906,5 @@ void loop() {
     g_lastUiRenderMs = nowMs;
   }
 
-  delay(services::seekscan::busy() ? 1 : 5);
+  delay((services::etm::busy() || services::seekscan::busy()) ? 1 : 5);
 }

@@ -1101,55 +1101,88 @@ void drawQuickPopup(const app::AppState& state) {
 }
 
 void drawSettingsScreen(const app::AppState& state) {
-  const uint8_t selected = static_cast<uint8_t>(state.ui.quickEditPopupIndex % app::settings::kItemCount);
+  const uint8_t totalItems = app::settings::kItemCount;
+  const uint8_t selected = static_cast<uint8_t>(state.ui.quickEditPopupIndex % totalItems);
   const bool editing = state.ui.settingsChipArmed;
 
-  g_spr.fillSprite(kColorBg);
-  g_spr.drawRect(0, 0, kUiWidth, kUiHeight, kColorChipFocus);
-  g_spr.drawFastHLine(0, 20, kUiWidth, kColorMuted);
-  g_spr.drawFastHLine(0, kUiHeight - 18, kUiWidth, kColorMuted);
+  // Panel: smaller box with margin, not full screen; list scrolls inside.
+  constexpr int kPanelMargin = 8;
+  constexpr int kPanelHeaderH = 20;
+  constexpr int kSettingsRowH = 16;
+  constexpr int kVisibleRows = 6;
+  constexpr int kListH = kVisibleRows * kSettingsRowH;
+  constexpr int kPanelFooterH = 14;
+  constexpr int kPanelW = kUiWidth - 2 * kPanelMargin;
+  constexpr int kPanelH = kPanelHeaderH + kListH + kPanelFooterH;
+  constexpr int kPanelX = kPanelMargin;
+  constexpr int kPanelY = kPanelMargin;
 
+  // Keep selected row in view (prefer centered when possible).
+  const int maxFirst = totalItems > kVisibleRows ? static_cast<int>(totalItems - kVisibleRows) : 0;
+  const int firstVisible = maxFirst <= 0 ? 0
+      : (selected <= 2 ? 0
+      : (selected >= totalItems - 2 ? maxFirst
+      : static_cast<int>(selected) - 2));
+  const int clampedFirst = firstVisible < 0 ? 0 : (firstVisible > maxFirst ? maxFirst : firstVisible);
+
+  g_spr.fillSprite(kColorBg);
+
+  // Panel border and inner header/footer lines
+  g_spr.drawRoundRect(kPanelX, kPanelY, kPanelW, kPanelH, 4, kColorChipFocus);
+  g_spr.drawFastHLine(kPanelX, kPanelY + kPanelHeaderH, kPanelW, kColorMuted);
+  g_spr.drawFastHLine(kPanelX, kPanelY + kPanelH - kPanelFooterH, kPanelW, kColorMuted);
+
+  // Header inside panel
   g_spr.setTextDatum(TL_DATUM);
   g_spr.setTextFont(2);
   g_spr.setTextColor(kColorChipFocus, kColorBg);
-  g_spr.drawString("SETTINGS", 6, 3);
+  g_spr.drawString("SETTINGS", kPanelX + 6, kPanelY + 3);
 
   g_spr.setTextDatum(TR_DATUM);
   g_spr.setTextFont(1);
   g_spr.setTextColor(kColorMuted, kColorBg);
-  g_spr.drawString(editing ? "EDIT" : "BROWSE", kUiWidth - 6, 7);
+  g_spr.drawString(editing ? "EDIT" : "BROWSE", kPanelX + kPanelW - 6, kPanelY + 7);
 
-  const int rowStartY = 24;
-  const int rowHeight = 16;
-  for (uint8_t i = 0; i < app::settings::kItemCount; ++i) {
-    const app::settings::Item item = app::settings::itemFromIndex(i);
-    const bool focused = i == selected;
+  // List area: only draw visible rows (scroll window)
+  const int listTopY = kPanelY + kPanelHeaderH;
+  const int listInnerW = kPanelW - 8;
+
+  for (int row = 0; row < kVisibleRows; ++row) {
+    const int itemIndex = clampedFirst + row;
+    if (itemIndex >= static_cast<int>(totalItems)) break;
+
+    const app::settings::Item item = app::settings::itemFromIndex(static_cast<uint8_t>(itemIndex));
+    const bool focused = itemIndex == static_cast<int>(selected);
     const bool itemEditable = app::settings::itemEditable(state, item);
     const uint16_t rowBg = focused ? (editing ? 0x5000 : 0x0841) : kColorBg;
 
+    const int rowY = listTopY + row * kSettingsRowH;
+
     if (focused) {
-      g_spr.fillRoundRect(4, rowStartY + i * rowHeight - 1, kUiWidth - 8, rowHeight - 2, 3, rowBg);
+      g_spr.fillRoundRect(kPanelX + 4, rowY - 1, listInnerW, kSettingsRowH - 2, 3, rowBg);
     }
 
     g_spr.setTextDatum(TL_DATUM);
     g_spr.setTextFont(1);
     g_spr.setTextColor(focused ? kColorChipFocus : kColorText, rowBg);
-    g_spr.drawString(app::settings::itemLabel(item), 10, rowStartY + i * rowHeight + 4);
+    g_spr.drawString(app::settings::itemLabel(item), kPanelX + 10, rowY + 4);
 
     char valueText[24];
     app::settings::formatValue(state, item, valueText, sizeof(valueText));
     g_spr.setTextDatum(TR_DATUM);
     g_spr.setTextColor(itemEditable ? (focused ? kColorChipFocus : kColorText) : kColorMuted, rowBg);
-    g_spr.drawString(valueText, kUiWidth - 10, rowStartY + i * rowHeight + 4);
+    g_spr.drawString(valueText, kPanelX + kPanelW - 10, rowY + 4);
   }
 
+  // Footer hint inside panel
   g_spr.setTextDatum(TL_DATUM);
   g_spr.setTextFont(1);
   g_spr.setTextColor(kColorMuted, kColorBg);
+  const int footerY = kPanelY + kPanelH - kPanelFooterH + 2;
   if (editing) {
-    g_spr.drawString("Rotate: change  Click/Long: back", 6, kUiHeight - 14);
+    g_spr.drawString("Rotate: change  Click/Long: back", kPanelX + 6, footerY);
   } else {
-    g_spr.drawString("Rotate: move  Click: edit  Long: exit", 6, kUiHeight - 14);
+    g_spr.drawString("Rotate: move  Click: edit  Long: exit", kPanelX + 6, footerY);
   }
 
   if (volumeHudVisible(millis())) {
@@ -1248,7 +1281,20 @@ void drawScreen(const app::AppState& state) {
   g_spr.setTextDatum(MC_DATUM);
   g_spr.setTextFont(1);
   g_spr.setTextColor(modeAccent(state.ui.operation), kColorBg);
-  g_spr.drawString(operationName(state.ui.operation), avcRect.x + (avcRect.w / 2), avcRect.y + avcRect.h + 7);
+  if (state.ui.operation == app::OperationMode::Scan && state.seekScan.fineScanActive) {
+    g_spr.drawString("SCAN FINE", avcRect.x + (avcRect.w / 2), avcRect.y + avcRect.h + 7);
+  } else {
+    g_spr.drawString(operationName(state.ui.operation), avcRect.x + (avcRect.w / 2), avcRect.y + avcRect.h + 7);
+  }
+  if (state.seekScan.active && state.seekScan.scanning && state.seekScan.totalPoints > 0) {
+    char prog[16];
+    const uint16_t pts = state.seekScan.pointsVisited > state.seekScan.totalPoints
+                             ? state.seekScan.totalPoints
+                             : state.seekScan.pointsVisited;
+    snprintf(prog, sizeof(prog), "%u/%u", static_cast<unsigned>(pts), static_cast<unsigned>(state.seekScan.totalPoints));
+    g_spr.setTextColor(kColorMuted, kColorBg);
+    g_spr.drawString(prog, avcRect.x + (avcRect.w / 2), avcRect.y + avcRect.h + 16);
+  }
 
   drawChip(modeRect.x, modeRect.y, modeRect.w, modeRect.h, modulationName(state.radio.modulation), focusMode, popupOpen && focusMode, 2, editableMode);
   drawChip(bandRect.x, bandRect.y, bandRect.w, bandRect.h, band.name, focusBand, popupOpen && focusBand, 2);

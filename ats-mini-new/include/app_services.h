@@ -91,6 +91,19 @@ bool navigateFound(app::AppState& state, int8_t direction);
 bool tick(app::AppState& state);
 }  // namespace seekscan
 
+namespace etm {
+bool requestScan(const app::AppState& state);
+bool tick(app::AppState& state);
+void requestCancel();
+bool busy();
+void syncContext(app::AppState& state);
+void publishState(app::AppState& state);
+void addSeekResult(uint16_t frequencyKhz, uint8_t rssi, uint8_t snr);
+void navigateNext(app::AppState& state);
+void navigatePrev(app::AppState& state);
+void navigateNearest(app::AppState& state);
+}  // namespace etm
+
 namespace rds {
 void tick(app::AppState& state);
 void reset(app::AppState& state);

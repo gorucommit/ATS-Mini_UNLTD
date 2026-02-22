@@ -4,6 +4,7 @@
 #include "../../include/app_config.h"
 #include "../../include/app_services.h"
 #include "../../include/bandplan.h"
+#include "../../include/etm_scan.h"
 
 namespace services::settings {
 namespace {
@@ -260,6 +261,16 @@ void sanitizeGlobal(app::GlobalSettings& global) {
     global.usbMode = app::UsbMode::Auto;
   }
 
+  const uint8_t sensRaw = static_cast<uint8_t>(global.scanSensitivity);
+  if (sensRaw > static_cast<uint8_t>(app::ScanSensitivity::High)) {
+    global.scanSensitivity = app::ScanSensitivity::Medium;
+  }
+
+  const uint8_t speedRaw = static_cast<uint8_t>(global.scanSpeed);
+  if (speedRaw > static_cast<uint8_t>(app::ScanSpeed::Thorough)) {
+    global.scanSpeed = app::ScanSpeed::Thorough;
+  }
+
   if (global.memoryWriteIndex >= app::kMemoryCount) {
     global.memoryWriteIndex = 0;
   }
@@ -290,6 +301,9 @@ void migrateLegacyGlobal(const GlobalSettingsV2Legacy& legacy, app::GlobalSettin
 
   global.avcAmLevel = 48;
   global.avcSsbLevel = 48;
+
+  global.scanSensitivity = app::ScanSensitivity::Medium;
+  global.scanSpeed = app::ScanSpeed::Thorough;
 
   const uint8_t legacySoftMute = (legacy.softMuteEnabled ? clampValue<uint8_t>(legacy.softMuteMaxAttenuation, 0, 32) : 0);
   global.softMuteAmLevel = legacySoftMute;
@@ -521,6 +535,9 @@ void applyPayloadToState(const PersistedPayloadV2& payload, app::AppState& state
   state.seekScan.pointsVisited = 0;
   state.seekScan.foundCount = 0;
   state.seekScan.foundIndex = -1;
+  state.seekScan.fineScanActive = false;
+  state.seekScan.cursorScanPass = 0;
+  state.seekScan.totalPoints = 0;
 }
 
 bool loadV2Blob(app::AppState& state) {
