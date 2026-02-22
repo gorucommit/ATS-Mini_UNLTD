@@ -75,27 +75,27 @@ inline constexpr const char* itemName(QuickEditItem item) {
 inline constexpr ChipRect chipRect(QuickEditItem item) {
   switch (item) {
     case QuickEditItem::Fine:
-      return {4, 36, 48, 14};
+      return {4, 18, 46, 16};
     case QuickEditItem::Avc:
-      return {4, 52, 48, 14};
+      return {4, 36, 46, 16};
     case QuickEditItem::Favorite:
-      return {4, 20, 48, 14};
+      return {4, 0, 46, 16};
     case QuickEditItem::Mode:
-      return {58, 4, 58, 34};
+      return {52, 0, 58, 34};
     case QuickEditItem::Band:
-      return {118, 4, 58, 34};
+      return {112, 0, 58, 34};
     case QuickEditItem::Step:
-      return {178, 4, 46, 16};
+      return {172, 0, 46, 16};
     case QuickEditItem::Bandwidth:
-      return {178, 22, 46, 16};
+      return {172, 18, 46, 16};
     case QuickEditItem::Agc:
-      return {226, 4, 46, 16};
+      return {220, 0, 46, 16};
     case QuickEditItem::Sql:
-      return {226, 22, 46, 16};
+      return {220, 18, 46, 16};
     case QuickEditItem::Sys:
-      return {272, 4, 46, 34};
+      return {268, 0, 46, 34};
     case QuickEditItem::Settings:
-      return {244, 40, 74, 14};
+      return {268, 36, 46, 16};
   }
   return {0, 0, 1, 1};
 }

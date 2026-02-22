@@ -728,6 +728,8 @@ void handleLongPress() {
   switch (g_state.ui.layer) {
     case app::UiLayer::NowPlaying:
       if (g_state.ui.operation == app::OperationMode::Scan) {
+        // Drop any residual encoder movement so a same-loop delta does not immediately cancel scan start.
+        (void)services::input::consumeEncoderDelta();
         services::seekscan::requestScan(g_state.seekScan.direction >= 0 ? 1 : -1);
       } else if (g_state.ui.operation == app::OperationMode::Tune || g_state.ui.operation == app::OperationMode::Seek) {
         g_state.ui.layer = app::UiLayer::DialPad;
@@ -837,10 +839,6 @@ void loop() {
   services::input::setMultiClickWindowMs(clickWindowMs);
 
   services::input::tick();
-
-  if (services::seekscan::busy() && services::input::consumeAbortRequest()) {
-    services::seekscan::requestCancel();
-  }
 
   handleButtonEvents();
   handleRotation(services::input::consumeEncoderDelta());

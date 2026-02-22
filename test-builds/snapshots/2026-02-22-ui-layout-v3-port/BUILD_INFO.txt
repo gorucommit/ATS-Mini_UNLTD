@@ -1,0 +1,24 @@
+Snapshot: 2026-02-22-ui-layout-v3-port
+Purpose: Firmware port of approved Storybook V3 layout/visual tweaks (chip grid, clock relocation, freq cluster spacing, FAV heart alignment)
+Return branch bookmark: codex/storybook-v3-pre-firmware-20260222
+Return tag bookmark: snapshot-storybook-v3-pre-firmware-20260222
+Created from HEAD (pre-firmware stage pointer):
+97d3d59f94fb7a09bb5f5ee054d050e0fa80abb0
+
+
+Current working tree after firmware port:
+## main...origin/main [ahead 1]
+ M ats-mini-new/include/quick_edit_model.h
+ M ats-mini-new/src/services/ui_service.cpp
+ M test-builds/arduino-cli/esp32.esp32.esp32s3/ats-mini-new.ino.bin
+ M test-builds/arduino-cli/esp32.esp32.esp32s3/ats-mini-new.ino.elf
+ M test-builds/arduino-cli/esp32.esp32.esp32s3/ats-mini-new.ino.map
+ M test-builds/arduino-cli/esp32.esp32.esp32s3/ats-mini-new.ino.merged.bin
+?? test-builds/arduino-cli/esp32.esp32.esp32s3/boot_app0.bin
+?? test-builds/snapshots/2026-02-22-ui-layout-v3-port/
+
+
+Diff stat (UI port):
+ ats-mini-new/include/quick_edit_model.h  | 22 +++++-----
+ ats-mini-new/src/services/ui_service.cpp | 69 ++++++++++++++++++++++++++------
+ 2 files changed, 68 insertions(+), 23 deletions(-)

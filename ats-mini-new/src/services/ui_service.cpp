@@ -456,7 +456,7 @@ void drawFavoriteChip(int x, int y, int w, int h, bool focused, bool editing, bo
   g_spr.fillRoundRect(x, y, w, h, 3, kColorChipBg);
   g_spr.drawRoundRect(x, y, w, h, 3, border);
 
-  const int centerY = y + (h / 2) + 1;
+  const int centerY = y + (h / 2) - 1;
   const int heartX = x + (w / 2) - 10;
   const int textX = x + (w / 2) + 8;
   drawHeartIcon(heartX, centerY, favorite ? kColorScaleHot : kColorMuted, favorite);
@@ -1059,11 +1059,6 @@ void drawScreen(const app::AppState& state) {
   g_spr.fillSprite(kColorBg);
   drawOperationSideFade(state.ui.operation);
 
-  g_spr.setTextColor(kColorText, kColorBg);
-  g_spr.setTextFont(2);
-  g_spr.setTextDatum(TL_DATUM);
-  g_spr.drawString(clockText, 4, 2);
-
   const app::quickedit::ChipRect fineRect = app::quickedit::chipRect(app::QuickEditItem::Fine);
   const app::quickedit::ChipRect avcRect = app::quickedit::chipRect(app::QuickEditItem::Avc);
   const app::quickedit::ChipRect favRect = app::quickedit::chipRect(app::QuickEditItem::Favorite);
@@ -1099,34 +1094,84 @@ void drawScreen(const app::AppState& state) {
   drawWifiIcon(sysRect.x + sysRect.w - 11, sysRect.y + sysRect.h - 11, wifiOn);
 
   drawChip(setRect.x, setRect.y, setRect.w, setRect.h, "SETTINGS", focusSettings, popupOpen && focusSettings, 1);
+  g_spr.setTextColor(kColorText, kColorBg);
+  g_spr.setTextFont(2);
+  g_spr.setTextDatum(MC_DATUM);
+  g_spr.drawString(clockText, 291, 60);
 
   char freqText[20];
   char unitText[8];
   formatFrequency(state.radio, freqText, sizeof(freqText), unitText, sizeof(unitText));
+  const bool stereo = state.radio.modulation == app::Modulation::FM && g_lastSnr >= 12;
+  const char* stereoText = stereo ? "ST" : "MO";
+
+  const int kFreqY = 58;
+  const int kUnitY = 70;
+  const int kStereoY = 56;
+  const int kFreqPreferredX = 150;
+  const int kClusterPreferredX = 212;
+  const int kLeftMargin = 6;
+  const int kRightMargin = 6;
+  const int kFreqClusterGap = 5;
+
+  int freqX = kFreqPreferredX;
+  int clusterX = kClusterPreferredX;
+
+  const int freqW = g_spr.textWidth(freqText, 7);
+  const int unitW = g_spr.textWidth(unitText, 2);
+  const int stereoW = g_spr.textWidth(stereoText, 2);
+  const int clusterW = unitW > stereoW ? unitW : stereoW;
+  int maxClusterX = kUiWidth - kRightMargin - clusterW;
+  if (maxClusterX < kClusterPreferredX) {
+    maxClusterX = kClusterPreferredX;
+  }
+
+  int freqRight = freqX + (freqW / 2);
+  clusterX = freqRight + kFreqClusterGap;
+  if (clusterX < kClusterPreferredX) {
+    clusterX = kClusterPreferredX;
+  }
+
+  if (clusterX > maxClusterX) {
+    const int overflow = clusterX - maxClusterX;
+    const int freqLeft = freqX - (freqW / 2);
+    const int maxLeftShift = freqLeft > kLeftMargin ? (freqLeft - kLeftMargin) : 0;
+    const int shift = overflow < maxLeftShift ? overflow : maxLeftShift;
+    freqX -= shift;
+    clusterX -= shift;
+  }
+
+  freqRight = freqX + (freqW / 2);
+  const int minClusterX = (freqRight + kFreqClusterGap) > kClusterPreferredX ? (freqRight + kFreqClusterGap) : kClusterPreferredX;
+  if (clusterX < minClusterX) {
+    clusterX = minClusterX;
+  }
+  if (clusterX > maxClusterX) {
+    clusterX = maxClusterX;
+  }
 
   g_spr.setTextDatum(MC_DATUM);
   g_spr.setTextColor(kColorText, kColorBg);
   g_spr.setTextFont(7);
-  g_spr.drawString(freqText, 154, 66);
+  g_spr.drawString(freqText, freqX, kFreqY);
 
   g_spr.setTextDatum(ML_DATUM);
   g_spr.setTextFont(2);
-  g_spr.drawString(unitText, 245, 64);
+  g_spr.drawString(unitText, clusterX, kUnitY);
 
-  const bool stereo = state.radio.modulation == app::Modulation::FM && g_lastSnr >= 12;
   g_spr.setTextColor(stereo ? kColorRssi : kColorMuted, kColorBg);
   g_spr.setTextDatum(ML_DATUM);
-  g_spr.drawString(stereo ? "ST" : "MO", 282, 64);
+  g_spr.drawString(stereoText, clusterX, kStereoY);
 
   g_spr.setTextDatum(MC_DATUM);
   g_spr.setTextFont(2);
   g_spr.setTextColor(kColorMuted, kColorBg);
-  g_spr.drawString(state.radio.modulation == app::Modulation::FM ? "RDS ---" : "EiBi ---", 160, 100);
+  g_spr.drawString(state.radio.modulation == app::Modulation::FM ? "RDS ---" : "EiBi ---", 160, 94);
 
   char rssiText[24];
   snprintf(rssiText, sizeof(rssiText), "RSSI:%u SNR:%u", static_cast<unsigned>(g_lastRssi), static_cast<unsigned>(g_lastSnr));
   g_spr.setTextFont(1);
-  g_spr.drawString(rssiText, 160, 116);
+  g_spr.drawString(rssiText, 160, 108);
 
   drawBottomScale(state);
   drawQuickPopup(state);
