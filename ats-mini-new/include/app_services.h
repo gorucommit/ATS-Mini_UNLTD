@@ -34,6 +34,8 @@ bool begin();
 bool ready();
 const char* lastError();
 void apply(const app::AppState& state);
+void applyVolumeOnly(uint8_t volume);
+void setAieMuted(bool muted);
 void applyRuntimeSettings(const app::AppState& state);
 bool seek(app::AppState& state, int8_t direction);
 bool seekForScan(app::AppState& state, int8_t direction);

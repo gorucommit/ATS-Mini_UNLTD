@@ -2,6 +2,10 @@
 #include <SI4735.h>
 #include <Wire.h>
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
+
+#include "../../include/aie_engine.h"
 #include "../../include/app_config.h"
 #include "../../include/app_services.h"
 #include "../../include/bandplan.h"
@@ -33,12 +37,14 @@ class SI4735Local : public SI4735 {
 };
 
 SI4735Local g_rx;
+SemaphoreHandle_t g_radio_mux = nullptr;
 bool g_ready = false;
 bool g_hasAppliedState = false;
 bool g_ssbPatchLoaded = false;
 bool g_seekAborted = false;
 bool g_seekAllowHoldAbort = true;
 bool g_muted = false;
+bool g_aie_muted = false;
 bool g_bootPowerPrepared = false;
 bool g_i2cStarted = false;
 uint32_t g_powerOnMs = 0;
@@ -278,7 +284,7 @@ void configureSeekProperties(const app::AppState& state) {
   }
 }
 
-void applyMuteState() { g_rx.setAudioMute(g_muted ? 1 : 0); }
+void applyMuteState() { g_rx.setAudioMute((g_muted || g_aie_muted) ? 1 : 0); }
 
 void configureRdsForFm(bool enable) {
   if (!g_ready) {
@@ -458,7 +464,9 @@ void configureModeAndBand(const app::AppState& state) {
 
   configureSeekProperties(state);
   applyRegionSetting(state);
-  g_rx.setVolume(radio.volume);
+  if (!services::aie::ownsVolume()) {
+    g_rx.setVolume(radio.volume);
+  }
   applyMuteState();
 
   delay(20);
@@ -498,6 +506,10 @@ void prepareBootPower() {
 bool begin() {
   prepareBootPower();
 
+  if (g_radio_mux == nullptr) {
+    g_radio_mux = xSemaphoreCreateMutex();
+  }
+
   const uint32_t elapsedMs = millis() - g_powerOnMs;
   if (elapsedMs < app::kSi473xPowerSettleMs) {
     delay(app::kSi473xPowerSettleMs - elapsedMs);
@@ -533,7 +545,10 @@ bool ready() { return g_ready; }
 const char* lastError() { return g_lastError; }
 
 void apply(const app::AppState& state) {
-  if (!g_ready) {
+  if (!g_ready || g_radio_mux == nullptr) {
+    return;
+  }
+  if (xSemaphoreTake(g_radio_mux, portMAX_DELAY) != pdTRUE) {
     return;
   }
 
@@ -554,7 +569,6 @@ void apply(const app::AppState& state) {
         radio.amStepKhz != g_lastApplied.amStepKhz ||
         radio.fmStepKhz != g_lastApplied.fmStepKhz;
     if (stepChanged) {
-      // Apply new tuning step live without full band/mode reconfiguration.
       applyStepProperties(radio);
     }
 
@@ -569,7 +583,7 @@ void apply(const app::AppState& state) {
       g_rx.setSSBBfo(-radio.bfoHz);
     }
 
-    if (radio.volume != g_lastApplied.volume) {
+    if (!services::aie::ownsVolume() && radio.volume != g_lastApplied.volume) {
       g_rx.setVolume(radio.volume);
     }
   }
@@ -577,27 +591,34 @@ void apply(const app::AppState& state) {
   g_lastApplied = radio;
   g_lastAppliedRegion = state.global.fmRegion;
   g_hasAppliedState = true;
+
+  xSemaphoreGive(g_radio_mux);
 }
 
 void applyRuntimeSettings(const app::AppState& state) {
-  if (!g_ready) {
+  if (!g_ready || g_radio_mux == nullptr) {
     return;
   }
-
   if (runtimeSnapshotMatches(state)) {
     return;
   }
-
+  if (xSemaphoreTake(g_radio_mux, portMAX_DELAY) != pdTRUE) {
+    return;
+  }
   applyBandwidthSetting(state);
   applyAgcSetting(state);
   applySquelchSetting(state);
   applyRegionSetting(state);
   applyPowerProfile(state);
   updateRuntimeSnapshot(state);
+  xSemaphoreGive(g_radio_mux);
 }
 
 bool seekImpl(app::AppState& state, int8_t direction, bool allowHoldAbort, bool retryOppositeEdge) {
-  if (!g_ready || app::isSsb(state.radio.modulation)) {
+  if (!g_ready || g_radio_mux == nullptr || app::isSsb(state.radio.modulation)) {
+    return false;
+  }
+  if (xSemaphoreTake(g_radio_mux, portMAX_DELAY) != pdTRUE) {
     return false;
   }
 
@@ -636,7 +657,6 @@ bool seekImpl(app::AppState& state, int8_t direction, bool allowHoldAbort, bool 
   uint16_t nextFrequency = g_rx.getCurrentFrequency();
   bool found = !g_seekAborted && isValidSeekResult(state, nextFrequency, startFrequency, bandMinKhz, bandMaxKhz);
 
-  // Retry once from the opposite band edge for one-shot seek operations.
   if (retryOppositeEdge && !found && !g_seekAborted) {
     const uint16_t restartFrequency = direction >= 0 ? bandMinKhz : bandMaxKhz;
     if (restartFrequency != startFrequency) {
@@ -665,6 +685,7 @@ bool seekImpl(app::AppState& state, int8_t direction, bool allowHoldAbort, bool 
   g_lastAppliedRegion = state.global.fmRegion;
   g_hasAppliedState = true;
 
+  xSemaphoreGive(g_radio_mux);
   return found;
 }
 
@@ -674,41 +695,71 @@ bool seekForScan(app::AppState& state, int8_t direction) { return seekImpl(state
 
 bool lastSeekAborted() { return g_seekAborted; }
 
-void setMuted(bool muted) {
-  g_muted = muted;
-  if (!g_ready) {
+void applyVolumeOnly(uint8_t volume) {
+  if (!g_ready || g_radio_mux == nullptr) {
     return;
   }
+  if (xSemaphoreTake(g_radio_mux, portMAX_DELAY) != pdTRUE) {
+    return;
+  }
+  g_rx.setVolume(volume);
+  xSemaphoreGive(g_radio_mux);
+}
 
+void setAieMuted(bool muted) {
+  g_aie_muted = muted;
+  if (!g_ready || g_radio_mux == nullptr) {
+    return;
+  }
+  if (xSemaphoreTake(g_radio_mux, portMAX_DELAY) != pdTRUE) {
+    return;
+  }
   applyMuteState();
+  xSemaphoreGive(g_radio_mux);
+}
+
+void setMuted(bool muted) {
+  g_muted = muted;
+  if (!g_ready || g_radio_mux == nullptr) {
+    return;
+  }
+  if (xSemaphoreTake(g_radio_mux, portMAX_DELAY) != pdTRUE) {
+    return;
+  }
+  applyMuteState();
+  xSemaphoreGive(g_radio_mux);
 }
 
 bool readSignalQuality(uint8_t* rssi, uint8_t* snr) {
-  if (!g_ready) {
+  if (!g_ready || g_radio_mux == nullptr) {
     return false;
   }
-
+  if (xSemaphoreTake(g_radio_mux, portMAX_DELAY) != pdTRUE) {
+    return false;
+  }
   uint8_t currentRssi = 0;
   uint8_t currentSnr = 0;
   readCurrentSignalQuality(currentRssi, currentSnr);
-
+  xSemaphoreGive(g_radio_mux);
   if (rssi != nullptr) {
     *rssi = currentRssi;
   }
   if (snr != nullptr) {
     *snr = currentSnr;
   }
-
   return true;
 }
 
 bool pollRdsGroup(RdsGroupSnapshot* snapshot) {
-  if (snapshot == nullptr || !g_ready || !g_hasAppliedState || g_lastApplied.modulation != app::Modulation::FM) {
+  if (snapshot == nullptr || !g_ready || g_radio_mux == nullptr || !g_hasAppliedState || g_lastApplied.modulation != app::Modulation::FM) {
     return false;
   }
-
+  if (xSemaphoreTake(g_radio_mux, portMAX_DELAY) != pdTRUE) {
+    return false;
+  }
   si47x_rds_status raw{};
   g_rx.readRdsStatusRaw(raw, 0, 0, 0);
+  xSemaphoreGive(g_radio_mux);
 
   const bool hasNewBlock = raw.resp.RDSNEWBLOCKA || raw.resp.RDSNEWBLOCKB;
   if (!raw.resp.RDSSYNC || (!raw.resp.RDSRECV && !hasNewBlock && raw.resp.RDSFIFOUSED == 0)) {
@@ -743,11 +794,14 @@ bool pollRdsGroup(RdsGroupSnapshot* snapshot) {
 }
 
 void resetRdsDecoder() {
-  if (!g_ready || !g_hasAppliedState || g_lastApplied.modulation != app::Modulation::FM) {
+  if (!g_ready || g_radio_mux == nullptr || !g_hasAppliedState || g_lastApplied.modulation != app::Modulation::FM) {
     return;
   }
-
+  if (xSemaphoreTake(g_radio_mux, portMAX_DELAY) != pdTRUE) {
+    return;
+  }
   configureRdsForFm(true);
+  xSemaphoreGive(g_radio_mux);
 }
 
 void tick() {}

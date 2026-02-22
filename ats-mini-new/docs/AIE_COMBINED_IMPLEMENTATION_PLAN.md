@@ -557,18 +557,18 @@ inline constexpr float kSigmoidK = 0.05f;
 ## 15. Implementation Checklist
 
 **Phase 1 — Option C (single-thread, recommended first):**
-- [ ] Create `include/aie_engine.h` — AIE interface (`begin`, `tick`, `notifyTuning`, `setTargetVolume`, `ownsVolume`, `shouldActivateAIE`, etc.)
-- [ ] Create `src/services/aie_engine.cpp` — state machine (IDLE/DROP/DWELL/BLOOM), instant mute in `notifyTuning()`, sigmoid LUT, `esp_timer_get_time()` for timing
-- [ ] Add `services::radio::applyVolumeOnly(uint8_t)` in `radio_service.cpp`
-- [ ] In `apply()`, skip volume when `services::aie::ownsVolume()`; document that other I2C is unchanged
-- [ ] In `handleNowPlayingRotation()`, when Tune: if `shouldActivateAIE(g_state)` call `notifyTuning()` **before** `changeFrequency()`
-- [ ] In `loop()`, call `services::aie::tick(g_state)` once per iteration
-- [ ] In `setup()`, call `aie::begin()` after radio ready; in `changeVolume()`, call `setTargetVolume()`
-- [ ] Respect user mute in BLOOM (if `g_muted`, do not ramp above 0)
+- [x] Create `include/aie_engine.h` — AIE interface (`begin`, `tick`, `notifyTuning`, `setTargetVolume`, `ownsVolume`, `shouldActivateAIE`, etc.)
+- [x] Create `src/services/aie_engine.cpp` — state machine (IDLE/DROP/DWELL/BLOOM), instant mute in `notifyTuning()`, sigmoid LUT, `esp_timer_get_time()` for timing
+- [x] Add `services::radio::applyVolumeOnly(uint8_t)` and `setAieMuted(bool)` in `radio_service.cpp`
+- [x] In `apply()` and full reconfigure path, skip volume when `services::aie::ownsVolume()`; other I2C unchanged
+- [x] In `handleNowPlayingRotation()`, when Tune: if `shouldActivateAIE(g_state)` call `notifyTuning()` **before** `changeFrequency()`
+- [x] In `loop()`, call `services::aie::tick(g_state)` once per iteration
+- [x] In `setup()`, call `aie::begin()` after radio ready; in `changeVolume()`, call `setTargetVolume()`
+- [x] Respect user mute in BLOOM (if `state.ui.muted`, ramp to 0 and leave mute on)
 
 **Phase 2 — Optional (Option B task):**
-- [ ] Add FreeRTOS task or `esp_timer` for 1 ms envelope; mutex around all `g_rx.*` if task used
-- [ ] Envelope tick: re-read `now` and `lastMoveTimeUs` each tick; no blocking `while (elapsed < 40ms)`
+- [x] Add `esp_timer` for 1 ms envelope; mutex around all `g_rx.*` in radio service
+- [x] Envelope tick: re-read `now` and `lastMoveTimeUs` each tick; no blocking `while (elapsed < 40ms)`
 
 **Testing:**
 - [ ] Test with all step sizes (1 kHz, 5 kHz, 9 kHz, 10 kHz, 20 kHz)

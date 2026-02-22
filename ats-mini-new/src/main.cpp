@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include "../include/aie_engine.h"
 #include "../include/app_config.h"
 #include "../include/app_services.h"
 #include "../include/bandplan.h"
@@ -177,6 +178,7 @@ void changeVolume(int8_t direction, int8_t repeats = 1) {
   }
 
   g_state.radio.volume = static_cast<uint8_t>(nextVolume);
+  services::aie::setTargetVolume(g_state.radio.volume);
   applyRadioState(true);
 }
 
@@ -592,6 +594,9 @@ void handleSettingsClick() {
 void handleNowPlayingRotation(int8_t direction, int8_t repeats) {
   switch (g_state.ui.operation) {
     case app::OperationMode::Tune:
+      if (services::aie::shouldActivateAIE(g_state)) {
+        services::aie::notifyTuning();
+      }
       changeFrequency(direction, repeats);
       break;
 
@@ -849,6 +854,8 @@ void setup() {
   services::radio::apply(g_state);
   services::radio::applyRuntimeSettings(g_state);
   services::radio::setMuted(g_state.ui.muted);
+  services::aie::begin();
+  services::aie::setTargetVolume(g_state.radio.volume);
   services::input::begin();
   services::ui::showBoot("Ready");
 }
@@ -867,6 +874,7 @@ void loop() {
 
   handleButtonEvents();
   handleRotation(services::input::consumeEncoderDelta());
+  services::aie::tick(g_state);
 
   if (g_state.ui.layer == app::UiLayer::QuickEdit) {
     const uint32_t nowMs = millis();
