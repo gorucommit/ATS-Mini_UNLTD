@@ -1,30 +1,33 @@
 {
   "version": 1,
-  "notes": "Storybook preview layout spec. Chips shifted upward for top-align preview before firmware approval.",
+  "notes": "Storybook preview layout spec. Preview-only rearrangement before firmware approval: FAV/BFO top, AVC below, time under SETTINGS, higher/larger frequency cluster.",
   "dimensions": {
     "width": 320,
     "height": 170
   },
   "chipRects": {
-    "Fine": { "x": 4, "y": 32, "w": 48, "h": 14 },
-    "Favorite": { "x": 4, "y": 16, "w": 48, "h": 14 },
-    "Avc": { "x": 4, "y": 48, "w": 48, "h": 14 },
-    "Mode": { "x": 58, "y": 0, "w": 58, "h": 34 },
-    "Band": { "x": 118, "y": 0, "w": 58, "h": 34 },
-    "Step": { "x": 178, "y": 0, "w": 46, "h": 16 },
-    "Bandwidth": { "x": 178, "y": 18, "w": 46, "h": 16 },
-    "Agc": { "x": 226, "y": 0, "w": 46, "h": 16 },
-    "Sql": { "x": 226, "y": 18, "w": 46, "h": 16 },
-    "Sys": { "x": 272, "y": 0, "w": 46, "h": 34 },
-    "Settings": { "x": 244, "y": 36, "w": 74, "h": 14 }
+    "Fine": { "x": 4, "y": 18, "w": 46, "h": 16 },
+    "Favorite": { "x": 4, "y": 0, "w": 46, "h": 16 },
+    "Avc": { "x": 4, "y": 36, "w": 46, "h": 16 },
+    "Mode": { "x": 52, "y": 0, "w": 58, "h": 34 },
+    "Band": { "x": 112, "y": 0, "w": 58, "h": 34 },
+    "Step": { "x": 172, "y": 0, "w": 46, "h": 16 },
+    "Bandwidth": { "x": 172, "y": 18, "w": 46, "h": 16 },
+    "Agc": { "x": 220, "y": 0, "w": 46, "h": 16 },
+    "Sql": { "x": 220, "y": 18, "w": 46, "h": 16 },
+    "Sys": { "x": 268, "y": 0, "w": 46, "h": 34 },
+    "Settings": { "x": 268, "y": 36, "w": 46, "h": 16 }
   },
   "anchors": {
-    "clock": { "x": 4, "y": 2, "datum": "TL" },
-    "frequency": { "x": 154, "y": 66, "datum": "MC" },
-    "unit": { "x": 245, "y": 64, "datum": "ML" },
-    "stereo": { "x": 282, "y": 64, "datum": "ML" },
-    "rds": { "x": 160, "y": 100, "datum": "MC" },
-    "signalText": { "x": 160, "y": 116, "datum": "MC" }
+    "clock": { "x": 291, "y": 60, "datum": "MC" },
+    "frequency": { "x": 150, "y": 58, "datum": "MC" },
+    "unit": { "x": 212, "y": 70, "datum": "ML" },
+    "stereo": { "x": 212, "y": 56, "datum": "ML" },
+    "rds": { "x": 160, "y": 94, "datum": "MC" },
+    "signalText": { "x": 160, "y": 108, "datum": "MC" }
+  },
+  "typography": {
+    "frequencyFontPx": 40
   },
   "bottomScale": {
     "x0": 20,

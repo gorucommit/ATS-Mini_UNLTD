@@ -16,8 +16,18 @@ constexpr uint32_t kUiFrameMs = 80;
 // Match signalscale RSSI/SNR cadence:
 // poll every 80ms, but commit UI values every 8 polls (~640ms).
 constexpr uint32_t kSignalPollMs = 80;
+constexpr uint32_t kBatteryPollMs = 2000;
 constexpr uint32_t kUiKeepAliveMs = 1200;
 constexpr uint32_t kVolumeHudMs = 1000;
+constexpr uint8_t kBatteryAdcReads = 10;
+constexpr float kBatteryAdcFactor = 1.702f;  // signalscale battery monitor calibration factor
+constexpr float kBatterySocLevel1 = 3.680f;  // 25%
+constexpr float kBatterySocLevel2 = 3.780f;  // 50%
+constexpr float kBatterySocLevel3 = 3.880f;  // 75%
+constexpr float kBatterySocHystHalf = 0.020f;
+constexpr float kBatteryChargeDetectVolts = 4.30f;
+constexpr float kBatteryPctMinVolts = 3.30f;
+constexpr float kBatteryPctMaxVolts = 4.20f;
 
 #ifndef ATS_UI_DEBUG_LOG
 #define ATS_UI_DEBUG_LOG 0
@@ -68,9 +78,15 @@ struct UiRenderKey {
 
 uint32_t g_lastRenderMs = 0;
 uint32_t g_lastSignalPollMs = 0;
+uint32_t g_lastBatteryPollMs = 0;
 uint32_t g_signalUpdateCounter = 0;
 uint8_t g_lastRssi = 0;
 uint8_t g_lastSnr = 0;
+uint8_t g_lastBatteryPct = 100;
+float g_lastBatteryVolts = 4.0f;
+bool g_lastBatteryCharging = false;
+bool g_hasBatterySample = false;
+uint8_t g_batterySocState = 255;
 UiRenderKey g_lastRenderKey{};
 bool g_hasRenderKey = false;
 app::MemorySlot g_lastMemoryHashSnapshot[app::kMemoryCount]{};
@@ -476,6 +492,16 @@ int clampInt(int value, int minValue, int maxValue) {
   return value;
 }
 
+float clampFloat(float value, float minValue, float maxValue) {
+  if (value < minValue) {
+    return minValue;
+  }
+  if (value > maxValue) {
+    return maxValue;
+  }
+  return value;
+}
+
 int ceilDivPositive(int numerator, int denominator) {
   if (numerator <= 0 || denominator <= 0) {
     return 0;
@@ -547,6 +573,112 @@ bool isSignalscaleSmeterPlusRegionBar(int uiBarIndex, int uiBarCount) {
   // signalscale S-meter switches to the +dB color when source slot index >= 28 (out of 49).
   const int sourceSlotStart = (uiBarIndex * 49) / uiBarCount;
   return sourceSlotStart >= 28;
+}
+
+uint8_t interpolateBatteryPercent(float volts, uint8_t state) {
+  float loV = kBatteryPctMinVolts;
+  float hiV = kBatteryPctMaxVolts;
+  int loPct = 0;
+  int hiPct = 100;
+
+  switch (state) {
+    case 0:
+      loV = kBatteryPctMinVolts;
+      hiV = kBatterySocLevel1;
+      loPct = 0;
+      hiPct = 25;
+      break;
+    case 1:
+      loV = kBatterySocLevel1;
+      hiV = kBatterySocLevel2;
+      loPct = 25;
+      hiPct = 50;
+      break;
+    case 2:
+      loV = kBatterySocLevel2;
+      hiV = kBatterySocLevel3;
+      loPct = 50;
+      hiPct = 75;
+      break;
+    case 3:
+    default:
+      loV = kBatterySocLevel3;
+      hiV = kBatteryPctMaxVolts;
+      loPct = 75;
+      hiPct = 100;
+      break;
+  }
+
+  if (hiV <= loV) {
+    return static_cast<uint8_t>(clampInt(loPct, 0, 100));
+  }
+
+  const float clamped = clampFloat(volts, loV, hiV);
+  const float ratio = (clamped - loV) / (hiV - loV);
+  const int pct = loPct + static_cast<int>((ratio * static_cast<float>(hiPct - loPct)) + 0.5f);
+  return static_cast<uint8_t>(clampInt(pct, 0, 100));
+}
+
+void updateBatterySocState(float volts) {
+  switch (g_batterySocState) {
+    case 0:
+      if (volts > (kBatterySocLevel1 + kBatterySocHystHalf)) {
+        g_batterySocState = 1;
+      }
+      break;
+    case 1:
+      if (volts > (kBatterySocLevel2 + kBatterySocHystHalf)) {
+        g_batterySocState = 2;
+      } else if (volts < (kBatterySocLevel1 - kBatterySocHystHalf)) {
+        g_batterySocState = 0;
+      }
+      break;
+    case 2:
+      if (volts > (kBatterySocLevel3 + kBatterySocHystHalf)) {
+        g_batterySocState = 3;
+      } else if (volts < (kBatterySocLevel2 - kBatterySocHystHalf)) {
+        g_batterySocState = 1;
+      }
+      break;
+    case 3:
+      if (volts < (kBatterySocLevel3 - kBatterySocHystHalf)) {
+        g_batterySocState = 2;
+      }
+      break;
+    default:
+      g_batterySocState = volts < kBatterySocLevel1 ? 0
+                         : (volts < kBatterySocLevel2 ? 1
+                         : (volts < kBatterySocLevel3 ? 2 : 3));
+      break;
+  }
+}
+
+bool readBatteryStatus() {
+  uint32_t sum = 0;
+  for (uint8_t i = 0; i < kBatteryAdcReads; ++i) {
+    sum += static_cast<uint32_t>(analogRead(hw::kPinBatteryMonitor));
+  }
+
+  const float volts = (static_cast<float>(sum) / static_cast<float>(kBatteryAdcReads)) * kBatteryAdcFactor / 1000.0f;
+  const bool charging = volts > kBatteryChargeDetectVolts;
+
+  uint8_t pct = 0;
+  if (charging) {
+    pct = 100;
+  } else {
+    updateBatterySocState(volts);
+    pct = interpolateBatteryPercent(volts, g_batterySocState);
+  }
+
+  bool changed = !g_hasBatterySample ||
+                 pct != g_lastBatteryPct ||
+                 charging != g_lastBatteryCharging;
+
+  g_lastBatteryPct = pct;
+  g_lastBatteryVolts = volts;
+  g_lastBatteryCharging = charging;
+  g_hasBatterySample = true;
+  return changed;
 }
 
 bool shouldDrawSwRangeOverlay(const app::BandDef& band) {
@@ -960,7 +1092,7 @@ void drawScreen(const app::AppState& state) {
   drawChip(sqlRect.x, sqlRect.y, sqlRect.w, sqlRect.h, sqlText, focusSql, popupOpen && focusSql, 1);
 
   drawChip(sysRect.x, sysRect.y, sysRect.w, sysRect.h, "", focusSys, popupOpen && focusSys, 1);
-  const uint8_t batteryPct = 100;
+  const uint8_t batteryPct = g_lastBatteryPct;
   const int batteryW = sysRect.w - 6;
   drawBatteryIcon(sysRect.x + 3, sysRect.y + 4, batteryPct, batteryW);
   drawMoonIcon(sysRect.x + 13, sysRect.y + sysRect.h - 11, sleepOn);
@@ -1008,6 +1140,10 @@ void drawScreen(const app::AppState& state) {
 
 bool begin() {
   Serial.println("[ui] tft ui init");
+
+  pinMode(hw::kPinBatteryMonitor, INPUT);
+  readBatteryStatus();
+  g_lastBatteryPollMs = millis();
 
   pinMode(hw::kPinLcdBacklight, OUTPUT);
   digitalWrite(hw::kPinLcdBacklight, LOW);
@@ -1079,6 +1215,12 @@ void render(const app::AppState& state) {
     g_lastSignalPollMs = nowMs;
   }
 
+  bool batteryChanged = false;
+  if (nowMs - g_lastBatteryPollMs >= kBatteryPollMs) {
+    batteryChanged = readBatteryStatus();
+    g_lastBatteryPollMs = nowMs;
+  }
+
   const UiRenderKey renderKey = buildRenderKey(state);
   const bool stateChanged = !g_hasRenderKey || !sameRenderKey(g_lastRenderKey, renderKey);
   const int32_t minuteToken = clockMinuteToken(state);
@@ -1087,7 +1229,7 @@ void render(const app::AppState& state) {
   const bool hudVisible = volumeHudVisible(nowMs);
   const bool hudChanged = hudVisible != g_lastVolumeHudVisible;
 
-  if (!stateChanged && !signalChanged && !minuteChanged && !keepAliveDue && !hudVisible && !hudChanged) {
+  if (!stateChanged && !signalChanged && !batteryChanged && !minuteChanged && !keepAliveDue && !hudVisible && !hudChanged) {
     return;
   }
 

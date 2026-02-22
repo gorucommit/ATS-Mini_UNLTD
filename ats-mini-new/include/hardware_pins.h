@@ -13,4 +13,5 @@ inline constexpr uint8_t kPinEncoderA = 2;
 inline constexpr uint8_t kPinEncoderB = 1;
 inline constexpr uint8_t kPinEncoderButton = 21;
 inline constexpr uint8_t kPinLcdBacklight = 38;
+inline constexpr uint8_t kPinBatteryMonitor = 4;
 }  // namespace hw

@@ -160,3 +160,23 @@ export const ScanEditingV3: Story = {
     freqMhz: 99.9,
   },
 }
+
+export const FrequencyClearance30000kHzV3: Story = {
+  args: {
+    skin: 'v3',
+    displayFreqText: '30000',
+    displayUnitText: 'kHz',
+    displayStereoText: 'MONO',
+    freqMhz: 99.9,
+  },
+}
+
+export const FrequencyClearance1078MHzV3: Story = {
+  args: {
+    skin: 'v3',
+    displayFreqText: '107.8',
+    displayUnitText: 'MHz',
+    displayStereoText: 'STEREO',
+    freqMhz: 107.8,
+  },
+}

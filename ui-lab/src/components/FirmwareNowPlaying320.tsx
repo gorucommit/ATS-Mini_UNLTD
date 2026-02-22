@@ -1,8 +1,6 @@
 import type { CSSProperties } from 'react'
 import './firmware-now-playing-320.css'
-
-export const FIRMWARE_UI_WIDTH = 320
-export const FIRMWARE_UI_HEIGHT = 170
+import layoutSpecJson from '../../../ui-spec/firmware-now-playing-320.json'
 
 type Operation = 'TUNE' | 'SEEK' | 'SCAN'
 type Skin = 'baseline' | 'v2' | 'v3'
@@ -23,19 +21,76 @@ type Datum = 'TL' | 'TR' | 'MC' | 'ML'
 
 type ChipRect = { x: number; y: number; w: number; h: number }
 
-const CHIP_RECTS: Record<QuickChipKey, ChipRect> = {
-  Fine: { x: 4, y: 36, w: 48, h: 14 },
-  Favorite: { x: 4, y: 20, w: 48, h: 14 },
-  Avc: { x: 4, y: 52, w: 48, h: 14 },
-  Mode: { x: 58, y: 4, w: 58, h: 34 },
-  Band: { x: 118, y: 4, w: 58, h: 34 },
-  Step: { x: 178, y: 4, w: 46, h: 16 },
-  Bandwidth: { x: 178, y: 22, w: 46, h: 16 },
-  Agc: { x: 226, y: 4, w: 46, h: 16 },
-  Sql: { x: 226, y: 22, w: 46, h: 16 },
-  Sys: { x: 272, y: 4, w: 46, h: 34 },
-  Settings: { x: 244, y: 40, w: 74, h: 14 },
+type AnchorSpec = { x: number; y: number; datum: Datum }
+type FirmwareLayoutSpec = {
+  version: number
+  notes?: string
+  dimensions: { width: number; height: number }
+  chipRects: Record<QuickChipKey, ChipRect>
+  anchors: {
+    clock: AnchorSpec
+    frequency: AnchorSpec
+    unit: AnchorSpec
+    stereo: AnchorSpec
+    rds: AnchorSpec
+    signalText: AnchorSpec
+  }
+  bottomScale: {
+    x0: number
+    x1: number
+    y: number
+    meter: {
+      y: number
+      totalBars: number
+      barWidth: number
+      barHeight: number
+      barSpacing: number
+    }
+  }
+  volumeHud: {
+    width: number
+    height: number
+    bottomMargin: number
+    labelX: number
+    labelY: number
+    valueRightX: number
+    valueY: number
+    bar: {
+      x: number
+      y: number
+      height: number
+      rightInset: number
+    }
+  }
+  quickPopup: {
+    width: number
+    height: number
+    margin: number
+    anchorGap: number
+    titleX: number
+    titleY: number
+    rowStartY: number
+    rowHeight: number
+    rowVisibleCount: number
+    selectedRowInsetX: number
+    selectedRowHeight: number
+  }
+  typography?: {
+    frequencyFontPx?: number
+  }
 }
+
+const LAYOUT = layoutSpecJson as FirmwareLayoutSpec
+
+export const FIRMWARE_UI_WIDTH = LAYOUT.dimensions.width
+export const FIRMWARE_UI_HEIGHT = LAYOUT.dimensions.height
+
+const CHIP_RECTS: Record<QuickChipKey, ChipRect> = LAYOUT.chipRects
+const ANCHORS = LAYOUT.anchors
+const BOTTOM_SCALE = LAYOUT.bottomScale
+const VOLUME_HUD = LAYOUT.volumeHud
+const QUICK_POPUP = LAYOUT.quickPopup
+const TYPOGRAPHY = LAYOUT.typography ?? {}
 
 const COLOR = {
   bg: '#000000',
@@ -85,6 +140,66 @@ function fmMarkerX(freqMhz: number, x0 = 20, x1 = 300) {
 
 function fmtFreqFM(freqMhz: number) {
   return freqMhz.toFixed(2)
+}
+
+const textWidthCache = new Map<string, number>()
+let textMeasureCanvas: HTMLCanvasElement | null | undefined
+
+function estimateTextWidthFallback(text: string, fontPx: number) {
+  let width = 0
+  for (const ch of text) {
+    if (ch >= '0' && ch <= '9') width += fontPx * 0.58
+    else if (ch === '.') width += fontPx * 0.24
+    else if (ch === ':') width += fontPx * 0.24
+    else if (ch === ' ') width += fontPx * 0.33
+    else if (/[A-Z]/.test(ch)) width += fontPx * 0.62
+    else if (/[a-z]/.test(ch)) width += fontPx * 0.54
+    else width += fontPx * 0.6
+  }
+  return Math.ceil(width + 1)
+}
+
+function measureTextWidthPx(text: string, fontPx: number, weight: 700 | 800 = 700) {
+  const key = `${text}|${fontPx}|${weight}`
+  const cached = textWidthCache.get(key)
+  if (cached != null) {
+    return cached
+  }
+
+  let width = 0
+  if (typeof document !== 'undefined') {
+    try {
+      if (textMeasureCanvas === undefined) {
+        textMeasureCanvas = document.createElement('canvas')
+      }
+      const ctx = textMeasureCanvas?.getContext('2d')
+      if (ctx) {
+        ctx.font = `${weight} ${fontPx}px sans-serif`
+        width = Math.ceil(ctx.measureText(text).width)
+      }
+    } catch {
+      width = 0
+    }
+  }
+
+  if (width <= 0) {
+    width = estimateTextWidthFallback(text, fontPx)
+  }
+
+  textWidthCache.set(key, width)
+  return width
+}
+
+function textLeftEdge(x: number, width: number, datum: Datum) {
+  if (datum === 'MC') return x - width / 2
+  if (datum === 'TR') return x - width
+  return x
+}
+
+function textRightEdge(x: number, width: number, datum: Datum) {
+  if (datum === 'MC') return x + width / 2
+  if (datum === 'TR') return x
+  return x + width
 }
 
 function textTransformFor(datum: Datum) {
@@ -245,9 +360,16 @@ function FavoriteChip({
   skin?: Skin
 }) {
   const border = editing ? COLOR.scaleHot : focused ? COLOR.chipFocus : COLOR.muted
-  const centerY = rect.h / 2 + 1
-  const heartX = rect.w / 2 - 10
-  const textX = rect.w / 2 + 8
+  const text = 'FAV'
+  const iconW = HEART_GLYPH[0].length
+  const iconH = HEART_GLYPH.length
+  const gap = 3
+  const textW = measureTextWidthPx(text, 8, 700)
+  const groupW = iconW + gap + textW
+  const groupLeft = Math.round((rect.w - groupW) / 2)
+  const heartLeft = groupLeft
+  const heartTop = Math.round(rect.h / 2 - iconH / 2 - 1)
+  const textX = heartLeft + iconW + gap + textW / 2
 
   return (
     <div
@@ -272,8 +394,8 @@ function FavoriteChip({
       <PixelGlyph
         rows={HEART_GLYPH}
         color={favorite ? COLOR.scaleHot : COLOR.muted}
-        left={Math.round(heartX - (HEART_GLYPH[0].length / 2))}
-        top={Math.round(centerY - (HEART_GLYPH.length / 2))}
+        left={heartLeft}
+        top={heartTop}
         className={skin === 'v3' ? 'fw320-px-glyph--v3' : ''}
       />
       <div
@@ -432,11 +554,11 @@ function BottomScale({
   skin?: Skin
 }) {
   const enhanced = isEnhancedSkin(skin)
-  const x0 = 20
-  const x1 = 300
-  const y = 140
+  const x0 = BOTTOM_SCALE.x0
+  const x1 = BOTTOM_SCALE.x1
+  const y = BOTTOM_SCALE.y
   const markerX = fmMarkerX(freqMhz, x0, x1)
-  const totalBars = 24
+  const totalBars = BOTTOM_SCALE.meter.totalBars
   const halfBars = totalBars / 2
   const rssiLit = clamp(Math.round(rssiBars), 0, halfBars)
   const snrLit = clamp(Math.round(snrBars), 0, halfBars)
@@ -445,9 +567,9 @@ function BottomScale({
     <>
       {enhanced ? (
         <>
-          <div className="fw320-meter-tray fw320-meter-tray--rssi" style={{ left: 18, top: 153, width: 146, height: 12 }} />
-          <div className="fw320-meter-tray fw320-meter-tray--snr" style={{ left: 164, top: 153, width: 146, height: 12 }} />
-          <div className="fw320-meter-divider" style={{ left: 160, top: 151, height: 16 }} />
+          <div className="fw320-meter-tray fw320-meter-tray--rssi" style={{ left: x0 - 2, top: BOTTOM_SCALE.meter.y - 3, width: 146, height: 12 }} />
+          <div className="fw320-meter-tray fw320-meter-tray--snr" style={{ left: x0 - 2 + 146, top: BOTTOM_SCALE.meter.y - 3, width: 146, height: 12 }} />
+          <div className="fw320-meter-divider" style={{ left: (x0 + x1) / 2, top: BOTTOM_SCALE.meter.y - 5, height: 16 }} />
           <div className={skin === 'v3' ? 'fw320-scale-line-glow fw320-scale-line-glow--v3' : 'fw320-scale-line-glow'} style={{ left: x0, top: y, width: x1 - x0 + 1 }} />
         </>
       ) : null}
@@ -499,7 +621,7 @@ function BottomScale({
       </PixelText>
 
       {Array.from({ length: totalBars }, (_, i) => {
-        const bx = 20 + i * 12
+        const bx = x0 + i * BOTTOM_SCALE.meter.barSpacing
         let barColor = COLOR.barOff
 
         if (i < halfBars) {
@@ -524,7 +646,7 @@ function BottomScale({
             ]
               .filter(Boolean)
               .join(' ')}
-            style={{ left: bx, top: 156, background: barColor }}
+            style={{ left: bx, top: BOTTOM_SCALE.meter.y, background: barColor }}
           />
         )
       })}
@@ -534,21 +656,21 @@ function BottomScale({
 
 function VolumeHud({ volume = 34, skin = 'baseline' }: { volume?: number; skin?: Skin }) {
   const enhanced = isEnhancedSkin(skin)
-  const w = 180
-  const h = 28
+  const w = VOLUME_HUD.width
+  const h = VOLUME_HUD.height
   const x = (FIRMWARE_UI_WIDTH - w) / 2
-  const y = FIRMWARE_UI_HEIGHT - h - 6
+  const y = FIRMWARE_UI_HEIGHT - h - VOLUME_HUD.bottomMargin
   const vol = clamp(volume, 0, 63)
-  const barX = x + 36
-  const barY = y + 8
-  const barW = w - 48
-  const barH = 12
+  const barX = x + VOLUME_HUD.bar.x
+  const barY = y + VOLUME_HUD.bar.y
+  const barW = w - VOLUME_HUD.bar.rightInset - VOLUME_HUD.bar.x
+  const barH = VOLUME_HUD.bar.height
   const barInnerW = barW - 2
   const fillW = Math.floor((vol * barInnerW) / 63)
 
   return (
     <div className={enhanced ? 'fw320-volume fw320-volume--v2' : 'fw320-volume'} style={{ left: x, top: y, width: w, height: h }}>
-      <PixelText x={8} y={9} datum="TL" className="fw320-font1" color={COLOR.text}>
+      <PixelText x={VOLUME_HUD.labelX} y={VOLUME_HUD.labelY} datum="TL" className="fw320-font1" color={COLOR.text}>
         {'VOL'}
       </PixelText>
       <div className={enhanced ? 'fw320-volume__bar fw320-volume__bar--v2' : 'fw320-volume__bar'} style={{ left: barX - x, top: barY - y, width: barW, height: barH }}>
@@ -565,7 +687,7 @@ function VolumeHud({ volume = 34, skin = 'baseline' }: { volume?: number; skin?:
           />
         ) : null}
       </div>
-      <PixelText x={w - 6} y={9} datum="TR" className="fw320-font1" color={COLOR.text}>
+      <PixelText x={VOLUME_HUD.valueRightX} y={VOLUME_HUD.valueY} datum="TR" className="fw320-font1" color={COLOR.text}>
         {String(vol)}
       </PixelText>
     </div>
@@ -629,16 +751,16 @@ function QuickPopup({
     return null
   }
 
-  const w = 172
-  const h = 92
+  const w = QUICK_POPUP.width
+  const h = QUICK_POPUP.height
   const anchor = CHIP_RECTS[item]
   const preferredX = anchor.x + anchor.w / 2 - w / 2
-  const x = clamp(Math.round(preferredX), 2, FIRMWARE_UI_WIDTH - w - 2)
-  let y = anchor.y + anchor.h + 2
-  if (y + h > FIRMWARE_UI_HEIGHT - 2) {
-    y = anchor.y - h - 2
+  const x = clamp(Math.round(preferredX), QUICK_POPUP.margin, FIRMWARE_UI_WIDTH - w - QUICK_POPUP.margin)
+  let y = anchor.y + anchor.h + QUICK_POPUP.anchorGap
+  if (y + h > FIRMWARE_UI_HEIGHT - QUICK_POPUP.margin) {
+    y = anchor.y - h - QUICK_POPUP.anchorGap
   }
-  y = clamp(Math.round(y), 2, FIRMWARE_UI_HEIGHT - h - 2)
+  y = clamp(Math.round(y), QUICK_POPUP.margin, FIRMWARE_UI_HEIGHT - h - QUICK_POPUP.margin)
 
   const options = popupOptionsFor(item)
   const selected = ((selectedIndex % count) + count) % count
@@ -670,14 +792,15 @@ function QuickPopup({
         }}
       />
 
-      <PixelText x={6} y={4} datum="TL" className={skin === 'v3' ? 'fw320-font1 fw320-popup-title fw320-popup-title--v3' : 'fw320-font1 fw320-popup-title'} color={skin === 'v3' ? 'var(--fw-accent)' : COLOR.chipFocus}>
+      <PixelText x={QUICK_POPUP.titleX} y={QUICK_POPUP.titleY} datum="TL" className={skin === 'v3' ? 'fw320-font1 fw320-popup-title fw320-popup-title--v3' : 'fw320-font1 fw320-popup-title'} color={skin === 'v3' ? 'var(--fw-accent)' : COLOR.chipFocus}>
         {itemLabel(item)}
       </PixelText>
 
-      {Array.from({ length: 5 }, (_, row) => {
-        const relative = row - 2
+      {Array.from({ length: QUICK_POPUP.rowVisibleCount }, (_, row) => {
+        const centerRow = Math.floor(QUICK_POPUP.rowVisibleCount / 2)
+        const relative = row - centerRow
         const optionIndex = (selected + count + relative) % count
-        const rowY = 18 + row * 14
+        const rowY = QUICK_POPUP.rowStartY + row * QUICK_POPUP.rowHeight
         const selectedRow = relative === 0
         return (
           <div key={`${row}-${optionIndex}`} className="fw320-popup__row" style={{ top: rowY }}>
@@ -689,6 +812,11 @@ function QuickPopup({
                 ]
                   .filter(Boolean)
                   .join(' ')}
+                style={{
+                  left: QUICK_POPUP.selectedRowInsetX,
+                  width: w - QUICK_POPUP.selectedRowInsetX * 2,
+                  height: QUICK_POPUP.selectedRowHeight,
+                }}
               />
             ) : null}
             <PixelText
@@ -724,6 +852,9 @@ export default function FirmwareNowPlaying320({
   editing = false,
   focusedItem = 'Mode',
   popupIndex = 2,
+  displayFreqText,
+  displayUnitText,
+  displayStereoText,
 }: {
   previewScale?: number
   showBackdrop?: boolean
@@ -735,6 +866,9 @@ export default function FirmwareNowPlaying320({
   editing?: boolean
   focusedItem?: QuickChipKey
   popupIndex?: number
+  displayFreqText?: string
+  displayUnitText?: string
+  displayStereoText?: string
 }) {
   const scale = clamp(previewScale, 1, 6)
   const rootClass = showBackdrop ? 'fw320-root fw320-root--backdrop' : 'fw320-root'
@@ -743,11 +877,54 @@ export default function FirmwareNowPlaying320({
   const enhanced = isEnhancedSkin(skin)
   const popupOpen = quickEdit && editing
   const isFocused = (key: QuickChipKey) => quickEdit && focusedItem === key
+  const freqText = displayFreqText ?? fmtFreqFM(freqMhz)
+  const unitText = displayUnitText ?? 'MHz'
+  const stereoText = displayStereoText ?? 'ST'
+  const freqFontPx = TYPOGRAPHY.frequencyFontPx ?? 36
+  const unitStereoFontPx = 12
+
+  const freqWidth = measureTextWidthPx(freqText, freqFontPx, 800)
+  const unitWidth = measureTextWidthPx(unitText, unitStereoFontPx, 700)
+  const stereoWidth = measureTextWidthPx(stereoText, unitStereoFontPx, 700)
+
+  const freqAnchor = ANCHORS.frequency
+  const unitAnchor = ANCHORS.unit
+  const stereoAnchor = ANCHORS.stereo
+  const clusterBaseX = Math.min(unitAnchor.x, stereoAnchor.x)
+  const unitOffsetX = unitAnchor.x - clusterBaseX
+  const stereoOffsetX = stereoAnchor.x - clusterBaseX
+  const clusterWidth = Math.max(unitOffsetX + unitWidth, stereoOffsetX + stereoWidth)
+
+  const layoutGapPx = 5
+  const rightMarginPx = 6
+  const leftMarginPx = 6
+
+  let freqX = freqAnchor.x
+  const preferredClusterX = clusterBaseX
+  const maxClusterX = FIRMWARE_UI_WIDTH - rightMarginPx - clusterWidth
+  const desiredFreqRight = textRightEdge(freqX, freqWidth, freqAnchor.datum)
+  let clusterX = Math.max(preferredClusterX, desiredFreqRight + layoutGapPx)
+
+  if (clusterX > maxClusterX) {
+    const overflow = clusterX - maxClusterX
+    const currentFreqLeft = textLeftEdge(freqX, freqWidth, freqAnchor.datum)
+    const maxLeftShift = Math.max(0, currentFreqLeft - leftMarginPx)
+    const appliedShift = Math.min(overflow, maxLeftShift)
+    freqX -= appliedShift
+    clusterX -= appliedShift
+  }
+
+  clusterX = Math.min(
+    Math.max(preferredClusterX, textRightEdge(freqX, freqWidth, freqAnchor.datum) + layoutGapPx),
+    Math.max(preferredClusterX, maxClusterX),
+  )
+
   const screenStyle = {
     width: FIRMWARE_UI_WIDTH,
     height: FIRMWARE_UI_HEIGHT,
     ['--fw-accent' as string]: accent,
     ['--fw-accent-rgb' as string]: accentRgb,
+    ['--fw-freq-font-size' as string]: `${freqFontPx}px`,
   } as CSSProperties
 
   return (
@@ -795,7 +972,7 @@ export default function FirmwareNowPlaying320({
             ) : null}
             <SideFade operation={operation} skin={skin} />
 
-            <PixelText x={4} y={2} datum="TL" className="fw320-font2">
+            <PixelText x={ANCHORS.clock.x} y={ANCHORS.clock.y} datum={ANCHORS.clock.datum} className="fw320-font2">
               {'00:05'}
             </PixelText>
 
@@ -822,20 +999,20 @@ export default function FirmwareNowPlaying320({
             <SysChip rect={CHIP_RECTS.Sys} batteryPct={100} wifiOn={false} sleepOn={false} focused={isFocused('Sys')} skin={skin} />
             <Chip rect={CHIP_RECTS.Settings} label="SETTINGS" font="f1" focused={isFocused('Settings')} editing={popupOpen && isFocused('Settings')} skin={skin} />
 
-            <PixelText x={154} y={66} datum="MC" className={enhanced ? 'fw320-freq fw320-freq--v2' : 'fw320-freq'}>
-              {fmtFreqFM(freqMhz)}
+            <PixelText x={freqX} y={ANCHORS.frequency.y} datum={ANCHORS.frequency.datum} className={enhanced ? 'fw320-freq fw320-freq--v2' : 'fw320-freq'}>
+              {freqText}
             </PixelText>
-            <PixelText x={245} y={64} datum="ML" className={enhanced ? 'fw320-font2 fw320-unit--v2' : 'fw320-font2'}>
-              {'MHz'}
+            <PixelText x={ANCHORS.unit.x + (clusterX - clusterBaseX)} y={ANCHORS.unit.y} datum={ANCHORS.unit.datum} className={enhanced ? 'fw320-font2 fw320-unit--v2' : 'fw320-font2'}>
+              {unitText}
             </PixelText>
-            <PixelText x={282} y={64} datum="ML" className={enhanced ? 'fw320-font2 fw320-stereo--v2' : 'fw320-font2'} color={COLOR.rssi}>
-              {'ST'}
+            <PixelText x={ANCHORS.stereo.x + (clusterX - clusterBaseX)} y={ANCHORS.stereo.y} datum={ANCHORS.stereo.datum} className={enhanced ? 'fw320-font2 fw320-stereo--v2' : 'fw320-font2'} color={COLOR.rssi}>
+              {stereoText}
             </PixelText>
 
-            <PixelText x={160} y={100} datum="MC" className={enhanced ? 'fw320-font2 fw320-muted fw320-rds--v2' : 'fw320-font2 fw320-muted'} color={COLOR.muted}>
+            <PixelText x={ANCHORS.rds.x} y={ANCHORS.rds.y} datum={ANCHORS.rds.datum} className={enhanced ? 'fw320-font2 fw320-muted fw320-rds--v2' : 'fw320-font2 fw320-muted'} color={COLOR.muted}>
               {'RDS ---'}
             </PixelText>
-            <PixelText x={160} y={116} datum="MC" className={enhanced ? 'fw320-font1 fw320-muted fw320-signaltext--v2' : 'fw320-font1 fw320-muted'} color={COLOR.muted}>
+            <PixelText x={ANCHORS.signalText.x} y={ANCHORS.signalText.y} datum={ANCHORS.signalText.datum} className={enhanced ? 'fw320-font1 fw320-muted fw320-signaltext--v2' : 'fw320-font1 fw320-muted'} color={COLOR.muted}>
               {'RSSI:48 SNR:12'}
             </PixelText>
 

@@ -179,7 +179,7 @@
 }
 
 .fw320-freq {
-  font-size: 36px;
+  font-size: var(--fw-freq-font-size, 36px);
   font-weight: 800;
   line-height: 0.9;
   letter-spacing: -0.03em;
