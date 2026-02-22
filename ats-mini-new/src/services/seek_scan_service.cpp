@@ -717,7 +717,7 @@ bool tickFmSeekScan(app::AppState& state) {
     return false;
   }
 
-  const bool found = services::radio::seek(state, g_direction);
+  const bool found = services::radio::seekForScan(state, g_direction);
   const bool seekAborted = services::radio::lastSeekAborted();
 
   uint8_t rssi = 0;

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "notes": "Storybook preview layout spec. Preview-only rearrangement before firmware approval: FAV/BFO top, AVC below, time under SETTINGS, higher/larger frequency cluster.",
+  "notes": "Shared firmware/storybook layout spec. Synced to firmware frequency +2px Y shift (freq.y = 60).",
   "dimensions": {
     "width": 320,
     "height": 170
@@ -20,7 +20,7 @@
   },
   "anchors": {
     "clock": { "x": 291, "y": 60, "datum": "MC" },
-    "frequency": { "x": 150, "y": 58, "datum": "MC" },
+    "frequency": { "x": 150, "y": 60, "datum": "MC" },
     "unit": { "x": 212, "y": 70, "datum": "ML" },
     "stereo": { "x": 212, "y": 56, "datum": "ML" },
     "rds": { "x": 160, "y": 94, "datum": "MC" },

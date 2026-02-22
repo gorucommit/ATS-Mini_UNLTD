@@ -289,6 +289,10 @@ bool consumeAbortRequest() {
     return true;
   }
 
+  return consumeAbortEventRequest();
+}
+
+bool consumeAbortEventRequest() {
   noInterrupts();
   const bool abortRequested = g_abortRequested;
   g_abortRequested = false;

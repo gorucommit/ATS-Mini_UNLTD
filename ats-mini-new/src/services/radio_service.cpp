@@ -36,6 +36,7 @@ bool g_ready = false;
 bool g_hasAppliedState = false;
 bool g_ssbPatchLoaded = false;
 bool g_seekAborted = false;
+bool g_seekAllowHoldAbort = true;
 bool g_muted = false;
 bool g_bootPowerPrepared = false;
 bool g_i2cStarted = false;
@@ -464,7 +465,9 @@ void configureModeAndBand(const app::AppState& state) {
 }
 
 bool stopSeekingCallback() {
-  if (services::input::consumeAbortRequest()) {
+  const bool abortRequested =
+      g_seekAllowHoldAbort ? services::input::consumeAbortRequest() : services::input::consumeAbortEventRequest();
+  if (abortRequested) {
     g_seekAborted = true;
     return true;
   }
@@ -592,7 +595,7 @@ void applyRuntimeSettings(const app::AppState& state) {
   updateRuntimeSnapshot(state);
 }
 
-bool seek(app::AppState& state, int8_t direction) {
+bool seekImpl(app::AppState& state, int8_t direction, bool allowHoldAbort, bool retryOppositeEdge) {
   if (!g_ready || app::isSsb(state.radio.modulation)) {
     return false;
   }
@@ -604,6 +607,7 @@ bool seek(app::AppState& state, int8_t direction) {
   const uint16_t seekGridOriginKhz = seekGridOriginKhzFor(state, bandMinKhz);
   services::input::clearAbortRequest();
   g_seekAborted = false;
+  g_seekAllowHoldAbort = allowHoldAbort;
 
   const uint16_t snappedStartFrequency = snapToSeekSpacing(state.radio.frequencyKhz,
                                                            bandMinKhz,
@@ -631,8 +635,8 @@ bool seek(app::AppState& state, int8_t direction) {
   uint16_t nextFrequency = g_rx.getCurrentFrequency();
   bool found = !g_seekAborted && isValidSeekResult(state, nextFrequency, startFrequency, bandMinKhz, bandMaxKhz);
 
-  // Retry once from the opposite band edge when the first candidate is invalid.
-  if (!found && !g_seekAborted) {
+  // Retry once from the opposite band edge for one-shot seek operations.
+  if (retryOppositeEdge && !found && !g_seekAborted) {
     const uint16_t restartFrequency = direction >= 0 ? bandMinKhz : bandMaxKhz;
     if (restartFrequency != startFrequency) {
       g_rx.setFrequency(restartFrequency);
@@ -662,6 +666,10 @@ bool seek(app::AppState& state, int8_t direction) {
 
   return found;
 }
+
+bool seek(app::AppState& state, int8_t direction) { return seekImpl(state, direction, true, true); }
+
+bool seekForScan(app::AppState& state, int8_t direction) { return seekImpl(state, direction, false, false); }
 
 bool lastSeekAborted() { return g_seekAborted; }
 
