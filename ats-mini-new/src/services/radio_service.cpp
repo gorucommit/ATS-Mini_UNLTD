@@ -330,11 +330,19 @@ uint8_t seekSpacingKhzFor(const app::AppState& state) {
 }
 
 uint8_t seekThresholdRssiFor(const app::AppState& state) {
-  return app::kEtmSensitivityTable[static_cast<uint8_t>(state.global.scanSensitivity)].rssiMin;
+  const uint8_t idx = static_cast<uint8_t>(state.global.scanSensitivity) % 2;
+  if (state.radio.modulation == app::Modulation::FM) {
+    return app::kEtmSensitivityFm[idx].rssiMin;
+  }
+  return app::kEtmSensitivityAm[idx].rssiMin;
 }
 
 uint8_t seekThresholdSnrFor(const app::AppState& state) {
-  return app::kEtmSensitivityTable[static_cast<uint8_t>(state.global.scanSensitivity)].snrMin;
+  const uint8_t idx = static_cast<uint8_t>(state.global.scanSensitivity) % 2;
+  if (state.radio.modulation == app::Modulation::FM) {
+    return app::kEtmSensitivityFm[idx].snrMin;
+  }
+  return app::kEtmSensitivityAm[idx].snrMin;
 }
 
 bool readCurrentSignalQuality(uint8_t& rssi, uint8_t& snr) {

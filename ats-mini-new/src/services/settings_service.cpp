@@ -262,8 +262,8 @@ void sanitizeGlobal(app::GlobalSettings& global) {
   }
 
   const uint8_t sensRaw = static_cast<uint8_t>(global.scanSensitivity);
-  if (sensRaw > static_cast<uint8_t>(app::ScanSensitivity::High)) {
-    global.scanSensitivity = app::ScanSensitivity::Medium;
+  if (sensRaw > 1) {
+    global.scanSensitivity = app::ScanSensitivity::High;
   }
 
   const uint8_t speedRaw = static_cast<uint8_t>(global.scanSpeed);
@@ -302,7 +302,7 @@ void migrateLegacyGlobal(const GlobalSettingsV2Legacy& legacy, app::GlobalSettin
   global.avcAmLevel = 48;
   global.avcSsbLevel = 48;
 
-  global.scanSensitivity = app::ScanSensitivity::Medium;
+  global.scanSensitivity = app::ScanSensitivity::High;
   global.scanSpeed = app::ScanSpeed::Thorough;
 
   const uint8_t legacySoftMute = (legacy.softMuteEnabled ? clampValue<uint8_t>(legacy.softMuteMaxAttenuation, 0, 32) : 0);

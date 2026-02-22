@@ -526,7 +526,7 @@ inline AppState makeDefaultState() {
   state.global.uiLayout = UiLayout::Standard;
   state.global.bleMode = BleMode::Off;
   state.global.usbMode = UsbMode::Auto;
-  state.global.scanSensitivity = ScanSensitivity::Medium;
+  state.global.scanSensitivity = ScanSensitivity::High;
   state.global.scanSpeed = ScanSpeed::Thorough;
   state.global.memoryWriteIndex = 0;
 

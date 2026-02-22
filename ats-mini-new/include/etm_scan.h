@@ -10,8 +10,7 @@ namespace app {
 
 enum class ScanSensitivity : uint8_t {
   Low = 0,
-  Medium = 1,
-  High = 2,
+  High = 1,
 };
 
 enum class ScanSpeed : uint8_t {
@@ -24,10 +23,14 @@ struct EtmSensitivity {
   uint8_t snrMin;
 };
 
-inline constexpr EtmSensitivity kEtmSensitivityTable[] = {
-    {25, 10},  // Low
-    {12, 5},   // Medium (default)
-    {5, 2},    // High
+// Per-band scan/seek thresholds. Index 0 = Low, 1 = High. High aligns with original firmware seek.
+inline constexpr EtmSensitivity kEtmSensitivityFm[] = {
+    {20, 3},  // Low
+    {5, 2},   // High (default)
+};
+inline constexpr EtmSensitivity kEtmSensitivityAm[] = {
+    {25, 5},   // Low
+    {10, 3},   // High (default)
 };
 
 // --- Scan pass constants ---

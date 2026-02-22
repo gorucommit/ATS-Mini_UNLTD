@@ -378,8 +378,10 @@ class EtmScanner {
     uint8_t rssi = 0, snr = 0;
     services::radio::readSignalQuality(&rssi, &snr);
 
-    const app::EtmSensitivity& sens =
-        app::kEtmSensitivityTable[static_cast<uint8_t>(state.global.scanSensitivity)];
+    const uint8_t sensIdx = static_cast<uint8_t>(state.global.scanSensitivity) % 2;
+    const app::EtmSensitivity& sens = (state.radio.modulation == app::Modulation::FM)
+                                          ? app::kEtmSensitivityFm[sensIdx]
+                                          : app::kEtmSensitivityAm[sensIdx];
     const bool above = (rssi >= sens.rssiMin && snr >= sens.snrMin);
     if (above)
       addCandidate(currentKhz_, rssi, snr, app::kScanPassCoarse, segmentIndex_);

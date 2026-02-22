@@ -87,7 +87,7 @@ inline constexpr uint8_t valueCount(Item item) {
     case Item::UiLayout:
       return 3;
     case Item::ScanSens:
-      return 3;  // Low, Medium, High
+      return 2;  // Low, High
     case Item::ScanSpeed:
       return 2;  // Fast, Thorough
     case Item::About:
@@ -176,7 +176,7 @@ inline uint8_t valueIndexForCurrent(const AppState& state, Item item) {
     }
     case Item::ScanSens: {
       const uint8_t s = static_cast<uint8_t>(state.global.scanSensitivity);
-      return s > 2 ? 1 : s;
+      return s > 1 ? 1 : s;
     }
     case Item::ScanSpeed: {
       const uint8_t s = static_cast<uint8_t>(state.global.scanSpeed);
@@ -220,7 +220,7 @@ inline void applyValue(AppState& state, Item item, uint8_t valueIndex) {
       state.global.uiLayout = static_cast<UiLayout>(valueIndex % valueCount(item));
       break;
     case Item::ScanSens:
-      state.global.scanSensitivity = static_cast<app::ScanSensitivity>(valueIndex % valueCount(item));
+      state.global.scanSensitivity = static_cast<app::ScanSensitivity>(valueIndex % 2);
       break;
     case Item::ScanSpeed:
       state.global.scanSpeed = static_cast<app::ScanSpeed>(valueIndex % valueCount(item));
@@ -276,8 +276,8 @@ inline void formatValue(const AppState& state, Item item, char* out, size_t outS
       snprintf(out, outSize, "%s", layoutLabel(state.global.uiLayout));
       return;
     case Item::ScanSens: {
-      static const char* kSens[] = {"Low", "Medium", "High"};
-      snprintf(out, outSize, "%s", kSens[static_cast<uint8_t>(state.global.scanSensitivity) % 3]);
+      static const char* kSens[] = {"Low", "High"};
+      snprintf(out, outSize, "%s", kSens[static_cast<uint8_t>(state.global.scanSensitivity) % 2]);
       return;
     }
     case Item::ScanSpeed: {
