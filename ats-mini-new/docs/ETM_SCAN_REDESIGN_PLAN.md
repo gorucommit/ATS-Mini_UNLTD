@@ -162,7 +162,7 @@ struct EtmBandProfile {
 };
 
 // All values in kHz. coarseStepKhz=100 means 100 kHz (0.1 MHz).
-constexpr EtmBandProfile kProfileFm   = { 100, 50, 150, 55, 90 };  // See "FM Fine Window Rationale" below
+constexpr EtmBandProfile kProfileFm   = { 100, 50, 150, 70, 90 };  // Implementation: 10 (100kHz), 0, 0, 70ms settle, 9 merge
 constexpr EtmBandProfile kProfileMw9  = {   9,  1,  14, 90,  8 };  // 9kHz region
 constexpr EtmBandProfile kProfileMw10 = {  10,  1,  15, 90,  9 };  // 10kHz region
 constexpr EtmBandProfile kProfileSw   = {   5,  1,   8, 90,  4 };
@@ -630,7 +630,7 @@ The settings file format version should be incremented to handle this gracefully
 
 | Band | Coarse | Fine | Total |
 |------|--------|------|-------|
-| FM (87.5-108 MHz) | ~11s (205 pts × 55ms) | ~3s (clusters) | ~14s |
+| FM (87.5-108 MHz) | ~14s (205 pts × 70ms) | — (coarse-only) | ~14s |
 | MW (530-1710 kHz) | ~11s (131 pts × 90ms) | ~5s | ~16s |
 | SW 49m (5.9-6.2 MHz) | ~6s (60 pts × 90ms) | ~2s | ~8s |
 

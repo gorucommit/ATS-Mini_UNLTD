@@ -188,7 +188,7 @@
 ### Investigation summary
 
 - **FM band units:** In `bandplan.h`, FM limits come from `fmRegionProfile(region)`: `fmMinKhz`/`fmMaxKhz` are **8750** and **10800** (World). The rest of the app treats FM frequency as “10 kHz” units for display: `frequencyKhz/100` and `frequencyKhz%100` → “90.40” MHz. So 8750 = 87.50 MHz, 10800 = 108.0 MHz. Band range in those units is 8750–10800.
-- **ETM FM profile** (`etm_scan.h`): `kEtmProfileFm` uses `coarseStepKhz = 100` (and fine 50, fineWindow 150, settle 55 ms). The segment is built from `bandMinKhz`/`bandMaxKhz` (8750–10800) and `segments_[].coarseStepKhz = 100`.
+- **ETM FM profile** (`etm_scan.h`): `kEtmProfileFm` uses `coarseStepKhz = 100` (and fine 50, fineWindow 150, settle 70 ms (was 55; increased after testing)). The segment is built from `bandMinKhz`/`bandMaxKhz` (8750–10800) and `segments_[].coarseStepKhz = 100`.
 - **What actually runs:** Coarse scan advances by **100** in the same units as the band (10 kHz). So we step 8750 → 8850 → 8950 → … → 10800. That is a **1 MHz** step in real terms (100 × 10 kHz), not 100 kHz. Number of points: (10800 − 8750) / 100 + 1 ≈ **21 points**. At 55 ms settle per point, that’s ~1.2 s for coarse only — consistent with “full scan in 2 seconds” and with almost no stations found (we only look at 21 frequencies across 87.5–108 MHz).
 - **Root cause:** FM band is in 10 kHz units; ETM profile was written as if band were in kHz. So `coarseStepKhz = 100` becomes a 1 MHz step instead of 100 kHz. We need FM coarse step to be **10** in 10 kHz units (= 100 kHz) so we get ~205 points and ~11 s coarse (and proper station density).
 - **Settle time:** 55 ms per point is applied correctly (`nextActionMs_ = now + settleMs_`; main loop `delay(1)` when busy). So timing is not the cause of the 2 s completion; the low point count is. If we later see “no time to see stations” on a single frequency, consider increasing FM settle (e.g. 80–100 ms) after fixing the step.
@@ -204,7 +204,7 @@
 
 ### Fix applied (2026-02-22)
 
-- **`include/etm_scan.h`:** `kEtmProfileFm` updated so FM uses steps in 10 kHz units (matching bandplan FM): `coarseStepKhz=10` (100 kHz), `fineStepKhz=5` (50 kHz), `fineWindowKhz=15` (±150 kHz), `mergeDistanceKhz=9` (90 kHz). FM coarse scan now has ~205 points (~11 s at 55 ms/point).
+- **`include/etm_scan.h`:** `kEtmProfileFm` updated so FM uses steps in 10 kHz units (matching bandplan FM): `coarseStepKhz=10` (100 kHz), coarse-only (no fine), `settleMs=70`, `mergeDistanceKhz=9` (90 kHz). FM coarse scan has ~205 points (~14 s at 70 ms/point).
 
 ### Action items
 

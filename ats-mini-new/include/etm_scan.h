@@ -84,7 +84,7 @@ struct EtmBandProfile {
 // All values in kHz for AM bands (MW/LW/SW). For FM, band limits are in 10 kHz units
 // (8750 = 87.5 MHz), so FM profile steps are also in 10 kHz units: 10 = 100 kHz.
 // FM uses coarse-only (no fine pass); channel raster is 100 kHz everywhere.
-inline constexpr EtmBandProfile kEtmProfileFm = {10, 0, 0, 55, 9};  // 100 kHz coarse only, 90 kHz merge
+inline constexpr EtmBandProfile kEtmProfileFm = {10, 0, 0, 70, 9};  // 100 kHz coarse only, 70 ms settle, 90 kHz merge
 // MW/LW: coarse-only (fineStepKhz=0). Channel raster is the correct frequency; fine pass would push off-channel.
 inline constexpr EtmBandProfile kEtmProfileMw9 = {9, 0, 0, 90, 8};   // 9 kHz region
 inline constexpr EtmBandProfile kEtmProfileMw10 = {10, 0, 0, 90, 9};  // 10 kHz region

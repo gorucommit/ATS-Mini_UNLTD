@@ -42,7 +42,7 @@ We advance first, then check. Example: segment 8750–10800, step 100. After 107
 
 ### 2.2 **Critical: FM scan time estimate inconsistent with profile**
 
-Plan (lines 362–368): FM Thorough "~11s (205 pts × 55ms)" for coarse.
+Plan: FM Thorough coarse ~14s (205 pts × 70ms settle). Implementation uses 70 ms (was 55 ms).
 
 - `kProfileFm` has `coarseStepKhz = 100`.
 - World FM: 8750–10800 → (10800 − 8750) / 100 + 1 = **21** coarse points.
