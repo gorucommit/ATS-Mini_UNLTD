@@ -1,1 +1,1 @@
-test-builds/snapshots/2026-02-22-041418-fm-etm-scan-fix
+test-builds/snapshots/2026-02-22-213359-band-scan-complete

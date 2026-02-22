@@ -296,3 +296,4 @@ These are valuable, but should remain after MVP/v0.1 stabilization:
 - Setting for SCAN/seek sensitivity;
 - Markers on SCAN / SEEK.
 - 1 minute signal history
+- Acoustic Inertia Engine - Soft-Mute Logic: Instead of the "chuff-chuff" sound when tuning, implement a "soft-attack" volume ramp that makes the tuning experience feel like a high-end analog VFO.
