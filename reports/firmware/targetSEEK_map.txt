@@ -1,0 +1,70 @@
+ESP Firmware Map
+================
+Input file: /Users/beegee/Documents/ats mini/other firmware/targetSEEK.bin
+File size:  0x000BC7E0 (772064 bytes)
+SHA256:     dac10c695ccc073979264ceca45a6ca14ad566781069f639bd43a8871f808593
+
+Bootloader image:
+  file offset: 0x00000000
+  image size:  0x00003AF0
+  entry addr:  0x403C98D4
+  chip:        ESP32-S3
+  spi mode:    DIO
+  spi speed:   80MHz
+  flash size:  4MB
+  segments:    3
+  checksum:    0xC8
+  hash app.:   yes
+  image sha256:e23d0b229698afc0eb00311e761e5170b3cd4cb76a5a0e097b0e3ed2e6994540
+  seg0: file 0x00000020..0x0000046C load 0x3FCE3808 size 0x0000044C
+  seg1: file 0x00000474..0x00001058 load 0x403C9700 size 0x00000BE4
+  seg2: file 0x00001060..0x00003AC8 load 0x403CC700 size 0x00002A68
+
+Partition table @ 0x00008000
+--------------------------------
+  [00] nvs          data/nvs        offset 0x00009000 size 0x00005000 fully present
+  [01] otadata      data/ota        offset 0x0000E000 size 0x00002000 fully present
+  [02] app0         app/ota_0      offset 0x00010000 size 0x00140000 partial (0x000AC7E0 bytes available)
+  [03] app1         app/ota_1      offset 0x00150000 size 0x00140000 not present in file
+  [04] ffat         data/fat        offset 0x00290000 size 0x00160000 not present in file
+  [05] coredump     data/coredump   offset 0x003F0000 size 0x00010000 not present in file
+  md5 trailer: de08e5251ef9b914bad25b4064897c80
+
+Application images
+------------------
+app0 @ 0x00010000:
+  file offset: 0x00010000
+  image size:  0x000AC7E0
+  entry addr:  0x40377810
+  chip:        ESP32-S3
+  spi mode:    DIO
+  spi speed:   80MHz
+  flash size:  4MB
+  segments:    6
+  checksum:    0x8D
+  hash app.:   yes
+  image sha256:165276408ca7fd7d2c04aae83390ca5f28e667969918daa72b4f14078f96a20e
+  seg0: file 0x00010020..0x0004A968 load 0x3C060020 size 0x0003A948
+  seg1: file 0x0004A970..0x0004ED8C load 0x3FC946B0 size 0x0000441C
+  seg2: file 0x0004ED94..0x00050018 load 0x40374000 size 0x00001284
+  seg3: file 0x00050020..0x000AD35C load 0x42000020 size 0x0005D33C
+  seg4: file 0x000AD364..0x000BC788 load 0x40375284 size 0x0000F424
+  seg5: file 0x000BC790..0x000BC7BC load 0x600FE000 size 0x0000002C
+app1 @ 0x00150000: no valid ESP image in available bytes
+
+Coverage
+--------
+Bytes present in file: 0x000BC7E0
+Declared flash span:   0x00400000
+Missing tail in file:  0x00343820 (trimmed merged image)
+
+Interesting strings
+-------------------
+  - esp-idf: v4.4.5 ac5d805d0e
+  - arduino-lib-builder
+  - TUNE SEEK
+  - Latest Firmware: www.hjberndt.de
+  - 16:32:29
+  - Jun 12 2023
+  - Feb 21 2026
+

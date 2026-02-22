@@ -1,0 +1,2609 @@
+# Strings (segment offset + runtime address + text)
+0x00000010 0x3C060030 esp-idf: v4.4.5 ac5d805d0e
+0x00000030 0x3C060050 arduino-lib-builder
+0x00000050 0x3C060070 16:32:29
+0x00000060 0x3C060080 Jun 12 2023
+0x00000070 0x3C060090 v4.4.5
+0x00000100 0x3C060120 basic_string::_M_construct null not valid
+0x0000012A 0x3C06014A Feb 21 2026
+0x00000136 0x3C060156 ----- DUALCORE ----
+0x0000014A 0x3C06016A WPM:%d 
+0x00000181 0x3C0601A1 ..--..
+0x00000188 0x3C0601A8 .-.-.-
+0x0000018F 0x3C0601AF --..--
+0x00000196 0x3C0601B6 -.-.--
+0x0000019D 0x3C0601BD .--.-.
+0x000001A4 0x3C0601C4 ---...
+0x000001AB 0x3C0601CB -....-
+0x000001BE 0x3C0601DE -.--.-
+0x000001CB 0x3C0601EB ...-..-
+0x000001D3 0x3C0601F3 ...-.-
+0x000001E6 0x3C060206 Plot/Copy
+0x000001F0 0x3C060210 Plotter
+0x000001F8 0x3C060218 ETM-Cont
+0x00000201 0x3C060221 Waterfall
+0x0000020B 0x3C06022B Scanner
+0x00000213 0x3C060233 MemScan
+0x0000021B 0x3C06023B Monitor
+0x00000223 0x3C060243 Slow/Fast
+0x0000022D 0x3C06024D Mute Left
+0x00000237 0x3C060257 Mute Right
+0x00000242 0x3C060262 Force Mono
+0x0000024D 0x3C06026D Set Tint
+0x00000256 0x3C060276 Inverse
+0x0000025E 0x3C06027E GreyScale
+0x00000268 0x3C060288 TUNE SEEK
+0x00000272 0x3C060292 TTY small
+0x0000027C 0x3C06029C TTY medium
+0x00000287 0x3C0602A7 TTY BIG
+0x0000028F 0x3C0602AF             
+0x0000029C 0x3C0602BC /Freeze
+0x000002A8 0x3C0602C8 Decoder
+0x000002B4 0x3C0602D4 AM/SSB
+0x000002BB 0x3C0602DB CPU-Speed
+0x000002C5 0x3C0602E5 logfile
+0x000002CD 0x3C0602ED SoftMute
+0x000002D6 0x3C0602F6 MENU %2d
+0x000002E4 0x3C060304 Classic
+0x000002EC 0x3C06030C Info Mode
+0x000002F6 0x3C060316 %d kHz
+0x000002FD 0x3C06031D Step-kHz
+0x00000306 0x3C060326 %2d %5.1f
+0x00000310 0x3C060330 %2d %5d
+0x00000325 0x3C060345 .%3.3d
+0x0000032C 0x3C06034C +%4.4d
+0x00000375 0x3C060395 FM Stereo
+0x00000384 0x3C0603A4 FM Mono
+0x0000038C 0x3C0603AC  SEARCH 
+0x00000395 0x3C0603B5 TRAFFIC
+0x0000039D 0x3C0603BD %2d%% STEREO
+0x000003AA 0x3C0603CA   STEREO  
+0x000003B5 0x3C0603D5   %02d:%02d UTC  
+0x000003C7 0x3C0603E7 %02d.%02d.%d-%d
+0x00000401 0x3C060421 Latest Firmware: www.hjberndt.de
+0x00000422 0x3C060442 %02d:%02d
+0x0000042C 0x3C06044C SIGNAL:%02d/%02d
+0x0000043D 0x3C06045D %2d:%02d
+0x00000459 0x3C060479 %02d,%05d,%d,%d,%d
+0x00000475 0x3C060495 %5d,%s
+0x0000047E 0x3C06049E ETM at %02d.%02d.%d - %02d:%02d Local
+0x000004A6 0x3C0604C6 %02d %04X %8s %5d %3d
+0x000004BD 0x3C0604DD  going to sleep 
+0x000004CE 0x3C0604EE Error in line: %s.
+0x00000501 0x3C060521 %d/%d bytes
+0x0000050F 0x3C06052F ---- Ringbuffer Content ----
+0x0000052C 0x3C06054C (empty)
+0x00000535 0x3C060555 ----------------------------
+0x000005A1 0x3C0605C1 102.85
+0x000005AD 0x3C0605CD 23.55.30
+0x000005BB 0x3C0605DB 21.02.2026
+0x000005C6 0x3C0605E6   %4.1fV  
+0x000005D1 0x3C0605F1 MINI RADIO BAND MONITOR
+0x000005E9 0x3C060609 /memo.txt
+0x000005F8 0x3C060618 %02d,%05d,%d,%d,%d
+0x0000060B 0x3C06062B /stations.txt
+0x0000061E 0x3C06063E %5d,%s
+0x00000625 0x3C060645 /user.txt
+0x0000062F 0x3C06064F no user stations
+0x00000640 0x3C060660 Userdata found
+0x00000651 0x3C060671  user stations ready.
+0x00000667 0x3C060687 /mem.txt
+0x00000670 0x3C060690 Memories found
+0x0000067F 0x3C06069F /etm.txt
+0x00000688 0x3C0606A8 ETM at %02d.%02d.%d - %02d:%02d Local
+0x000006AF 0x3C0606CF %02d %04X %8s %5d %3d
+0x000006C5 0x3C0606E5 /settings.txt
+0x000006DE 0x3C0606FE bandwidthSSB 
+0x000006EC 0x3C06070C bandwidthAM 
+0x000006F9 0x3C060719 bandwidthFM 
+0x00000706 0x3C060726 stepSSB 
+0x0000070F 0x3C06072F stepAM 
+0x00000717 0x3C060737 stepFM 
+0x00000725 0x3C060745 battery 
+0x0000072E 0x3C06074E decoder 
+0x00000737 0x3C060757 automute 
+0x00000747 0x3C060767 store 
+0x0000074E 0x3C06076E station 
+0x00000757 0x3C060777 volume 
+0x0000075F 0x3C06077F agcFM 
+0x00000766 0x3C060786 agcAM 
+0x0000076D 0x3C06078D agcSSB 
+0x00000775 0x3C060795 softmute 
+0x00000784 0x3C0607A4 frequency 
+0x0000078F 0x3C0607AF backlight 
+0x000007A0 0x3C0607C0 inverse 
+0x000007A9 0x3C0607C9 greyscale 
+0x000007C6 0x3C0607E6 /setting.txt
+0x000007D3 0x3C0607F3 Setting found
+0x000007EC 0x3C06080C bandwidthSSB
+0x000007F9 0x3C060819 bandwidthAM
+0x00000805 0x3C060825 bandwidthFM
+0x00000811 0x3C060831 stepFM
+0x00000818 0x3C060838 stepAM
+0x0000081F 0x3C06083F stepSSB
+0x0000082C 0x3C06084C battery
+0x00000834 0x3C060854 decoder
+0x0000083C 0x3C06085C automute
+0x00000850 0x3C060870 station
+0x00000858 0x3C060878 volume
+0x0000085F 0x3C06087F softmute
+0x0000086C 0x3C06088C backlight
+0x0000088A 0x3C0608AA /README.txt
+0x00000896 0x3C0608B6 /eibi.txt
+0x000008A4 0x3C0608C4 /logfile.txt
+0x000008B1 0x3C0608D1 Failed to open directory: 
+0x000008CC 0x3C0608EC Not a directory
+0x000008DF 0x3C0608FF Size: 
+0x000008E6 0x3C060906 51.198467, 6.879189
+0x000008FA 0x3C06091A AUTO MUTE
+0x00000904 0x3C060924 MUTE ON
+0x00000917 0x3C060937 SIGNAL:
+0x00000924 0x3C060944 %4.2fV
+0x0000092F 0x3C06094F %4.1fC
+0x00000936 0x3C060956 %2d min
+0x0000094B 0x3C06096B Dlf Kult
+0x00000954 0x3C060974 DLF Kultur
+0x00000971 0x3C060991 USB_MSC
+0x0000097D 0x3C06099D Flash Size: %d
+0x0000098C 0x3C0609AC Mini Radio Flash Drive
+0x000009A9 0x3C0609C9 Mount Failed, formatting...
+0x000009C5 0x3C0609E5 Format Success
+0x000009D4 0x3C0609F4 Format Failed
+0x000009E2 0x3C060A02 /noserial
+0x000009EC 0x3C060A0C /rotate
+0x000009F4 0x3C060A14 /greyscale
+0x000009FF 0x3C060A1F /inverse
+0x00000A08 0x3C060A28 /test.txt
+0x00000A12 0x3C060A32 Test: Mini Radio as USB-Flash-Drive
+0x00000A36 0x3C060A56 Si4735 not detected
+0x00000A50 0x3C060A70 AGC ON
+0x00000A57 0x3C060A77 ATT: %2.2d
+0x00000A62 0x3C060A82 EasyTuneMode: Scan/Store Stations Temporary...
+0x00000A96 0x3C060AB6      --     
+0x00000AA3 0x3C060AC3     AM    
+0x00000AAE 0x3C060ACE EasyTuneMode: SSB Presets Copied Temporarly.
+0x00000ADB 0x3C060AFB Loading SSB
+0x00000AE7 0x3C060B07 Systemtime set via RDS
+0x00000AFE 0x3C060B1E 0x%04X
+0x00000B05 0x3C060B25 %02d.%02d.%02d
+0x00000B14 0x3C060B34 AF:%5.1f
+0x00000B23 0x3C060B43    SEEK   
+0x00000B2E 0x3C060B4E  SCANNER 
+0x00000B38 0x3C060B58 PI:%04X
+0x00000B40 0x3C060B60 /hardcopy.bmp
+0x00000B52 0x3C060B72  entries found.
+0x00000B68 0x3C060B88 Receiving Stations...
+0x00000B7E 0x3C060B9E Failed to save incoming data
+0x00000BAA 0x3C060BCA Reset to default stations done.
+0x00000BCA 0x3C060BEA Receiving Memories...
+0x00000BE5 0x3C060C05  userStations
+0x00000BF3 0x3C060C13 Radio will destroy in five sceconds...
+0x00000C1E 0x3C060C3E  TINT 
+0x00000C25 0x3C060C45  Normal 
+0x00000C2E 0x3C060C4E  Fast 
+0x00000C35 0x3C060C55  Slow 
+0x00000C3C 0x3C060C5C  Inverse 
+0x00000C46 0x3C060C66  GreyScale 
+0x00000C52 0x3C060C72  Color 
+0x00000C5A 0x3C060C7A  SEEK ON 
+0x00000C64 0x3C060C84  SEEK OFF 
+0x00000C6F 0x3C060C8F Volume  
+0x00000C78 0x3C060C98 TuneLock
+0x00000C81 0x3C060CA1 TuneFast
+0x00000C8A 0x3C060CAA Freeze  
+0x00000C93 0x3C060CB3 NumPad  
+0x00000C9C 0x3C060CBC Frozen  
+0x00000CA5 0x3C060CC5  Hardcopy 
+0x00000CB0 0x3C060CD0  Memories 
+0x00000CBB 0x3C060CDB  Stations 
+0x00000CC6 0x3C060CE6  ETM-List 
+0x00000CD1 0x3C060CF1  Settings 
+0x00000CDC 0x3C060CFC LOCKED
+0x00000D40 0x3C060D60 Pop/TA
+0x00000D59 0x3C060D79 Tone/BL
+0x00000D66 0x3C060D86 RTTY45
+0x00000D6D 0x3C060D8D RTTY75
+0x00000D7A 0x3C060D9A Replay
+0x00000D86 0x3C060DA6 Percent
+0x00000D8E 0x3C060DAE Voltage
+0x00000D96 0x3C060DB6 CpuTemp
+0x00000E08 0x3C060E28 Current Affairs
+0x00000E18 0x3C060E38 Information
+0x00000E2A 0x3C060E4A Education
+0x00000E3A 0x3C060E5A Culture
+0x00000E42 0x3C060E62 Science
+0x00000E4A 0x3C060E6A Varied
+0x00000E56 0x3C060E76 Easy Listening
+0x00000E65 0x3C060E85 Light Classics
+0x00000E74 0x3C060E94 Serious Classics
+0x00000E85 0x3C060EA5 Other music
+0x00000E91 0x3C060EB1 Weather
+0x00000E99 0x3C060EB9 Finance
+0x00000EA1 0x3C060EC1 Children
+0x00000EAA 0x3C060ECA Social Affairs
+0x00000EB9 0x3C060ED9 Religion
+0x00000EC2 0x3C060EE2 Phone In
+0x00000ECB 0x3C060EEB Travel
+0x00000ED2 0x3C060EF2 Leisure
+0x00000EDF 0x3C060EFF Country
+0x00000EE7 0x3C060F07 National
+0x00000EF0 0x3C060F10 Oldies
+0x00000EFC 0x3C060F1C Documentary
+0x00000F08 0x3C060F28 Alarm Test
+0x00000F19 0x3C060F39 VOLUME
+0x00000F29 0x3C060F49 Bandwidth
+0x00000F33 0x3C060F53 AGC/Att
+0x00000F3B 0x3C060F5B Seek Up
+0x00000F43 0x3C060F63 Seek Dn
+0x00000F4B 0x3C060F6B Backlight
+0x00000F5B 0x3C060F7B Battery
+0x00000F63 0x3C060F83 AutoMute
+0x00000F72 0x3C060F92 Recall
+0x00000F79 0x3C060F99 = TUNE =
+0x00000F82 0x3C060FA2 Station
+0x00000F8A 0x3C060FAA - ETM -
+0x00000F92 0x3C060FB2 Pinneberg
+0x00000F9C 0x3C060FBC TDF Time,fr
+0x00000FA8 0x3C060FC8 Droitwich
+0x00000FB2 0x3C060FD2 Polskie Radio
+0x00000FC0 0x3C060FE0 Algeria
+0x00000FC8 0x3C060FE8 NDB DY
+0x00000FCF 0x3C060FEF NDB LMA
+0x00000FD7 0x3C060FF7 NDB LAA
+0x00000FDF 0x3C060FFF NDB LJ
+0x00000FE6 0x3C061006 NDB BOT
+0x00000FEE 0x3C06100E NDB LI
+0x00000FF5 0x3C061015 Navtex
+0x00000FFC 0x3C06101C Budapest
+0x00001005 0x3C061025 Slovenija
+0x0000100F 0x3C06102F Magyar
+0x00001016 0x3C061036 SRR Radio
+0x00001020 0x3C061040 BNR Horizont
+0x00001033 0x3C061053 Country:Cz
+0x0000103E 0x3C06105E Caroline
+0x00001047 0x3C061067 Signal:Lit
+0x00001052 0x3C061072 Romania
+0x0000105A 0x3C06107A Romania SSR
+0x00001066 0x3C061086 Dechovka,Cz
+0x00001072 0x3C061092 Scotland
+0x0000107B 0x3C06109B Zan&Her hol
+0x00001087 0x3C0610A7 BBC Asian
+0x00001091 0x3C0610B1 MCB,hol
+0x00001099 0x3C0610B9 SSR Radio
+0x000010A3 0x3C0610C3 Al-Quran,Eg
+0x000010AF 0x3C0610CF Adasok,Hng
+0x000010C0 0x3C0610E0 BBC Live
+0x000010C9 0x3C0610E9 Power 927
+0x000010D3 0x3C0610F3 Country Cz
+0x000010DE 0x3C0610FE Sunrise
+0x000010E6 0x3C061106 BBC Radio 5
+0x000010F2 0x3C061112 Rossili
+0x000010FA 0x3C06111A SER Bilbao
+0x00001105 0x3C061125 Lyca Gold
+0x0000110F 0x3C06112F SER Radio
+0x00001119 0x3C061139 TalkSPORT
+0x00001129 0x3C061149 Capodistria
+0x00001135 0x3C061155 Studio X
+0x00001144 0x3C061164 Valencia
+0x0000114D 0x3C06116D Christian
+0x00001157 0x3C061177 Satelor,Rou
+0x00001163 0x3C061183 Smooth
+0x0000116A 0x3C06118A Galati
+0x00001171 0x3C061191 Milano,z100
+0x0000117D 0x3C06119D Manx Gold
+0x0000118C 0x3C0611AC Baltic Waves
+0x00001199 0x3C0611B9 Overcomer
+0x000011A3 0x3C0611C3 Redhill
+0x000011AB 0x3C0611CB Lyca Radio
+0x000011B6 0x3C0611D6 TWR Europe
+0x000011C1 0x3C0611E1 Museumsradio
+0x000011CE 0x3C0611EE Moldova
+0x000011DB 0x3C0611FB Lenta:Lit
+0x000011E5 0x3C061205 Milano RC
+0x000011EF 0x3C06120F Bukarest
+0x000011F8 0x3C061218 SER Linares
+0x00001208 0x3C061228 Northwood
+0x00001212 0x3C061232 Shannon
+0x0000121A 0x3C06123A kaliningrad'
+0x00001227 0x3C061247 Channel 292
+0x00001233 0x3C061253 SWRadioGold
+0x0000123F 0x3C06125F HCJB wnm
+0x00001248 0x3C061268 Buzzer
+0x0000124F 0x3C06126F Progreso Cb
+0x0000125B 0x3C06127B Nashville
+0x00001265 0x3C061285 San Antonio
+0x00001271 0x3C061291 RWM Moscow
+0x0000127C 0x3C06129C DRA5 cw/ry
+0x00001287 0x3C0612A7 RAF Volmet
+0x00001292 0x3C0612B2 contikenzo'
+0x0000129E 0x3C0612BE Brother Stair
+0x000012AC 0x3C0612CC mike radio'
+0x000012B8 0x3C0612D8 BBC DRM
+0x000012C0 0x3C0612E0 taxus'
+0x000012C7 0x3C0612E7 WWCR4,NA
+0x000012D0 0x3C0612F0 NorthernStar
+0x000012DD 0x3C0612FD horizon'
+0x000012E6 0x3C061306 World Music
+0x000012F2 0x3C061312 Europe 2'
+0x000012FC 0x3C06131C Miami Int
+0x00001306 0x3C061326 SuperClan'
+0x00001311 0x3C061331 radiodelta.am
+0x0000131F 0x3C06133F Beijing
+0x00001327 0x3C061347 radio QSL'
+0x00001337 0x3C061357 Cuba|Ankara
+0x00001343 0x3C061363 piepzender'
+0x0000134F 0x3C06136F casanova'
+0x00001359 0x3C061379 PBS Xizang
+0x00001364 0x3C061384 BBC|Bhutan
+0x0000136F 0x3C06138F delta'|China
+0x0000137C 0x3C06139C HCJB Quito
+0x00001387 0x3C0613A7 Ev.Mission'nn
+0x00001395 0x3C0613B5 Mi Amigo Int
+0x000013A2 0x3C0613C2 Korea wfrtn
+0x000013AE 0x3C0613CE Nauen'
+0x000013B5 0x3C0613D5 'NHK Japan
+0x000013C0 0x3C0613E0 Blacksmith
+0x000013CB 0x3C0613EB Santa Cruz
+0x000013D6 0x3C0613F6 Gloria|Onda
+0x000013E2 0x3C061402 Woofferton
+0x000013ED 0x3C06140D Europa 24
+0x000013F7 0x3C061417 VoKorea1900
+0x00001403 0x3C061423 BibleVoice'
+0x0000140F 0x3C06142F realmix.fi'
+0x0000141B 0x3C06143B monaLisa'
+0x00001425 0x3C061445 monique'
+0x0000142E 0x3C06144E trx radio'
+0x0000143D 0x3C06145D pbbNavy75
+0x00001447 0x3C061467 Bangkok Vol
+0x00001458 0x3C061478 nexus.org
+0x00001462 0x3C061482 Bible Voice
+0x0000146E 0x3C06148E BBC wfrtn
+0x00001478 0x3C061498 WMRI,FL
+0x00001480 0x3C0614A0 CHU Canada
+0x0000148B 0x3C0614AB DE SVO, gr
+0x00001496 0x3C0614B6 TAH, tr
+0x0000149E 0x3C0614BE Murmansk
+0x000014A7 0x3C0614C7 vol/rtty,rus
+0x000014B4 0x3C0614D4 HFDL Shnnn
+0x000014BF 0x3C0614DF HFDL Rykjvk
+0x000014D0 0x3C0614F0 Bethel,PA
+0x000014DF 0x3C0614FF Liangyou 1
+0x000014EF 0x3C06150F Pilipinas
+0x000014F9 0x3C061519 Sofia TX
+0x00001502 0x3C061522 BBC WS asc
+0x0000150D 0x3C06152D CNR 13
+0x00001514 0x3C061534 VoKorea
+0x00001521 0x3C061541 KBS Seoul
+0x0000152B 0x3C06154B 'Ndarason
+0x00001535 0x3C061555 IBRA Radio
+0x00001540 0x3C061560 Vatican
+0x00001548 0x3C061568 CNR 17
+0x0000154F 0x3C06156F KBS World
+0x00001559 0x3C061579 Voz Mission
+0x00001565 0x3C061585 China 500 kW
+0x00001572 0x3C061592 Exterior
+0x0000157B 0x3C06159B Romania dxp
+0x0000158D 0x3C0615AD BBC vtcn
+0x00001596 0x3C0615B6 France Int
+0x000015A1 0x3C0615C1 Delta Int'
+0x000015AC 0x3C0615CC KSDA Guam
+0x000015BC 0x3C0615DC Free Asia
+0x000015C6 0x3C0615E6 JN53DV:it
+0x000015D0 0x3C0615F0 DK0WCY c/r
+0x000015DB 0x3C0615FB KTWR Guam
+0x000015E5 0x3C061605 Liangyou
+0x000015EE 0x3C06160E JRC Dabanga
+0x000015FA 0x3C06161A VoVietnam
+0x00001604 0x3C061624 Farda:Biblis
+0x00001611 0x3C061631 HFDL Cnrs
+0x0000161B 0x3C06163B Radio Saudi
+0x00001627 0x3C061647 New Zealand
+0x00001633 0x3C061653 Ifrikya FM
+0x0000163E 0x3C06165E All India
+0x0000164D 0x3C06166D DW Issdn
+0x00001656 0x3C061676 ExtEspana
+0x00001660 0x3C061680 BBC WS
+0x00001667 0x3C061687 BBC mdgsc
+0x00001671 0x3C061691 Nexus IBA
+0x0000167B 0x3C06169B 'Adventist
+0x00001686 0x3C0616A6 BBC asc
+0x0000168E 0x3C0616AE Ndarason'Int
+0x0000169B 0x3C0616BB JRC Tamazui
+0x000016AD 0x3C0616CD WorldMusic
+0x000016B8 0x3C0616D8 WRMI Miami
+0x000016C3 0x3C0616E3 ch.marker,rus
+0x000016D1 0x3C0616F1 Bethel PA
+0x000016DB 0x3C0616FB RNE Spain
+0x000016E5 0x3C061705 BBC mdgs
+0x000016EE 0x3C06170E BBC uae
+0x00003346 0x3C063366 3$&Q~q
+0x000033CD 0x3C0633ED PMYy=A
+0x00003BB5 0x3C063BD5 *JZY63
+0x00003FF5 0x3C064015 8%&I@[W
+0x000040B5 0x3C0640D5 xd\HEp5
+0x0000427E 0x3C06429E outl.w
+0x000047E5 0x3C064805 7_%@pG
+0x000051C0 0x3C0651E0 333333?
+0x00005366 0x3C065386 @px<<<
+0x000057D3 0x3C0657F3 333333?
+0x0002041E 0x3C08043E /format_ffat
+0x0002048B 0x3C0804AB B/spiffs
+0x0002109C 0x3C0810BC 7777777777
+0x0002178B 0x3C0817AB           
+0x0002352D 0x3C08354D @      
+0x00023535 0x3C083555       @
+0x0002353E 0x3C08355E @@@@@@@@@@@@@
+0x0002354E 0x3C08356E       @      
+0x000235C3 0x3C0835E3 @@@@@0
+0x00023640 0x3C083660 @@@@@@@@@
+0x00023672 0x3C083692 @@@@@@@
+0x0002374F 0x3C08376F           
+0x000238B0 0x3C0838D0 @@@@@@@@
+0x00023B2F 0x3C083B4F @@@@@@@@
+0x00023BB1 0x3C083BD1 >[O[>>kOk>
+0x00023BE8 0x3C083C08 &)y)&@
+0x00023C19 0x3C083C39 j`````
+0x00023C68 0x3C083C88 db6IV P
+0x00023CA6 0x3C083CC6 rIIIF!AIM3
+0x00023CB5 0x3C083CD5 'EEE9<JII1A!
+0x00023CC4 0x3C083CE4 6III6FII)
+0x00023CEC 0x3C083D0C >A]YN|
+0x00023CF7 0x3C083D17 III6>AAA"
+0x00023D49 0x3C083D69 )F&III2
+0x00023D5F 0x3C083D7F ?@8@?c
+0x00023D97 0x3C083DB7 (DD88DDD(8DD(
+0x00023DD6 0x3C083DF6 x8DDD8
+0x00023DF2 0x3C083E12 ?D$<@@ |
+0x00023DFF 0x3C083E1F <@0@<D(
+0x00023E0D 0x3C083E2D |DdTLD
+0x00023E31 0x3C083E51 :@@ z8TTUY!UUyA!TTxA!UTx@ TUy@
+0x00023E54 0x3C083E74 9UUUY9TTTY9UTTX
+0x00023E81 0x3C083EA1  TT|T|
+0x00023E8A 0x3C083EAA I2III22HHH22JHH0:AA!z:B@ x
+0x00023EA8 0x3C083EC8 }9DDD9=@@@=<$
+0x00023EB6 0x3C083ED6 $$H~ICf+/
+0x00023ED3 0x3C083EF3 D}A0HHJ28@@"z
+0x00023EE8 0x3C083F08 1}&))/(&)))&0HM@ 8
+0x0002400C 0x3C08402C 8DD8D|**>
+0x00024020 0x3C084040 cUIAc8DD<
+0x00024041 0x3C084061 rL0JMM00HxH0
+0x0002404E 0x3C08406E bZF=>III
+0x0002405B 0x3C08407B ~*****DD_DD@QJD@@DJQ@
+0x000240EF 0x3C08410F Beeprom
+0x000240F7 0x3C084117 expand
+0x00024129 0x3C084149 H1234567890ABCD*#
+0x00024173 0x3C084193 BARDUINO_HW_CDC_EVENTS
+0x000241C3 0x3C0841E3 BESP32S3_DEV
+0x000241D0 0x3C0841F0 Espressif Systems
+0x000241E2 0x3C084202 __MAC__
+0x000241EA 0x3C08420A https://espressif.github.io/arduino-esp32/webusb.html
+0x00024220 0x3C084240 arduino_usb_events
+0x00024233 0x3C084253 %02X%02X%02X%02X%02X%02X
+0x0002424C 0x3C08426C ARDUINO_USB_EVENTS
+0x0002425F 0x3C08427F TinyUSB MSC
+0x0002426D 0x3C08428D TinyUSB Device
+0x000242D8 0x3C0842F8 WINUSB
+0x0002436C 0x3C08438C loopTask
+0x00024375 0x3C084395 0123456789abcdef
+0x000243BF 0x3C0843DF B(pxRingbuffer->xItemsWaiting > 0) && ((pxRingbuffer->pucRead != pxRingbuffer->pucWrite) || (pxRingbuffer->uxRingbufferFlags & ( ( UBaseType_t ) 4 )))
+0x00024456 0x3C084476 /IDF/components/esp_ringbuf/ringbuf.c
+0x0002447C 0x3C08449C pxRingbuffer->pucRead >= pxRingbuffer->pucHead && pxRingbuffer->pucRead < pxRingbuffer->pucTail
+0x000244DC 0x3C0844FC pxRingbuffer->pucRead == pxRingbuffer->pucFree
+0x0002450B 0x3C08452B ( ( ( UBaseType_t ) ( pucItem ) & (0x03) ) == 0 )
+0x0002453D 0x3C08455D pucItem <= pxRingbuffer->pucTail
+0x0002455E 0x3C08457E pxCurHeader->xItemLen <= pxRingbuffer->xMaxItemSize
+0x00024592 0x3C0845B2 (pxCurHeader->uxItemFlags & ( ( UBaseType_t ) 2 )) == 0
+0x000245CA 0x3C0845EA (pxCurHeader->uxItemFlags & ( ( UBaseType_t ) 1 )) == 0
+0x00024602 0x3C084622 pxRingbuffer->pucFree <= pxRingbuffer->pucHead + pxRingbuffer->xSize
+0x00024647 0x3C084667 pxIsSplit != ((void *)0)
+0x00024660 0x3C084680 ( ( ( UBaseType_t ) ( pxRingbuffer->pucRead ) & (0x03) ) == 0 )
+0x000246A0 0x3C0846C0 (pxHeader->xItemLen <= pxRingbuffer->xMaxItemSize) || (pxHeader->uxItemFlags & ( ( UBaseType_t ) 2 ))
+0x00024706 0x3C084726 pxHeader->xItemLen <= pxRingbuffer->xMaxItemSize
+0x00024737 0x3C084757 pcReturn >= pxRingbuffer->pucHead && pcReturn <= pxRingbuffer->pucTail
+0x0002477E 0x3C08479E pcReturn >= pxRingbuffer->pucHead && pcReturn < pxRingbuffer->pucTail
+0x000247C4 0x3C0847E4 ( ( ( UBaseType_t ) ( pxRingbuffer->pucAcquire ) & (0x03) ) == 0 )
+0x00024807 0x3C084827 pxRingbuffer->pucAcquire >= pxRingbuffer->pucHead && pxRingbuffer->pucAcquire < pxRingbuffer->pucTail
+0x0002486D 0x3C08488D xRemLen >= sizeof(ItemHeader_t)
+0x0002488D 0x3C0848AD (pxCurHeader->uxItemFlags & ( ( UBaseType_t ) 8 )) == 0
+0x000248C5 0x3C0848E5 pxRingbuffer->pucWrite <= pxRingbuffer->pucHead + pxRingbuffer->xSize
+0x0002490B 0x3C08492B *pvItem2 < *pvItem1
+0x0002491F 0x3C08493F xIsSplit == ( ( BaseType_t ) 0 )
+0x00024940 0x3C084960 (uint8_t *)pucItem >= pxRingbuffer->pucHead
+0x0002496C 0x3C08498C (uint8_t *)pucItem < pxRingbuffer->pucTail
+0x00024997 0x3C0849B7 xReturn <= pxRingbuffer->xSize
+0x000249B6 0x3C0849D6 xBufferSize > 0
+0x000249C6 0x3C0849E6 xBufferType < RINGBUF_TYPE_MAX
+0x000249E5 0x3C084A05 pxRingbuffer
+0x000249F2 0x3C084A12 ppvItem != ((void *)0) || xItemSize == 0
+0x00024A1B 0x3C084A3B (pxRingbuffer->uxRingbufferFlags & (( ( UBaseType_t ) 2 ) | ( ( UBaseType_t ) 1 ))) == 0
+0x00024A74 0x3C084A94 pvItem != ((void *)0)
+0x00024A8A 0x3C084AAA pxRingbuffer->uxRingbufferFlags & ( ( UBaseType_t ) 2 )
+0x00024AC2 0x3C084AE2 vRingbufferGetInfo
+0x00024AD5 0x3C084AF5 xRingbufferGetCurFreeSize
+0x00024AEF 0x3C084B0F xRingbufferGetMaxItemSize
+0x00024B09 0x3C084B29 vRingbufferDelete
+0x00024B1B 0x3C084B3B vRingbufferReturnItemFromISR
+0x00024B38 0x3C084B58 vRingbufferReturnItem
+0x00024B4E 0x3C084B6E xRingbufferReceiveUpToFromISR
+0x00024B6C 0x3C084B8C prvReceiveGenericFromISR
+0x00024B85 0x3C084BA5 prvReceiveGeneric
+0x00024B97 0x3C084BB7 xRingbufferReceive
+0x00024BAA 0x3C084BCA xRingbufferSendFromISR
+0x00024BC1 0x3C084BE1 xRingbufferSend
+0x00024BD1 0x3C084BF1 prvGetFreeSize
+0x00024BE0 0x3C084C00 prvCheckItemFitsDefault
+0x00024BF8 0x3C084C18 prvSendItemDoneNoSplit
+0x00024C0F 0x3C084C2F prvAcquireItemNoSplit
+0x00024C25 0x3C084C45 prvGetItemDefault
+0x00024C37 0x3C084C57 prvReturnItemDefault
+0x00024C4C 0x3C084C6C prvCopyItemAllowSplit
+0x00024C62 0x3C084C82 prvCheckItemFitsByteBuffer
+0x00024C7D 0x3C084C9D prvCopyItemByteBuf
+0x00024C90 0x3C084CB0 prvGetItemByteBuf
+0x00024CA2 0x3C084CC2 prvReturnItemByteBuf
+0x00024CB7 0x3C084CD7 xRingbufferCreate
+0x00024CCE 0x3C084CEE E (%u) %s: %s(%d): %s
+0x00024CE5 0x3C084D05 GPIO number error
+0x00024CF7 0x3C084D17 GPIO output gpio_num error
+0x00024D12 0x3C084D32 GPIO interrupt type error
+0x00024D2C 0x3C084D4C GPIO pull mode error
+0x00024D41 0x3C084D61 E (%u) %s: GPIO_PIN mask error 
+0x00024D62 0x3C084D82 io_reg != (intptr_t)NULL
+0x00024D7B 0x3C084D9B /IDF/components/driver/gpio.c
+0x00024D99 0x3C084DB9 GPIO isr service is not installed, call gpio_install_isr_service() first
+0x00024DE2 0x3C084E02 GPIO ISR null
+0x00024DF0 0x3C084E10 E (%u) %s: esp_ipc_call_blocking failed (0x%x)
+0x00024E20 0x3C084E40 E (%u) %s: esp_intr_alloc failed (0x%x)
+0x00024E49 0x3C084E69 GPIO isr service already installed
+0x00024E6C 0x3C084E8C E (%u) %s: GPIO wakeup only supports level mode, but edge mode set. gpio_num:%u
+0x00024EBD 0x3C084EDD GPIO drive capability error
+0x00024ED9 0x3C084EF9 gpio_set_drive_capability
+0x00024EF3 0x3C084F13 gpio_wakeup_enable
+0x00024F06 0x3C084F26 gpio_isr_register
+0x00024F18 0x3C084F38 gpio_isr_handler_add
+0x00024F2D 0x3C084F4D gpio_install_isr_service
+0x00024F46 0x3C084F66 gpio_config
+0x00024F52 0x3C084F72 gpio_od_disable
+0x00024F62 0x3C084F82 gpio_od_enable
+0x00024F71 0x3C084F91 gpio_output_disable
+0x00024F85 0x3C084FA5 gpio_output_enable
+0x00024F98 0x3C084FB8 gpio_input_disable
+0x00024FAB 0x3C084FCB gpio_input_enable
+0x00024FBD 0x3C084FDD gpio_set_direction
+0x00024FD0 0x3C084FF0 gpio_set_pull_mode
+0x00024FE3 0x3C085003 gpio_set_level
+0x00024FF2 0x3C085012 gpio_intr_disable
+0x00025004 0x3C085024 gpio_intr_enable_on_core
+0x0002501D 0x3C08503D gpio_intr_enable
+0x0002502E 0x3C08504E gpio_set_intr_type
+0x00025041 0x3C085061 gpio_pulldown_dis
+0x00025053 0x3C085073 gpio_pulldown_en
+0x00025064 0x3C085084 gpio_pullup_dis
+0x00025074 0x3C085094 gpio_pullup_en
+0x00025083 0x3C0850A3 HPTaskAwoken != NULL
+0x00025098 0x3C0850B8 /IDF/components/driver/i2c.c
+0x000250B9 0x3C0850D9 E (%u) %s: i2c command link allocation error: the buffer provided is too small.
+0x0002510A 0x3C08512A E (%u) %s: i2c command link malloc error
+0x00025134 0x3C085154 cmd_desc != NULL
+0x00025145 0x3C085165 cmd_desc->cur != NULL
+0x0002515B 0x3C08517B E (%u) %s: %s(%d): i2c number error
+0x00025180 0x3C0851A0 E (%u) %s: %s(%d): i2c driver install error
+0x000251AD 0x3C0851CD E (%u) %s: %s(%d): i2c timing value error
+0x000251D8 0x3C0851F8 E (%u) %s: %s(%d): i2c null address error
+0x00025203 0x3C085223 E (%u) %s: %s(%d): i2c buffer size too small for slave mode
+0x00025240 0x3C085260 E (%u) %s: i2c driver malloc error
+0x00025264 0x3C085284 E (%u) %s: i2c ringbuffer error
+0x00025285 0x3C0852A5 E (%u) %s: i2c semaphore error
+0x000252A5 0x3C0852C5 E (%u) %s: i2c driver install error
+0x000252CA 0x3C0852EA E (%u) %s: %s(%d): sda gpio number error
+0x000252F4 0x3C085314 E (%u) %s: %s(%d): scl gpio number error
+0x0002531E 0x3C08533E E (%u) %s: %s(%d): this i2c pin does not support internal pull-up
+0x00025361 0x3C085381 E (%u) %s: %s(%d): scl and sda gpio numbers are the same
+0x0002539B 0x3C0853BB E (%u) %s: %s(%d): i2c mode error
+0x000253BE 0x3C0853DE E (%u) %s: %s(%d): i2c clock choice is invalid, please check flag and frequency
+0x0002540F 0x3C08542F E (%u) %s: %s(%d): i2c command link error
+0x0002543A 0x3C08545A E (%u) %s: %s(%d): i2c ack type error
+0x00025461 0x3C085481 E (%u) %s: %s(%d): i2c data read length error
+0x00025490 0x3C0854B0 E (%u) %s: %s(%d): i2c driver not installed
+0x000254BD 0x3C0854DD E (%u) %s: %s(%d): Only allowed in master mode
+0x000254ED 0x3C08550D E (%u) %s: Using buffer allocated from psram
+0x0002551B 0x3C08553B i2c_master_cmd_begin
+0x00025530 0x3C085550 i2c_master_read
+0x00025540 0x3C085560 i2c_master_read_byte
+0x00025555 0x3C085575 i2c_master_write_byte
+0x0002556B 0x3C08558B i2c_master_write
+0x0002557C 0x3C08559C i2c_master_stop
+0x0002558C 0x3C0855AC i2c_cmd_link_append
+0x000255A0 0x3C0855C0 i2c_master_start
+0x000255B1 0x3C0855D1 i2c_set_pin
+0x000255BD 0x3C0855DD i2c_isr_register
+0x000255CE 0x3C0855EE i2c_set_timeout
+0x000255DE 0x3C0855FE i2c_param_config
+0x000255EF 0x3C08560F i2c_reset_rx_fifo
+0x00025601 0x3C085621 i2c_reset_tx_fifo
+0x00025613 0x3C085633 i2c_driver_delete
+0x00025625 0x3C085645 i2c_master_cmd_begin_static
+0x00025641 0x3C085661 i2c_driver_install
+0x00025659 0x3C085679 E (%u) %s: Calibrate CLK8M_CLK failed
+0x00025680 0x3C0856A0 E (%u) %s: %s(%d): speed_mode argument is invalid
+0x000256B3 0x3C0856D3 E (%u) %s: %s(%d): timer_select argument is invalid
+0x000256E8 0x3C085708 LEDC is not initialized
+0x00025706 0x3C085726 /IDF/components/driver/ledc.c
+0x00025724 0x3C085744 E (%u) %s: requested frequency and duty resolution can not be achieved, try reducing freq_hz or duty_resolution. div_param=%d
+0x000257B0 0x3C0857D0 E (%u) %s: %s(%d): timer_conf argument is invalid
+0x000257E3 0x3C085803 E (%u) %s: freq_hz=%u duty_resolution=%u
+0x0002580D 0x3C08582D E (%u) %s: invalid timer #%u
+0x0002582B 0x3C08584B E (%u) %s: %s(%d): ledc_channel argument is invalid
+0x00025860 0x3C085880 E (%u) %s: %s(%d): gpio_num argument is invalid
+0x00025891 0x3C0858B1 E (%u) %s: %s(%d): channel argument is invalid
+0x000258C1 0x3C0858E1 E (%u) %s: %s(%d): hpoint argument is invalid
+0x000258F0 0x3C085910 E (%u) %s: %s(%d): ledc_conf argument is invalid
+0x00025922 0x3C085942 E (%u) %s: %s(%d): intr_type argument is invalid
+0x00025954 0x3C085974 E (%u) %s: %s(%d): timer_num argument is invalid
+0x00025986 0x3C0859A6 ledc_get_freq
+0x00025994 0x3C0859B4 ledc_get_duty
+0x000259A2 0x3C0859C2 ledc_set_duty
+0x000259B0 0x3C0859D0 ledc_set_duty_with_hpoint
+0x000259CA 0x3C0859EA ledc_update_duty
+0x000259DB 0x3C0859FB ledc_channel_config
+0x000259EF 0x3C085A0F ledc_clk_cfg_to_global_clk
+0x00025A0A 0x3C085A2A ledc_timer_config
+0x00025A1C 0x3C085A3C ledc_timer_rst
+0x00025A2B 0x3C085A4B ledc_bind_channel_timer
+0x00025A43 0x3C085A63 ledc_timer_set
+0x00025A52 0x3C085A72 periph < PERIPH_MODULE_MAX
+0x00025A6D 0x3C085A8D /IDF/components/driver/periph_ctrl.c
+0x00025A92 0x3C085AB2 periph_module_reset
+0x00025AA6 0x3C085AC6 periph_module_disable
+0x00025ABC 0x3C085ADC periph_module_enable
+0x00025AD5 0x3C085AF5 E (%u) %s: RMT RX BUFFER FULL
+0x00025AF4 0x3C085B14 E (%u) %s: RMT RX BUFFER ERROR
+0x00025B14 0x3C085B34 E (%u) %s: ---RX buffer too small: %d
+0x00025B3B 0x3C085B5B E (%u) %s: %s(%d): RMT CHANNEL ERR
+0x00025B5F 0x3C085B7F E (%u) %s: %s(%d): RMT ADDRESS ERR
+0x00025B83 0x3C085BA3 E (%u) %s: %s(%d): RMT MEM BLOCK NUM ERR
+0x00025BAD 0x3C085BCD E (%u) %s: %s(%d): RMT MEM OWNER_ERR
+0x00025BD3 0x3C085BF3 E (%u) %s: %s(%d): RMT BASECLK ERR
+0x00025BF7 0x3C085C17 E (%u) %s: %s(%d): RMT EVT THRESH ERR
+0x00025C1E 0x3C085C3E E (%u) %s: %s(%d): RMT MODE ERROR
+0x00025C41 0x3C085C61 E (%u) %s: %s(%d): RMT GPIO ERROR
+0x00025C64 0x3C085C84 E (%u) %s: %s(%d): set gpio for RMT driver failed
+0x00025C97 0x3C085CB7 E (%u) %s: %s(%d): RMT CLK DIV ERR
+0x00025CBB 0x3C085CDB E (%u) %s: %s(%d): RMT carrier frequency can't be zero
+0x00025CF3 0x3C085D13 E (%u) %s: %s(%d): initialize RMT driver failed
+0x00025D24 0x3C085D44 E (%u) %s: %s(%d): RMT PARAM LEN ERROR
+0x00025D4C 0x3C085D6C E (%u) %s: %s(%d): RMT WR MEM OVERFLOW
+0x00025D74 0x3C085D94 E (%u) %s: %s(%d): RMT driver installed, can not install generic ISR handler
+0x00025DC2 0x3C085DE2 E (%u) %s: RMT driver malloc error
+0x00025DE6 0x3C085E06 E (%u) %s: RMT malloc fail
+0x00025E02 0x3C085E22 E (%u) %s: %s(%d): RMT DRIVER ERR
+0x00025E25 0x3C085E45 rmt_write_items
+0x00025E35 0x3C085E55 rmt_driver_install
+0x00025E48 0x3C085E68 rmt_isr_register
+0x00025E59 0x3C085E79 rmt_internal_config
+0x00025E6D 0x3C085E8D rmt_config
+0x00025E78 0x3C085E98 rmt_set_gpio
+0x00025E85 0x3C085EA5 rmt_set_tx_thr_intr_en
+0x00025E9C 0x3C085EBC rmt_set_source_clk
+0x00025EAF 0x3C085ECF rmt_set_tx_loop_mode
+0x00025EC4 0x3C085EE4 rmt_set_memory_owner
+0x00025ED9 0x3C085EF9 rmt_tx_stop
+0x00025EE5 0x3C085F05 rmt_tx_start
+0x00025EF2 0x3C085F12 rmt_set_clk_div
+0x00025F08 0x3C085F28 E (%u) %s: %s(%d): RTCIO number error
+0x00025F2F 0x3C085F4F rtc_gpio_wakeup_enable
+0x00025F46 0x3C085F66 rtc_gpio_pulldown_dis
+0x00025F5C 0x3C085F7C rtc_gpio_pullup_dis
+0x00025F70 0x3C085F90 rtc_gpio_set_direction
+0x00025F87 0x3C085FA7 rtc_gpio_deinit
+0x00025F97 0x3C085FB7 rtc_gpio_init
+0x00025FA5 0x3C085FC5 divider >= 2 && divider <= 65536
+0x00025FC6 0x3C085FE6 IDF/components/hal/esp32s3/include/hal/timer_ll.h
+0x00025FF8 0x3C086018 timer_group
+0x00026004 0x3C086024 E (%u) %s: %s(%d): TIMER GROUP NUM ERROR
+0x0002602E 0x3C08604E E (%u) %s: %s(%d): HW TIMER NUM ERROR
+0x00026055 0x3C086075 E (%u) %s: %s(%d): HW TIMER PARAM ADDR ERROR
+0x00026083 0x3C0860A3 E (%u) %s: %s(%d): HW TIMER NEVER INIT ERROR
+0x000260B1 0x3C0860D1 E (%u) %s: %s(%d): HW TIMER AUTORELOAD ERROR
+0x000260DF 0x3C0860FF E (%u) %s: %s(%d): HW TIMER divider outside of [2, 65536] range error
+0x00026126 0x3C086146 E (%u) %s: %s(%d): HW TIMER ALARM ERROR
+0x0002614F 0x3C08616F E (%u) %s: TIMER driver malloc error
+0x00026175 0x3C086195 E (%u) %s: %s(%d): register interrupt service failed
+0x000261AB 0x3C0861CB timer_disable_intr
+0x000261BE 0x3C0861DE timer_enable_intr
+0x000261D0 0x3C0861F0 timer_get_config
+0x000261E1 0x3C086201 timer_init
+0x000261EC 0x3C08620C timer_isr_register
+0x000261FF 0x3C08621F timer_isr_callback_add
+0x00026216 0x3C086236 timer_set_alarm
+0x00026226 0x3C086246 timer_set_alarm_value
+0x0002623C 0x3C08625C timer_ll_set_divider
+0x00026251 0x3C086271 timer_set_divider
+0x00026263 0x3C086283 timer_set_auto_reload
+0x00026279 0x3C086299 timer_pause
+0x00026285 0x3C0862A5 timer_start
+0x00026291 0x3C0862B1 timer_set_counter_value
+0x000262A9 0x3C0862C9 E (%u) %s: %s(%d): uart_num error
+0x000262CC 0x3C0862EC E (%u) %s: %s(%d): data bit error
+0x000262EF 0x3C08630F E (%u) %s: %s(%d): stop bit error
+0x00026312 0x3C086332 E (%u) %s: %s(%d): uart driver error
+0x00026338 0x3C086358 !(is_rs485_mode && disabled && uart_hal_get_intraw_mask(&(uart_context[uart_num].hal)) & UART_INTR_TX_DONE)
+0x000263A4 0x3C0863C4 /IDF/components/driver/uart.c
+0x000263C2 0x3C0863E2 E (%u) %s: rx_buffered_len error
+0x000263E4 0x3C086404 uart_flush_input
+0x000263F5 0x3C086415 uart_get_buffered_data_len
+0x00026410 0x3C086430 uart_reenable_intr_mask
+0x00026428 0x3C086448 uart_wait_tx_done
+0x0002643A 0x3C08645A uart_wait_tx_done
+0x0002644C 0x3C08646C uart_get_baudrate
+0x0002645E 0x3C08647E uart_set_baudrate
+0x00026470 0x3C086490 uart_get_parity
+0x00026480 0x3C0864A0 uart_set_parity
+0x00026490 0x3C0864B0 uart_get_stop_bits
+0x000264A3 0x3C0864C3 uart_set_stop_bits
+0x000264B6 0x3C0864D6 uart_get_word_length
+0x000264CB 0x3C0864EB uart_set_word_length
+0x000264E4 0x3C086504 E (%u) %s: %s called, but s_adc_power_on_cnt == 0
+0x00026517 0x3C086537 ADCADC_NUM_1 channel error
+0x00026532 0x3C086552 ADCADC_NUM_2 channel error
+0x0002654D 0x3C08656D E (%u) %s: %s:%d
+0x00026560 0x3C086580 WIDTH ERR: see `adc_bits_width_t` for supported bit width
+0x0002659A 0x3C0865BA ADC Atten Err
+0x000265A8 0x3C0865C8 adc1 lock release called before acquire
+0x000265D0 0x3C0865F0 ADC2 Atten Err
+0x000265DF 0x3C0865FF ADC out value err
+0x000265F1 0x3C086611 ADC Channel Err
+0x0002660C 0x3C08662C adc2_get_raw
+0x00026619 0x3C086639 adc2_config_channel_atten
+0x00026633 0x3C086653 adc1_get_raw
+0x00026640 0x3C086660 adc1_lock_release
+0x00026652 0x3C086672 adc1_config_channel_atten
+0x0002666C 0x3C08668C adc_common_gpio_init
+0x00026681 0x3C0866A1 adc_power_release
+0x00026693 0x3C0866B3 s_platform.groups[group_id]
+0x000266AF 0x3C0866CF /IDF/components/driver/gdma.c
+0x000266CD 0x3C0866ED group->pairs[pair_id]
+0x000266E3 0x3C086703 E (%u) %s: %s(%d): invalid argument
+0x00026708 0x3C086728 E (%u) %s: %s(%d): no mem for gdma tx channel
+0x00026737 0x3C086757 E (%u) %s: %s(%d): no mem for gdma rx channel
+0x00026766 0x3C086786 E (%u) %s: %s(%d): invalid sibling channel
+0x00026792 0x3C0867B2 E (%u) %s: %s(%d): sibling channel should have a different direction
+0x000267D8 0x3C0867F8 E (%u) %s: %s(%d): no mem for group(%d)
+0x00026801 0x3C086821 E (%u) %s: %s(%d): no mem for pair(%d,%d)
+0x0002682C 0x3C08684C E (%u) %s: %s(%d): no free gdma channel, search code=%d
+0x00026865 0x3C086885 pair && group
+0x00026873 0x3C086893 E (%u) %s: %s(%d): channel is using by peripheral: %d
+0x000268AA 0x3C0868CA E (%u) %s: %s(%d): peripheral %d is already used by another channel
+0x000268EF 0x3C08690F E (%u) %s: %s(%d): no peripheral is connected to the channel
+0x0002692D 0x3C08694D E (%u) %s: %s(%d): invalid sram alignment: %zu
+0x0002695D 0x3C08697D E (%u) %s: %s(%d): invalid psram alignment: %zu
+0x0002698E 0x3C0869AE gdma_start
+0x00026999 0x3C0869B9 gdma_set_transfer_ability
+0x000269B3 0x3C0869D3 gdma_disconnect
+0x000269C3 0x3C0869E3 gdma_connect
+0x000269D0 0x3C0869F0 gdma_get_channel_id
+0x000269E4 0x3C086A04 gdma_del_channel
+0x000269F5 0x3C086A15 gdma_release_group_handle
+0x00026A0F 0x3C086A2F gdma_release_pair_handle
+0x00026A28 0x3C086A48 gdma_new_channel
+0x00026A39 0x3C086A59 gdma_new_channel
+0x00026A50 0x3C086A70 E (%u) %s: Do not configure the temp sensor when it's running!
+0x00026A90 0x3C086AB0 E (%u) %s: %s(%d): no tsens specified
+0x00026AB7 0x3C086AD7 E (%u) %s: Temperature sensor is already running or not be configured
+0x00026AFE 0x3C086B1E E (%u) %s: %s(%d): no tsens_out specified
+0x00026B29 0x3C086B49 E (%u) %s: %s(%d): celsius points to nothing
+0x00026B57 0x3C086B77 E (%u) %s: %s(%d): failed to read raw data
+0x00026B83 0x3C086BA3 temp_sensor_read_celsius
+0x00026B9C 0x3C086BBC temp_sensor_read_raw
+0x00026BB1 0x3C086BD1 temp_sensor_get_config
+0x00026C40 0x3C086C60 esp_ota_ops
+0x00026C4C 0x3C086C6C E (%u) %s: not found otadata
+0x00026C6A 0x3C086C8A E (%u) %s: mmap otadata filed. Err=0x%8x
+0x00026C94 0x3C086CB4 phys_offs != SPI_FLASH_CACHE2PHYS_FAIL
+0x00026CBB 0x3C086CDB /IDF/components/app_update/esp_ota_ops.c
+0x00026CE4 0x3C086D04 it != NULL
+0x00026CEF 0x3C086D0F ota_app_count < 16 && "must erase the partition before writing to it"
+0x00026D35 0x3C086D55 E (%u) %s: Rollback is not possible, do not have any suitable apps in slots
+0x00026D82 0x3C086DA2 E (%u) %s: Running firmware is factory
+0x00026DAA 0x3C086DCA esp_ota_get_running_partition
+0x00026DC8 0x3C086DE8 esp_ota_get_app_partition_count
+0x00026DE8 0x3C086E08 boot_comm
+0x00026DF2 0x3C086E12 E (%u) %s: mismatch chip ID, expected %d, found %d
+0x00026E26 0x3C086E46 E (%u) %s: Image requires chip rev >= v%d.%d, but chip is v%d.%d
+0x00026E68 0x3C086E88 E (%u) %s: Image requires chip rev <= v%d.%d, but chip is v%d.%d
+0x00026EAA 0x3C086ECA bootloader_mmap
+0x00026EBA 0x3C086EDA E (%u) %s: tried to bootloader_mmap twice
+0x00026EE5 0x3C086F05 E (%u) %s: spi_flash_mmap failed: 0x%x
+0x00026F0D 0x3C086F2D mosi_len <= 32
+0x00026F1C 0x3C086F3C /IDF/components/bootloader_support/src/bootloader_flash.c
+0x00026F56 0x3C086F76 miso_len <= 32
+0x00026F65 0x3C086F85 miso_byte_num <= 4
+0x00026F78 0x3C086F98 bootloader_flash_read_sfdp
+0x00026F93 0x3C086FB3 bootloader_flash_execute_command_common
+0x00026FBB 0x3C086FDB esp_image
+0x00026FC5 0x3C086FE5 E (%u) %s: Checksum failed. Calculated 0x%x read 0x%x
+0x00026FFC 0x3C08701C E (%u) %s: image at 0x%x has invalid magic byte (nothing flashed here?)
+0x00027045 0x3C087065 E (%u) %s: image at 0x%x segment count %d exceeds max %d
+0x0002707F 0x3C08709F E (%u) %s: Image length %d doesn't fit in partition length %d
+0x000270BE 0x3C0870DE E (%u) %s: bootloader_flash_read failed at 0x%08x
+0x000270F1 0x3C087111 E (%u) %s: invalid segment length 0x%x
+0x00027119 0x3C087139 E (%u) %s: Segment %d load address 0x%08x, doesn't match data 0x%08x
+0x0002715F 0x3C08717F E (%u) %s: bootloader_mmap(0x%x, 0x%x) failed
+0x0002718E 0x3C0871AE E (%u) %s: image offset has wrapped
+0x000271B3 0x3C0871D3 E (%u) %s: partition size 0x%x invalid, larger than 16MB
+0x000271ED 0x3C08720D Calculated hash
+0x000271FD 0x3C08721D E (%u) %s: Image hash failed - image is corrupt
+0x0002722E 0x3C08724E Expected hash
+0x0002723C 0x3C08725C handle != NULL
+0x0002724B 0x3C08726B /IDF/components/bootloader_support/src/idf/bootloader_sha.c
+0x00027287 0x3C0872A7 ret == 0
+0x00027290 0x3C0872B0 bootloader_sha256_finish
+0x000272A9 0x3C0872C9 bootloader_sha256_data
+0x000272C0 0x3C0872E0 E (%u) %s: No MD5 found in partition table
+0x000272EC 0x3C08730C E (%u) %s: Partition table MD5 mismatch
+0x00027315 0x3C087335 E (%u) %s: load_partitions returned 0x%x
+0x0002733F 0x3C08735F /IDF/components/spi_flash/partition.c
+0x00027365 0x3C087385 iterator != NULL
+0x00027376 0x3C087396 partition != NULL
+0x00027388 0x3C0873A8 esp_partition_mmap
+0x0002739B 0x3C0873BB esp_partition_erase_range
+0x000273B5 0x3C0873D5 esp_partition_write_raw
+0x000273CD 0x3C0873ED esp_partition_read_raw
+0x000273E4 0x3C087404 esp_partition_write
+0x000273F8 0x3C087418 esp_partition_read
+0x0002740B 0x3C08742B esp_partition_get
+0x0002741D 0x3C08743D esp_partition_next
+0x00027430 0x3C087450 s_mmap_page_refcnt[i] == 0 || (entry_pro == SOC_MMU_PAGE_IN_FLASH(pages[pageno]) )
+0x00027483 0x3C0874A3 /IDF/components/spi_flash/flash_mmap.c
+0x000274AA 0x3C0874CA s_mmap_page_refcnt[i] > 0
+0x000274C4 0x3C0874E4 0 && "invalid handle, or handle already unmapped"
+0x000274F6 0x3C087516 spi_flash_munmap
+0x00027507 0x3C087527 spi_flash_mmap_pages
+0x0002751C 0x3C08753C E (%u) %s: unexpected spi flash error code: 0x%x
+0x0002754E 0x3C08756E E (%u) %s: failed to get chip size
+0x00027572 0x3C087592 len_remain < len
+0x00027583 0x3C0875A3 /IDF/components/spi_flash/esp_flash_api.c
+0x000275AD 0x3C0875CD len_remain < length
+0x000275C1 0x3C0875E1 E (%u) %s: flash encrypted write address must be 16 bytes aligned
+0x00027604 0x3C087624 E (%u) %s: flash encrypted write length must be multiple of 16
+0x00027644 0x3C087664 bus_acquired
+0x00027651 0x3C087671 esp_flash_write_encrypted
+0x0002766B 0x3C08768B esp_flash_write
+0x0002767B 0x3C08769B esp_flash_erase_region
+0x00027692 0x3C0876B2 spi_flash
+0x0002769C 0x3C0876BC E (%u) %s: Detected size(%dk) smaller than the size in the binary image header(%dk). Probe failed.
+0x00027700 0x3C087720 spi_flash
+0x0002770A 0x3C08772A chip_status == 0
+0x0002771B 0x3C08773B /IDF/components/spi_flash/spi_flash_os_func_app.c
+0x0002774D 0x3C08776D spi1_flash_os_check_yield
+0x00027767 0x3C087787 s_flash_op_mutex != NULL
+0x00027780 0x3C0877A0 /IDF/components/spi_flash/cache_utils.c
+0x000277A8 0x3C0877C8 esp_task_stack_is_sane_cache_disabled()
+0x000277D0 0x3C0877F0 s_flash_op_cpu == -1
+0x000277E5 0x3C087805 other_cpuid == 1
+0x000277F6 0x3C087816 esp_ipc_call(other_cpuid, &spi_flash_op_block_func, (void *) other_cpuid)
+0x00027840 0x3C087860 xPortGetCoreID() == cpuid
+0x0002785A 0x3C08787A cpuid == s_flash_op_cpu
+0x00027872 0x3C087892 !(xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED && cpuid != 0)
+0x000278B9 0x3C0878D9 spi_flash_enable_interrupts_caches_and_other_cpu
+0x000278EA 0x3C08790A spi_flash_disable_interrupts_caches_and_other_cpu
+0x0002791C 0x3C08793C spi_flash_init_lock
+0x00027934 0x3C087954 findItem(nsIndex, datatype, key, findPage, item)
+0x00027965 0x3C087985 IDF/components/nvs_flash/src/nvs_storage.cpp
+0x00027992 0x3C0879B2 esp_err_t nvs::Storage::writeItem(uint8_t, nvs::ItemType, const char*, const void*, size_t)
+0x00027A6B 0x3C087A8B BmPageList.back().getSeqNumber(lastSeqNo)
+0x00027A95 0x3C087AB5 IDF/components/nvs_flash/src/nvs_pagemanager.cpp
+0x00027AC6 0x3C087AE6 esp_err_t nvs::PageManager::load(nvs::Partition*, uint32_t, uint32_t)
+0x00027B0C 0x3C087B2C pthread
+0x00027B14 0x3C087B34 E (%u) %s: Failed to allocate task args!
+0x00027B3E 0x3C087B5E E (%u) %s: Failed to allocate pthread data!
+0x00027B6B 0x3C087B8B E (%u) %s: Failed to create task!
+0x00027B8E 0x3C087BAE false && "Failed to lock threads list!"
+0x00027BB6 0x3C087BD6 /IDF/components/pthread/pthread.c
+0x00027BD8 0x3C087BF8 E (%u) %s: %s: not supported!
+0x00027BF7 0x3C087C17 false && "Failed to release mutex!"
+0x00027C1B 0x3C087C3B false && "Failed to unlock mutex!"
+0x00027C3E 0x3C087C5E pthread_mutex_unlock
+0x00027C53 0x3C087C73 pthread_mutex_destroy
+0x00027C69 0x3C087C89 pthread_cancel
+0x00027C78 0x3C087C98 tls != NULL
+0x00027C84 0x3C087CA4 /IDF/components/pthread/pthread_local_storage.c
+0x00027CB4 0x3C087CD4 pthread_local_storage_thread_deleted_callback
+0x00027CE2 0x3C087D02 task_wdt
+0x00027CEB 0x3C087D0B E (%u) %s: Task watchdog got triggered. The following tasks did not reset the watchdog in time:
+0x00027D4C 0x3C087D6C E (%u) %s:  - %s (%s)
+0x00027D63 0x3C087D83 E (%u) %s: %s
+0x00027D72 0x3C087D92 E (%u) %s: CPU %d: %s
+0x00027D89 0x3C087DA9 E (%u) %s: Aborting.
+0x00027D9F 0x3C087DBF E (%u) %s: Print CPU %d (current core) backtrace
+0x00027DD1 0x3C087DF1 E (%u) %s: Print CPU %d backtrace
+0x00027DF4 0x3C087E14 esp_intr_alloc(ETS_TG0_WDT_LEVEL_INTR_SOURCE, 0, task_wdt_isr, NULL, &twdt_config->intr_handle)
+0x00027E54 0x3C087E74 IDF/components/esp_system/task_wdt.c
+0x00027E79 0x3C087E99 esp_register_freertos_idle_hook_for_cpu(idle_hook_cb, i)
+0x00027EB2 0x3C087ED2 esp_task_wdt_add
+0x00027EC3 0x3C087EE3 esp_task_wdt_init
+0x00027ED5 0x3C087EF5 cpu_start
+0x00027EDF 0x3C087EFF E (%u) %s: Running on single core variant of a chip, but app is built with multi-core support.
+0x00027F3F 0x3C087F5F E (%u) %s: Check that CONFIG_FREERTOS_UNICORE is enabled in menuconfig
+0x00027F87 0x3C087FA7 rtc_clk_xtal_freq_get() == RTC_XTAL_FREQ_40M
+0x00027FB4 0x3C087FD4 /IDF/components/esp_system/port/soc/esp32s3/clk.c
+0x00027FEB 0x3C08800B 'esp_clk_init
+0x00027FF9 0x3C088019 (hint & (~RST_REASON_MASK)) == 0
+0x0002801A 0x3C08803A /IDF/components/esp_system/port/soc/esp32s3/reset_reason.c
+0x00028055 0x3C088075 esp_reset_reason_set_hint
+0x00028084 0x3C0880A4 Backtrace:
+0x00028093 0x3C0880B3  0x%08X:0x%08X
+0x000280A2 0x3C0880C2  |<-CORRUPTED
+0x000280B0 0x3C0880D0  |<-CONTINUES
+0x000280C3 0x3C0880E3 core_id<portNUM_PROCESSORS
+0x000280DE 0x3C0880FE /IDF/components/esp_system/crosscore_int.c
+0x00028109 0x3C088129 esp_crosscore_int_send
+0x00028120 0x3C088140 esp_crosscore_int_init
+0x00028147 0x3C088167 `Guru Meditation Error: Core 
+0x00028165 0x3C088185  panic'ed (
+0x00028175 0x3C088195 Setting breakpoint at 0x
+0x0002818E 0x3C0881AE  and returning...
+0x000281A4 0x3C0881C4 ELF file SHA256: 
+0x000281B6 0x3C0881D6 Re-entered core dump! Exception happened during core dump!
+0x000281F3 0x3C088213 Rebooting...
+0x00028202 0x3C088222 vfs_err == ESP_OK && "Failed to register vfs console"
+0x00028238 0x3C088258 /IDF/components/esp_system/startup.c
+0x0002825D 0x3C08827D /dev/console/
+0x0002826B 0x3C08828B err == ESP_OK && "Failed to init pthread module!"
+0x0002829D 0x3C0882BD flash_ret == ESP_OK
+0x000282B1 0x3C0882D1 do_core_init
+0x000282C6 0x3C0882E6 7@Unknown
+0x000282D5 0x3C0882F5 Memory dump at 0x
+0x000282E7 0x3C088307 Icache sync parameter configuration error, the error address and size is 0x
+0x0002833B 0x3C08835B Icache preload parameter configuration error, the error address and size is 0x
+0x0002838A 0x3C0883AA Dcache sync parameter configuration error, the error address and size is 0x
+0x000283D6 0x3C0883F6 Dcache preload parameter configuration error, the error address and size is 0x
+0x00028425 0x3C088445 Write back error occurred while dcache tries to write back to flash
+0x0002846B 0x3C08848B MMU entry fault error occurred while accessing the address 0x
+0x000284A9 0x3C0884C9  (invalid mmu entry)
+0x000284BE 0x3C0884DE Debug exception reason: 
+0x000284D7 0x3C0884F7 SingleStep 
+0x000284E3 0x3C088503 HwBreakpoint 
+0x000284F1 0x3C088511 Stack canary watchpoint triggered (
+0x00028518 0x3C088538 Watchpoint 0 triggered 
+0x00028530 0x3C088550 BREAK instr 
+0x0002853D 0x3C08855D BREAKN instr 
+0x0002854B 0x3C08856B DebugIntr 
+0x00028556 0x3C088576  register dump:
+0x00028566 0x3C088586  was running in ISR context:
+0x00028585 0x3C0885A5 EPC1    : 0x
+0x00028592 0x3C0885B2   EPC2    : 0x
+0x000285A1 0x3C0885C1   EPC3    : 0x
+0x000285B0 0x3C0885D0   EPC4    : 0x
+0x000285BF 0x3C0885DF PC      
+0x000285C8 0x3C0885E8 PS      
+0x000285D1 0x3C0885F1 A0      
+0x000285DA 0x3C0885FA A1      
+0x000285E3 0x3C088603 A2      
+0x000285EC 0x3C08860C A3      
+0x000285F5 0x3C088615 A4      
+0x000285FE 0x3C08861E A5      
+0x00028607 0x3C088627 A6      
+0x00028610 0x3C088630 A7      
+0x00028619 0x3C088639 A8      
+0x00028622 0x3C088642 A9      
+0x0002862B 0x3C08864B A10     
+0x00028634 0x3C088654 A11     
+0x0002863D 0x3C08865D A12     
+0x00028646 0x3C088666 A13     
+0x0002864F 0x3C08866F A14     
+0x00028658 0x3C088678 A15     
+0x00028661 0x3C088681 SAR     
+0x0002866A 0x3C08868A EXCCAUSE
+0x00028673 0x3C088693 EXCVADDR
+0x0002867C 0x3C08869C LBEG    
+0x00028685 0x3C0886A5 LEND    
+0x0002868E 0x3C0886AE LCOUNT  
+0x000286F7 0x3C088717 <Exception was unhandled.
+0x00028711 0x3C088731 Unknown reason
+0x00028720 0x3C088740 Unhandled debug exception
+0x0002873A 0x3C08875A Double exception
+0x0002874B 0x3C08876B Unhandled kernel exception
+0x00028766 0x3C088786 Coprocessor exception
+0x0002877C 0x3C08879C Interrupt wdt timeout on CPU0
+0x0002879A 0x3C0887BA Interrupt wdt timeout on CPU1
+0x000287B8 0x3C0887D8 Cache disabled but cached memory region accessed
+0x000287E9 0x3C088809 IllegalInstruction
+0x000287FC 0x3C08881C Syscall
+0x00028804 0x3C088824 InstructionFetchError
+0x0002881A 0x3C08883A LoadStoreError
+0x00028829 0x3C088849 Level1Interrupt
+0x00028839 0x3C088859 Alloca
+0x00028840 0x3C088860 IntegerDivideByZero
+0x00028854 0x3C088874 PCValue
+0x0002885C 0x3C08887C Privileged
+0x00028867 0x3C088887 LoadStoreAlignment
+0x0002887A 0x3C08889A InstrPDAddrError
+0x0002888B 0x3C0888AB LoadStorePIFDataError
+0x000288A1 0x3C0888C1 InstrPIFAddrError
+0x000288B3 0x3C0888D3 LoadStorePIFAddrError
+0x000288C9 0x3C0888E9 InstTLBMiss
+0x000288D5 0x3C0888F5 InstTLBMultiHit
+0x000288E5 0x3C088905 InstFetchPrivilege
+0x000288F8 0x3C088918 InstrFetchProhibited
+0x0002890D 0x3C08892D LoadStoreTLBMiss
+0x0002891E 0x3C08893E LoadStoreTLBMultihit
+0x00028933 0x3C088953 LoadStorePrivilege
+0x00028946 0x3C088966 LoadProhibited
+0x00028955 0x3C088975 StoreProhibited
+0x00028965 0x3C088985 Cp0Dis
+0x0002896C 0x3C08898C Cp1Dis
+0x00028973 0x3C088993 Cp2Dis
+0x0002897A 0x3C08899A Cp3Dis
+0x00028981 0x3C0889A1 Cp4Dis
+0x00028988 0x3C0889A8 Cp5Dis
+0x0002898F 0x3C0889AF Cp6Dis
+0x00028996 0x3C0889B6 Cp7Dis
+0x00028A5F 0x3C088A7F <clk_cal->scl_wait_high < clk_cal->sda_sample && clk_cal->sda_sample < clk_cal->scl_high
+0x00028ABB 0x3C088ADB IDF/components/hal/esp32s3/include/hal/i2c_ll.h
+0x00028B5C 0x3C088B7C strncmp(src_path, vfs->path_prefix, vfs->path_prefix_len) == 0
+0x00028B9B 0x3C088BBB /IDF/components/vfs/vfs.c
+0x00028BB5 0x3C088BD5 translate_path
+0x00028BC4 0x3C088BE4 /dev/uart
+0x00028BD1 0x3C088BF1 /dev/secondary
+0x00028BE0 0x3C088C00 /dev/console
+0x00028C93 0x3C088CB3 Bs_ctx.peek_char == NONE
+0x00028CAC 0x3C088CCC /IDF/components/vfs/vfs_usb_serial_jtag.c
+0x00028CD6 0x3C088CF6 usb_serial_jtag_return_char
+0x00028D9E 0x3C088DBE fd >=0 && fd < 3
+0x00028DAF 0x3C088DCF /IDF/components/vfs/vfs_uart.c
+0x00028DCE 0x3C088DEE s_ctx[fd]->peek_char == NONE
+0x00028DEB 0x3C088E0B fd >= 0 && fd < 3
+0x00028DFD 0x3C088E1D uart_write
+0x00028E08 0x3C088E28 uart_return_char
+0x00028E19 0x3C088E39 uart_read
+0x00028E23 0x3C088E43 uart_close
+0x00028E2E 0x3C088E4E uart_fstat
+0x00028E39 0x3C088E59 uart_fcntl
+0x00028E44 0x3C088E64 uart_fsync
+0x00028EFF 0x3C088F1F ?event
+0x00028F06 0x3C088F26 E (%u) %s: alloc for new id node failed
+0x00028F2F 0x3C088F4F E (%u) %s: event_loop_args was NULL
+0x00028F54 0x3C088F74 E (%u) %s: event_loop was NULL
+0x00028F74 0x3C088F94 E (%u) %s: alloc for event loop failed
+0x00028F9C 0x3C088FBC E (%u) %s: create event loop queue failed
+0x00028FC7 0x3C088FE7 E (%u) %s: create event loop mutex failed
+0x00028FF2 0x3C089012 E (%u) %s: create task for loop failed
+0x0002901A 0x3C08903A event_loop
+0x00029025 0x3C089045 /IDF/components/esp_event/esp_event.c
+0x0002904B 0x3C08906B E (%u) %s: suspended task for loop %p
+0x00029072 0x3C089092 esp_event_isr_post_to
+0x00029088 0x3C0890A8 esp_event_post_to
+0x0002909A 0x3C0890BA esp_event_loop_delete
+0x000290B0 0x3C0890D0 esp_event_loop_run
+0x000290C3 0x3C0890E3 i == 0 || s_log_cache[(i - 1) / 2].generation < s_log_cache[i].generation
+0x0002910D 0x3C08912D /IDF/components/log/log.c
+0x00029127 0x3C089147 get_cached_log_level
+0x0002913C 0x3C08915C esp_log_level_set
+0x0002914E 0x3C08916E esp_ptr_in_diram_dram((void *)dstart)
+0x00029174 0x3C089194 /IDF/components/heap/heap_caps.c
+0x00029195 0x3C0891B5 esp_ptr_in_diram_dram((void *)dend)
+0x000291B9 0x3C0891D9 (dstart & 3) == 0
+0x000291CB 0x3C0891EB (dend & 3) == 0
+0x000291DB 0x3C0891FB heap != NULL && "free() target pointer is outside heap areas"
+0x00029219 0x3C089239 heap != NULL && "realloc() pointer is outside heap areas"
+0x00029253 0x3C089273 old_size > 0
+0x00029260 0x3C089280 heap_caps_calloc
+0x00029271 0x3C089291 heap_caps_realloc
+0x00029283 0x3C0892A3 heap_caps_free
+0x00029292 0x3C0892B2 heap_caps_malloc_prefer
+0x000292AA 0x3C0892CA heap_caps_realloc_base
+0x000292C1 0x3C0892E1 heap_caps_realloc_default
+0x000292DB 0x3C0892FB heap_caps_malloc_default
+0x000292F4 0x3C089314 dram_alloc_to_iram_addr
+0x0002930C 0x3C08932C heap_caps_malloc
+0x0002931D 0x3C08933D heap_size <= HEAP_SIZE_MAX
+0x00029338 0x3C089358 /IDF/components/heap/heap_caps_init.c
+0x0002935E 0x3C08937E heap_idx <= num_heaps
+0x00029374 0x3C089394 heap_idx == num_heaps
+0x0002938A 0x3C0893AA SLIST_EMPTY(&registered_heaps)
+0x000293A9 0x3C0893C9 heaps_array != NULL
+0x000293BD 0x3C0893DD heap_caps_init
+0x000293CC 0x3C0893EC register_heap
+0x000293DA 0x3C0893FA CORRUPT HEAP: multi_heap.c:%d detected at 0x%08x
+0x0002940C 0x3C08942C start_ptr
+0x00029416 0x3C089436 /IDF/components/heap/multi_heap.c
+0x00029438 0x3C089458 heap != NULL
+0x00029445 0x3C089465 multi_heap_realloc_impl
+0x0002945D 0x3C08947D multi_heap_register_impl
+0x00029481 0x3C0894A1 %p %s size: %x (%p)
+0x00029496 0x3C0894B6 tlsf_add_pool: Memory must be aligned by %u bytes.
+0x000294CA 0x3C0894EA tlsf_add_pool: Memory size must be between %u and %u bytes.
+0x00029507 0x3C089527 current && "free list cannot have a null entry"
+0x00029537 0x3C089557 /IDF/components/heap/heap_tlsf.c
+0x00029558 0x3C089578 block_to_ptr(block) == align_ptr(block_to_ptr(block), ALIGN_SIZE) && "block not aligned properly"
+0x000295BA 0x3C0895DA block_is_free(block) && "block should be free"
+0x000295E9 0x3C089609 !block_is_free(block_next(block)) && "next block should not be free"
+0x0002962E 0x3C08964E block_size(block_next(block)) == 0 && "next block size should be zero"
+0x00029675 0x3C089695 prev && "prev_free field can not be null"
+0x0002969F 0x3C0896BF next && "next_free field can not be null"
+0x000296C9 0x3C0896E9 tlsf_create: Memory must be aligned to %u bytes.
+0x000296FB 0x3C08971B sizeof(unsigned int) * CHAR_BIT >= control->sl_index_count && "CHAR_BIT less than sl_index_count"
+0x0002975D 0x3C08977D ALIGN_SIZE == control->small_block_size / control->sl_index_count && "ALIGN_SIZE does not match"
+0x000297BE 0x3C0897DE sl_map && "internal error - second level bitmap is null"
+0x000297F7 0x3C089817 block_size(block) >= size
+0x00029811 0x3C089831 block_is_free(block) && "block must be free"
+0x0002983E 0x3C08985E block_to_ptr(remaining) == align_ptr(block_to_ptr(remaining), ALIGN_SIZE) && "remaining block not aligned properly"
+0x000298B2 0x3C0898D2 block_size(block) == remain_size + size + block_header_overhead
+0x000298F2 0x3C089912 block_size(remaining) >= block_size_min && "block split with invalid size"
+0x0002993D 0x3C08995D !block_is_free(block) && "block already marked as free"
+0x00029975 0x3C089995 prev && "prev physical block can't be null"
+0x000299A1 0x3C0899C1 block_is_free(prev) && "prev block is not free though marked as such"
+0x000299E7 0x3C089A07 !block_is_last(prev) && "previous block can't be last"
+0x00029A1E 0x3C089A3E next && "next physical block can't be null"
+0x00029A4A 0x3C089A6A !block_is_last(block) && "previous block can't be last"
+0x00029A82 0x3C089AA2 !block_is_free(block) && "block must be used"
+0x00029AB0 0x3C089AD0 block_trim_used
+0x00029AC0 0x3C089AE0 tlsf_realloc
+0x00029ACD 0x3C089AED block_merge_next
+0x00029ADE 0x3C089AFE block_absorb
+0x00029AEB 0x3C089B0B block_merge_prev
+0x00029AFC 0x3C089B1C tlsf_free
+0x00029B06 0x3C089B26 block_split
+0x00029B12 0x3C089B32 block_trim_free
+0x00029B22 0x3C089B42 search_suitable_block
+0x00029B38 0x3C089B58 block_locate_free
+0x00029B4A 0x3C089B6A control_construct
+0x00029B5C 0x3C089B7C remove_free_block
+0x00029B6E 0x3C089B8E insert_free_block
+0x00029B80 0x3C089BA0 CORRUPT HEAP: Bad head at %p. Expected 0x%08x got 0x%08x
+0x00029BBA 0x3C089BDA CORRUPT HEAP: Bad tail at %p. Expected 0x%08x got 0x%08x
+0x00029BF4 0x3C089C14 head != NULL
+0x00029C01 0x3C089C21 /IDF/components/heap/multi_heap_poisoning.c
+0x00029C2D 0x3C089C4D multi_heap_get_allocated_size
+0x00029C4B 0x3C089C6B multi_heap_realloc
+0x00029C5E 0x3C089C7E multi_heap_free
+0x00029C6E 0x3C089C8E reserved[i].start <= reserved[i].end
+0x00029C93 0x3C089CB3 /IDF/components/heap/port/memory_layout_utils.c
+0x00029CC3 0x3C089CE3 reserved[i + 1].start > reserved[i].start
+0x00029CED 0x3C089D0D memory_layout
+0x00029CFB 0x3C089D1B E (%u) %s: SOC_RESERVE_MEMORY_REGION region range 0x%08x - 0x%08x overlaps with 0x%08x - 0x%08x
+0x00029D5C 0x3C089D7C s_prepare_reserved_regions
+0x00029E3C 0x3C089E5C STACK/DRAM
+0x00029E47 0x3C089E67 D/IRAM
+0x00029E4E 0x3C089E6E STACK/DIRAM
+0x00029E5A 0x3C089E7A SPIRAM
+0x00029E61 0x3C089E81 NON_DMA_DRAM
+0x00029E6E 0x3C089E8E RTCRAM
+0x0002A057 0x3C08A077 `ZZYY*
+0x0002A74C 0x3C08A76C result == core_id || result == SPINLOCK_FREE
+0x0002A779 0x3C08A799 /IDF/components/esp_hw_support/include/soc/spinlock.h
+0x0002A7AF 0x3C08A7CF (result == SPINLOCK_FREE) == (lock->count == 0)
+0x0002A7DF 0x3C08A7FF lock->count < 0xFF
+0x0002A7F2 0x3C08A812 core_id == lock->owner
+0x0002A809 0x3C08A829 lock->count < 0x100
+0x0002A81D 0x3C08A83D spinlock_release
+0x0002A82E 0x3C08A84E spinlock_acquire
+0x0002A854 0x3C08A874 !((vd->flags&VECDESC_FL_SHARED)&&(vd->flags&VECDESC_FL_NONSHARED))
+0x0002A897 0x3C08A8B7 /IDF/components/esp_hw_support/intr_alloc.c
+0x0002A8C3 0x3C08A8E3 svd != NULL
+0x0002A8D3 0x3C08A8F3 esp_intr_disable
+0x0002A8E4 0x3C08A904 esp_intr_free
+0x0002A8F2 0x3C08A912 is_vect_desc_usable
+0x0002A906 0x3C08A926 find_desc_for_source
+0x0002A91B 0x3C08A93B (size_bits % 8) == 0
+0x0002A930 0x3C08A950 /IDF/components/esp_hw_support/mac_addr.c
+0x0002A95A 0x3C08A97A E (%u) %s: eFuse MAC_CUSTOM is empty
+0x0002A980 0x3C08A9A0 esp_efuse_mac_get_default
+0x0002A99A 0x3C08A9BA esp_ptr_internal(&gpio_hal) && "If hold digital IO, the stack of the task calling esp_deep_sleep_start must be in internal ram!"
+0x0002AA1B 0x3C08AA3B /IDF/components/esp_hw_support/sleep_gpio.c
+0x0002AA47 0x3C08AA67 esp_sleep_isolate_digital_gpio
+0x0002AA66 0x3C08AA86 err == ESP_OK
+0x0002AA74 0x3C08AA94 /IDF/components/esp_hw_support/port/esp32s3/rtc_init.c
+0x0002AAAB 0x3C08AACB set_ocode_by_efuse
+0x0002AABE 0x3C08AADE sleep_flags & RTC_SLEEP_PD_XTAL
+0x0002AADE 0x3C08AAFE /IDF/components/esp_hw_support/port/esp32s3/rtc_sleep.c
+0x0002AB16 0x3C08AB36 !cfg.pd_cur_monitor || cfg.bias_sleep_monitor
+0x0002AB44 0x3C08AB64 !cfg.pd_cur_slp || cfg.bias_sleep_slp
+0x0002AB70 0x3C08AB90 rtc_sleep_init
+0x0002AB7F 0x3C08AB9F rtc_sleep_get_default_config
+0x0002AB9C 0x3C08ABBC Unhandled interrupt %d on cpu %d!
+0x0002ABC5 0x3C08ABE5 ESP_FAIL
+0x0002ABCE 0x3C08ABEE ESP_ERR_NO_MEM
+0x0002ABDD 0x3C08ABFD ESP_ERR_INVALID_ARG
+0x0002ABF1 0x3C08AC11 ESP_ERR_INVALID_STATE
+0x0002AC07 0x3C08AC27 ESP_ERR_INVALID_SIZE
+0x0002AC1C 0x3C08AC3C ESP_ERR_NOT_FOUND
+0x0002AC2E 0x3C08AC4E ESP_ERR_NOT_SUPPORTED
+0x0002AC44 0x3C08AC64 ESP_ERR_TIMEOUT
+0x0002AC54 0x3C08AC74 ESP_ERR_INVALID_RESPONSE
+0x0002AC6D 0x3C08AC8D ESP_ERR_INVALID_CRC
+0x0002AC81 0x3C08ACA1 ESP_ERR_INVALID_VERSION
+0x0002AC99 0x3C08ACB9 ESP_ERR_INVALID_MAC
+0x0002ACAD 0x3C08ACCD ESP_ERR_NOT_FINISHED
+0x0002ACC2 0x3C08ACE2 ESP_ERR_NVS_BASE
+0x0002ACD3 0x3C08ACF3 ESP_ERR_NVS_NOT_INITIALIZED
+0x0002ACEF 0x3C08AD0F ESP_ERR_NVS_NOT_FOUND
+0x0002AD05 0x3C08AD25 ESP_ERR_NVS_TYPE_MISMATCH
+0x0002AD1F 0x3C08AD3F ESP_ERR_NVS_READ_ONLY
+0x0002AD35 0x3C08AD55 ESP_ERR_NVS_NOT_ENOUGH_SPACE
+0x0002AD52 0x3C08AD72 ESP_ERR_NVS_INVALID_NAME
+0x0002AD6B 0x3C08AD8B ESP_ERR_NVS_INVALID_HANDLE
+0x0002AD86 0x3C08ADA6 ESP_ERR_NVS_REMOVE_FAILED
+0x0002ADA0 0x3C08ADC0 ESP_ERR_NVS_KEY_TOO_LONG
+0x0002ADB9 0x3C08ADD9 ESP_ERR_NVS_PAGE_FULL
+0x0002ADCF 0x3C08ADEF ESP_ERR_NVS_INVALID_STATE
+0x0002ADE9 0x3C08AE09 ESP_ERR_NVS_INVALID_LENGTH
+0x0002AE04 0x3C08AE24 ESP_ERR_NVS_NO_FREE_PAGES
+0x0002AE1E 0x3C08AE3E ESP_ERR_NVS_VALUE_TOO_LONG
+0x0002AE39 0x3C08AE59 ESP_ERR_NVS_PART_NOT_FOUND
+0x0002AE54 0x3C08AE74 ESP_ERR_NVS_NEW_VERSION_FOUND
+0x0002AE72 0x3C08AE92 ESP_ERR_NVS_XTS_ENCR_FAILED
+0x0002AE8E 0x3C08AEAE ESP_ERR_NVS_XTS_DECR_FAILED
+0x0002AEAA 0x3C08AECA ESP_ERR_NVS_XTS_CFG_FAILED
+0x0002AEC5 0x3C08AEE5 ESP_ERR_NVS_XTS_CFG_NOT_FOUND
+0x0002AEE3 0x3C08AF03 ESP_ERR_NVS_ENCR_NOT_SUPPORTED
+0x0002AF02 0x3C08AF22 ESP_ERR_NVS_KEYS_NOT_INITIALIZED
+0x0002AF23 0x3C08AF43 ESP_ERR_NVS_CORRUPT_KEY_PART
+0x0002AF40 0x3C08AF60 ESP_ERR_NVS_CONTENT_DIFFERS
+0x0002AF5C 0x3C08AF7C ESP_ERR_NVS_WRONG_ENCRYPTION
+0x0002AF79 0x3C08AF99 ESP_ERR_ULP_BASE
+0x0002AF8A 0x3C08AFAA ESP_ERR_ULP_SIZE_TOO_BIG
+0x0002AFA3 0x3C08AFC3 ESP_ERR_ULP_INVALID_LOAD_ADDR
+0x0002AFC1 0x3C08AFE1 ESP_ERR_ULP_DUPLICATE_LABEL
+0x0002AFDD 0x3C08AFFD ESP_ERR_ULP_UNDEFINED_LABEL
+0x0002AFF9 0x3C08B019 ESP_ERR_ULP_BRANCH_OUT_OF_RANGE
+0x0002B019 0x3C08B039 ESP_ERR_OTA_BASE
+0x0002B02A 0x3C08B04A ESP_ERR_OTA_PARTITION_CONFLICT
+0x0002B049 0x3C08B069 ESP_ERR_OTA_SELECT_INFO_INVALID
+0x0002B069 0x3C08B089 ESP_ERR_OTA_VALIDATE_FAILED
+0x0002B085 0x3C08B0A5 ESP_ERR_OTA_SMALL_SEC_VER
+0x0002B09F 0x3C08B0BF ESP_ERR_OTA_ROLLBACK_FAILED
+0x0002B0BB 0x3C08B0DB ESP_ERR_OTA_ROLLBACK_INVALID_STATE
+0x0002B0DE 0x3C08B0FE ESP_ERR_EFUSE
+0x0002B0EC 0x3C08B10C ESP_OK_EFUSE_CNT
+0x0002B0FD 0x3C08B11D ESP_ERR_EFUSE_CNT_IS_FULL
+0x0002B117 0x3C08B137 ESP_ERR_EFUSE_REPEATED_PROG
+0x0002B133 0x3C08B153 ESP_ERR_CODING
+0x0002B142 0x3C08B162 ESP_ERR_NOT_ENOUGH_UNUSED_KEY_BLOCKS
+0x0002B167 0x3C08B187 ESP_ERR_DAMAGED_READING
+0x0002B17F 0x3C08B19F ESP_ERR_IMAGE_BASE
+0x0002B192 0x3C08B1B2 ESP_ERR_IMAGE_FLASH_FAIL
+0x0002B1AB 0x3C08B1CB ESP_ERR_IMAGE_INVALID
+0x0002B1C1 0x3C08B1E1 ESP_ERR_WIFI_BASE
+0x0002B1D3 0x3C08B1F3 ESP_ERR_WIFI_NOT_INIT
+0x0002B1E9 0x3C08B209 ESP_ERR_WIFI_NOT_STARTED
+0x0002B202 0x3C08B222 ESP_ERR_WIFI_NOT_STOPPED
+0x0002B21B 0x3C08B23B ESP_ERR_WIFI_IF
+0x0002B22B 0x3C08B24B ESP_ERR_WIFI_MODE
+0x0002B23D 0x3C08B25D ESP_ERR_WIFI_STATE
+0x0002B250 0x3C08B270 ESP_ERR_WIFI_CONN
+0x0002B262 0x3C08B282 ESP_ERR_WIFI_NVS
+0x0002B273 0x3C08B293 ESP_ERR_WIFI_MAC
+0x0002B284 0x3C08B2A4 ESP_ERR_WIFI_SSID
+0x0002B296 0x3C08B2B6 ESP_ERR_WIFI_PASSWORD
+0x0002B2AC 0x3C08B2CC ESP_ERR_WIFI_TIMEOUT
+0x0002B2C1 0x3C08B2E1 ESP_ERR_WIFI_WAKE_FAIL
+0x0002B2D8 0x3C08B2F8 ESP_ERR_WIFI_WOULD_BLOCK
+0x0002B2F1 0x3C08B311 ESP_ERR_WIFI_NOT_CONNECT
+0x0002B30A 0x3C08B32A ESP_ERR_WIFI_POST
+0x0002B31C 0x3C08B33C ESP_ERR_WIFI_INIT_STATE
+0x0002B334 0x3C08B354 ESP_ERR_WIFI_STOP_STATE
+0x0002B34C 0x3C08B36C ESP_ERR_WIFI_NOT_ASSOC
+0x0002B363 0x3C08B383 ESP_ERR_WIFI_TX_DISALLOW
+0x0002B37C 0x3C08B39C ESP_ERR_WIFI_REGISTRAR
+0x0002B393 0x3C08B3B3 ESP_ERR_WIFI_WPS_TYPE
+0x0002B3A9 0x3C08B3C9 ESP_ERR_WIFI_WPS_SM
+0x0002B3BD 0x3C08B3DD ESP_ERR_ESPNOW_BASE
+0x0002B3D1 0x3C08B3F1 ESP_ERR_ESPNOW_NOT_INIT
+0x0002B3E9 0x3C08B409 ESP_ERR_ESPNOW_ARG
+0x0002B3FC 0x3C08B41C ESP_ERR_ESPNOW_NO_MEM
+0x0002B412 0x3C08B432 ESP_ERR_ESPNOW_FULL
+0x0002B426 0x3C08B446 ESP_ERR_ESPNOW_NOT_FOUND
+0x0002B43F 0x3C08B45F ESP_ERR_ESPNOW_INTERNAL
+0x0002B457 0x3C08B477 ESP_ERR_ESPNOW_EXIST
+0x0002B46C 0x3C08B48C ESP_ERR_ESPNOW_IF
+0x0002B47E 0x3C08B49E ESP_ERR_DPP_FAILURE
+0x0002B492 0x3C08B4B2 ESP_ERR_DPP_TX_FAILURE
+0x0002B4A9 0x3C08B4C9 ESP_ERR_DPP_INVALID_ATTR
+0x0002B4C2 0x3C08B4E2 ESP_ERR_MESH_BASE
+0x0002B4D4 0x3C08B4F4 ESP_ERR_MESH_WIFI_NOT_START
+0x0002B4F0 0x3C08B510 ESP_ERR_MESH_NOT_INIT
+0x0002B506 0x3C08B526 ESP_ERR_MESH_NOT_CONFIG
+0x0002B51E 0x3C08B53E ESP_ERR_MESH_NOT_START
+0x0002B535 0x3C08B555 ESP_ERR_MESH_NOT_SUPPORT
+0x0002B54E 0x3C08B56E ESP_ERR_MESH_NOT_ALLOWED
+0x0002B567 0x3C08B587 ESP_ERR_MESH_NO_MEMORY
+0x0002B57E 0x3C08B59E ESP_ERR_MESH_ARGUMENT
+0x0002B594 0x3C08B5B4 ESP_ERR_MESH_EXCEED_MTU
+0x0002B5AC 0x3C08B5CC ESP_ERR_MESH_TIMEOUT
+0x0002B5C1 0x3C08B5E1 ESP_ERR_MESH_DISCONNECTED
+0x0002B5DB 0x3C08B5FB ESP_ERR_MESH_QUEUE_FAIL
+0x0002B5F3 0x3C08B613 ESP_ERR_MESH_QUEUE_FULL
+0x0002B60B 0x3C08B62B ESP_ERR_MESH_NO_PARENT_FOUND
+0x0002B628 0x3C08B648 ESP_ERR_MESH_NO_ROUTE_FOUND
+0x0002B644 0x3C08B664 ESP_ERR_MESH_OPTION_NULL
+0x0002B65D 0x3C08B67D ESP_ERR_MESH_OPTION_UNKNOWN
+0x0002B679 0x3C08B699 ESP_ERR_MESH_XON_NO_WINDOW
+0x0002B694 0x3C08B6B4 ESP_ERR_MESH_INTERFACE
+0x0002B6AB 0x3C08B6CB ESP_ERR_MESH_DISCARD_DUPLICATE
+0x0002B6CA 0x3C08B6EA ESP_ERR_MESH_DISCARD
+0x0002B6DF 0x3C08B6FF ESP_ERR_MESH_VOTING
+0x0002B6F3 0x3C08B713 ESP_ERR_MESH_XMIT
+0x0002B705 0x3C08B725 ESP_ERR_MESH_QUEUE_READ
+0x0002B71D 0x3C08B73D ESP_ERR_MESH_PS
+0x0002B72D 0x3C08B74D ESP_ERR_MESH_RECV_RELEASE
+0x0002B747 0x3C08B767 ESP_ERR_ESP_NETIF_BASE
+0x0002B75E 0x3C08B77E ESP_ERR_ESP_NETIF_INVALID_PARAMS
+0x0002B77F 0x3C08B79F ESP_ERR_ESP_NETIF_IF_NOT_READY
+0x0002B79E 0x3C08B7BE ESP_ERR_ESP_NETIF_DHCPC_START_FAILED
+0x0002B7C3 0x3C08B7E3 ESP_ERR_ESP_NETIF_DHCP_ALREADY_STARTED
+0x0002B7EA 0x3C08B80A ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED
+0x0002B811 0x3C08B831 ESP_ERR_ESP_NETIF_NO_MEM
+0x0002B82A 0x3C08B84A ESP_ERR_ESP_NETIF_DHCP_NOT_STOPPED
+0x0002B84D 0x3C08B86D ESP_ERR_ESP_NETIF_DRIVER_ATTACH_FAILED
+0x0002B874 0x3C08B894 ESP_ERR_ESP_NETIF_INIT_FAILED
+0x0002B892 0x3C08B8B2 ESP_ERR_ESP_NETIF_DNS_NOT_CONFIGURED
+0x0002B8B7 0x3C08B8D7 ESP_ERR_ESP_NETIF_MLD6_FAILED
+0x0002B8D5 0x3C08B8F5 ESP_ERR_ESP_NETIF_IP6_ADDR_FAILED
+0x0002B8F7 0x3C08B917 ESP_ERR_ESP_NETIF_DHCPS_START_FAILED
+0x0002B91C 0x3C08B93C ESP_ERR_FLASH_BASE
+0x0002B92F 0x3C08B94F ESP_ERR_FLASH_OP_FAIL
+0x0002B945 0x3C08B965 ESP_ERR_FLASH_OP_TIMEOUT
+0x0002B95E 0x3C08B97E ESP_ERR_FLASH_NOT_INITIALISED
+0x0002B97C 0x3C08B99C ESP_ERR_FLASH_UNSUPPORTED_HOST
+0x0002B99B 0x3C08B9BB ESP_ERR_FLASH_UNSUPPORTED_CHIP
+0x0002B9BA 0x3C08B9DA ESP_ERR_FLASH_PROTECTED
+0x0002B9D2 0x3C08B9F2 ESP_ERR_HTTP_BASE
+0x0002B9E4 0x3C08BA04 ESP_ERR_HTTP_MAX_REDIRECT
+0x0002B9FE 0x3C08BA1E ESP_ERR_HTTP_CONNECT
+0x0002BA13 0x3C08BA33 ESP_ERR_HTTP_WRITE_DATA
+0x0002BA2B 0x3C08BA4B ESP_ERR_HTTP_FETCH_HEADER
+0x0002BA45 0x3C08BA65 ESP_ERR_HTTP_INVALID_TRANSPORT
+0x0002BA64 0x3C08BA84 ESP_ERR_HTTP_CONNECTING
+0x0002BA7C 0x3C08BA9C ESP_ERR_HTTP_EAGAIN
+0x0002BA90 0x3C08BAB0 ESP_ERR_HTTP_CONNECTION_CLOSED
+0x0002BAAF 0x3C08BACF ESP_ERR_ESP_TLS_BASE
+0x0002BAC4 0x3C08BAE4 ESP_ERR_ESP_TLS_CANNOT_RESOLVE_HOSTNAME
+0x0002BAEC 0x3C08BB0C ESP_ERR_ESP_TLS_CANNOT_CREATE_SOCKET
+0x0002BB11 0x3C08BB31 ESP_ERR_ESP_TLS_UNSUPPORTED_PROTOCOL_FAMILY
+0x0002BB3D 0x3C08BB5D ESP_ERR_ESP_TLS_FAILED_CONNECT_TO_HOST
+0x0002BB64 0x3C08BB84 ESP_ERR_ESP_TLS_SOCKET_SETOPT_FAILED
+0x0002BB89 0x3C08BBA9 ESP_ERR_ESP_TLS_CONNECTION_TIMEOUT
+0x0002BBAC 0x3C08BBCC ESP_ERR_ESP_TLS_SE_FAILED
+0x0002BBC6 0x3C08BBE6 ESP_ERR_ESP_TLS_TCP_CLOSED_FIN
+0x0002BBE5 0x3C08BC05 ESP_ERR_MBEDTLS_CERT_PARTLY_OK
+0x0002BC04 0x3C08BC24 ESP_ERR_MBEDTLS_CTR_DRBG_SEED_FAILED
+0x0002BC29 0x3C08BC49 ESP_ERR_MBEDTLS_SSL_SET_HOSTNAME_FAILED
+0x0002BC51 0x3C08BC71 ESP_ERR_MBEDTLS_SSL_CONFIG_DEFAULTS_FAILED
+0x0002BC7C 0x3C08BC9C ESP_ERR_MBEDTLS_SSL_CONF_ALPN_PROTOCOLS_FAILED
+0x0002BCAB 0x3C08BCCB ESP_ERR_MBEDTLS_X509_CRT_PARSE_FAILED
+0x0002BCD1 0x3C08BCF1 ESP_ERR_MBEDTLS_SSL_CONF_OWN_CERT_FAILED
+0x0002BCFA 0x3C08BD1A ESP_ERR_MBEDTLS_SSL_SETUP_FAILED
+0x0002BD1B 0x3C08BD3B ESP_ERR_MBEDTLS_SSL_WRITE_FAILED
+0x0002BD3C 0x3C08BD5C ESP_ERR_MBEDTLS_PK_PARSE_KEY_FAILED
+0x0002BD60 0x3C08BD80 ESP_ERR_MBEDTLS_SSL_HANDSHAKE_FAILED
+0x0002BD85 0x3C08BDA5 ESP_ERR_MBEDTLS_SSL_CONF_PSK_FAILED
+0x0002BDA9 0x3C08BDC9 ESP_ERR_MBEDTLS_SSL_TICKET_SETUP_FAILED
+0x0002BDD1 0x3C08BDF1 ESP_ERR_WOLFSSL_SSL_SET_HOSTNAME_FAILED
+0x0002BDF9 0x3C08BE19 ESP_ERR_WOLFSSL_SSL_CONF_ALPN_PROTOCOLS_FAILED
+0x0002BE28 0x3C08BE48 ESP_ERR_WOLFSSL_CERT_VERIFY_SETUP_FAILED
+0x0002BE51 0x3C08BE71 ESP_ERR_WOLFSSL_KEY_VERIFY_SETUP_FAILED
+0x0002BE79 0x3C08BE99 ESP_ERR_WOLFSSL_SSL_HANDSHAKE_FAILED
+0x0002BE9E 0x3C08BEBE ESP_ERR_WOLFSSL_CTX_SETUP_FAILED
+0x0002BEBF 0x3C08BEDF ESP_ERR_WOLFSSL_SSL_SETUP_FAILED
+0x0002BEE0 0x3C08BF00 ESP_ERR_WOLFSSL_SSL_WRITE_FAILED
+0x0002BF01 0x3C08BF21 ESP_ERR_HTTPS_OTA_BASE
+0x0002BF18 0x3C08BF38 ESP_ERR_HTTPS_OTA_IN_PROGRESS
+0x0002BF36 0x3C08BF56 ESP_ERR_PING_BASE
+0x0002BF48 0x3C08BF68 ESP_ERR_PING_INVALID_PARAMS
+0x0002BF64 0x3C08BF84 ESP_ERR_PING_NO_MEM
+0x0002BF78 0x3C08BF98 ESP_ERR_HTTPD_BASE
+0x0002BF8B 0x3C08BFAB ESP_ERR_HTTPD_HANDLERS_FULL
+0x0002BFA7 0x3C08BFC7 ESP_ERR_HTTPD_HANDLER_EXISTS
+0x0002BFC4 0x3C08BFE4 ESP_ERR_HTTPD_INVALID_REQ
+0x0002BFDE 0x3C08BFFE ESP_ERR_HTTPD_RESULT_TRUNC
+0x0002BFF9 0x3C08C019 ESP_ERR_HTTPD_RESP_HDR
+0x0002C010 0x3C08C030 ESP_ERR_HTTPD_RESP_SEND
+0x0002C028 0x3C08C048 ESP_ERR_HTTPD_ALLOC_MEM
+0x0002C040 0x3C08C060 ESP_ERR_HTTPD_TASK
+0x0002C053 0x3C08C073 ESP_ERR_HW_CRYPTO_BASE
+0x0002C06A 0x3C08C08A ESP_ERR_HW_CRYPTO_DS_HMAC_FAIL
+0x0002C089 0x3C08C0A9 ESP_ERR_HW_CRYPTO_DS_INVALID_KEY
+0x0002C0AA 0x3C08C0CA ESP_ERR_HW_CRYPTO_DS_INVALID_DIGEST
+0x0002C0CE 0x3C08C0EE ESP_ERR_HW_CRYPTO_DS_INVALID_PADDING
+0x0002C0F3 0x3C08C113 ESP_ERR_MEMPROT_BASE
+0x0002C108 0x3C08C128 ESP_ERR_MEMPROT_MEMORY_TYPE_INVALID
+0x0002C12C 0x3C08C14C ESP_ERR_MEMPROT_SPLIT_ADDR_INVALID
+0x0002C14F 0x3C08C16F ESP_ERR_MEMPROT_SPLIT_ADDR_OUT_OF_RANGE
+0x0002C177 0x3C08C197 ESP_ERR_MEMPROT_SPLIT_ADDR_UNALIGNED
+0x0002C19C 0x3C08C1BC ESP_ERR_MEMPROT_UNIMGMT_BLOCK_INVALID
+0x0002C1C2 0x3C08C1E2 ESP_ERR_MEMPROT_WORLD_INVALID
+0x0002C1E0 0x3C08C200 ESP_ERR_MEMPROT_AREA_INVALID
+0x0002C8A7 0x3C08C8C7 <esp_timer
+0x0002C8B2 0x3C08C8D2 esp_timer_systimer
+0x0002C8C5 0x3C08C8E5 E (%u) %s: esp_intr_enable failed (0x%x)
+0x0002C8EF 0x3C08C90F ( uint32_t ) p >= frame->a1
+0x0002C90B 0x3C08C92B /IDF/components/freertos/port/xtensa/port.c
+0x0002C940 0x3C08C960 /IDF/components/esp_hw_support/include/soc/spinlock.h
+0x0002C978 0x3C08C998 result == core_id || result == SPINLOCK_FREE
+0x0002C9A8 0x3C08C9C8 (result == SPINLOCK_FREE) == (lock->count == 0)
+0x0002C9D8 0x3C08C9F8 lock->count < 0xFF
+0x0002C9EC 0x3C08CA0C core_id == lock->owner
+0x0002CA04 0x3C08CA24 lock->count < 0x100
+0x0002CA18 0x3C08CA38 ***ERROR*** A stack overflow in task 
+0x0002CA3E 0x3C08CA5E  has been detected.
+0x0002CA52 0x3C08CA72 spinlock_release
+0x0002CA63 0x3C08CA83 spinlock_acquire
+0x0002CA74 0x3C08CA94 pxPortInitialiseStack
+0x0002CAC0 0x3C08CAE0 esp_task_wdt_init(CONFIG_ESP_TASK_WDT_TIMEOUT_S, true)
+0x0002CAF7 0x3C08CB17 esp_task_wdt_add(idle_0)
+0x0002CB15 0x3C08CB35 res == pdTRUE
+0x0002CB23 0x3C08CB43 /IDF/components/freertos/port/port_common.c
+0x0002CB4F 0x3C08CB6F pxTCBBufferTemp != NULL
+0x0002CB67 0x3C08CB87 pxStackBufferTemp != NULL
+0x0002CB81 0x3C08CBA1 vApplicationGetIdleTaskMemory
+0x0002CB9F 0x3C08CBBF main_task
+0x0002CBA9 0x3C08CBC9 esp_startup_start_app_common
+0x0002CBC6 0x3C08CBE6 esp_intr_alloc(ETS_SYSTIMER_TARGET0_EDGE_INTR_SOURCE + cpuid, ESP_INTR_FLAG_IRAM | level, SysTickIsrHandler, &systimer_hal, NULL)
+0x0002CC48 0x3C08CC68 IDF/components/freertos/port/port_systick.c
+0x0002CC74 0x3C08CC94 vPortSetupTimer
+0x0002CC84 0x3C08CCA4 pxQueueSetContainer
+0x0002CC98 0x3C08CCB8 /IDF/components/freertos/queue.c
+0x0002CCB9 0x3C08CCD9 pxQueueSetContainer->uxMessagesWaiting < pxQueueSetContainer->uxLength
+0x0002CD00 0x3C08CD20 pxQueue
+0x0002CD08 0x3C08CD28 uxQueueLength > ( UBaseType_t ) 0
+0x0002CD2A 0x3C08CD4A pxStaticQueue != ((void *)0)
+0x0002CD47 0x3C08CD67 !( ( pucQueueStorage != ((void *)0) ) && ( uxItemSize == 0 ) )
+0x0002CD86 0x3C08CDA6 !( ( pucQueueStorage == ((void *)0) ) && ( uxItemSize != 0 ) )
+0x0002CDC5 0x3C08CDE5 xSize == sizeof( Queue_t )
+0x0002CDE0 0x3C08CE00 ( uxItemSize == 0 ) || ( uxQueueLength == ( xQueueSizeInBytes / uxItemSize ) )
+0x0002CE2F 0x3C08CE4F ( sizeof( Queue_t ) + xQueueSizeInBytes ) > xQueueSizeInBytes
+0x0002CE6D 0x3C08CE8D uxMaxCount != 0
+0x0002CE7D 0x3C08CE9D uxInitialCount <= uxMaxCount
+0x0002CE9A 0x3C08CEBA !( ( pvItemToQueue == ((void *)0) ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) )
+0x0002CEF1 0x3C08CF11 !( ( xCopyPosition == ( ( BaseType_t ) 2 ) ) && ( pxQueue->uxLength != 1 ) )
+0x0002CF3E 0x3C08CF5E !( ( xTaskGetSchedulerState() == ( ( BaseType_t ) 0 ) ) && ( xTicksToWait != 0 ) )
+0x0002CF91 0x3C08CFB1 pxQueue->pcHead != ((void *)0) || pxQueue->u.xSemaphore.xMutexHolder == ((void *)0) || pxQueue->u.xSemaphore.xMutexHolder == xTaskGetCurrentTaskHandle()
+0x0002D02A 0x3C08D04A pxMutex
+0x0002D032 0x3C08D052 pxQueue->uxItemSize == 0
+0x0002D04B 0x3C08D06B !( ( pxQueue->pcHead == ((void *)0) ) && ( pxQueue->u.xSemaphore.xMutexHolder != ((void *)0) ) )
+0x0002D0AC 0x3C08D0CC ( pxQueue )
+0x0002D0B8 0x3C08D0D8 !( ( ( pvBuffer ) == ((void *)0) ) && ( ( pxQueue )->uxItemSize != ( UBaseType_t ) 0U ) )
+0x0002D112 0x3C08D132 !( ( pvBuffer == ((void *)0) ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) )
+0x0002D164 0x3C08D184 vQueueDelete
+0x0002D171 0x3C08D191 uxQueueMessagesWaiting
+0x0002D188 0x3C08D1A8 xQueueReceiveFromISR
+0x0002D19D 0x3C08D1BD xQueuePeek
+0x0002D1A8 0x3C08D1C8 xQueueSemaphoreTake
+0x0002D1BC 0x3C08D1DC xQueueReceive
+0x0002D1CA 0x3C08D1EA xQueueGiveFromISR
+0x0002D1DC 0x3C08D1FC xQueueGenericSendFromISR
+0x0002D1F5 0x3C08D215 prvNotifyQueueSetContainer
+0x0002D210 0x3C08D230 xQueueGenericSend
+0x0002D222 0x3C08D242 xQueueCreateCountingSemaphoreStatic
+0x0002D246 0x3C08D266 xQueueTakeMutexRecursive
+0x0002D25F 0x3C08D27F xQueueGiveMutexRecursive
+0x0002D278 0x3C08D298 xQueueGenericCreate
+0x0002D28C 0x3C08D2AC xQueueGenericCreateStatic
+0x0002D2A6 0x3C08D2C6 xQueueGenericReset
+0x0002D2BF 0x3C08D2DF /IDF/components/freertos/tasks.c
+0x0002D2E0 0x3C08D300 pxTCB->ucStaticallyAllocated == ( ( uint8_t ) 2 )
+0x0002D312 0x3C08D332 xPortCheckValidTCBMem(pxTaskBuffer)
+0x0002D336 0x3C08D356 xPortcheckValidStackMem(pxStackBuffer)
+0x0002D35D 0x3C08D37D (xCoreID>=0 && xCoreID<2) || (xCoreID==( 0x7FFFFFFF ))
+0x0002D394 0x3C08D3B4 xSize == sizeof( TCB_t )
+0x0002D3AD 0x3C08D3CD cpuid < 2
+0x0002D3B7 0x3C08D3D7 ( xIdleTaskHandle[cpuid] != ((void *)0) )
+0x0002D3E1 0x3C08D401 ( ( ( ( pxDelayedTaskList )->uxNumberOfItems == ( UBaseType_t ) 0 ) ? ( ( BaseType_t ) 1 ) : ( ( BaseType_t ) 0 ) ) )
+0x0002D457 0x3C08D477 xTaskScheduled == pdTRUE
+0x0002D470 0x3C08D490 pxEventList
+0x0002D47C 0x3C08D49C pxUnblockedTCB
+0x0002D48B 0x3C08D4AB pxTimeOut
+0x0002D495 0x3C08D4B5 pxTicksToWait
+0x0002D4A3 0x3C08D4C3 ( uxNewPriority < ( 25 ) )
+0x0002D4BE 0x3C08D4DE suspended == 0
+0x0002D4CD 0x3C08D4ED xTaskGetSchedulerState() != ( ( BaseType_t ) 0 )
+0x0002D4FE 0x3C08D51E xTaskGetSchedulerState() != ( ( BaseType_t ) 2 )
+0x0002D52F 0x3C08D54F xNextTaskUnblockTime >= xTickCount
+0x0002D552 0x3C08D572 pxTCB == pxCurrentTCB[xPortGetCoreID()]
+0x0002D57A 0x3C08D59A pxTCB->uxMutexesHeld
+0x0002D58F 0x3C08D5AF pxTCB != pxCurrentTCB[xPortGetCoreID()]
+0x0002D5B7 0x3C08D5D7 uxIndexToWait < 1
+0x0002D5C9 0x3C08D5E9 uxIndexToNotify < 1
+0x0002D5DD 0x3C08D5FD xTaskToNotify
+0x0002D5EB 0x3C08D60B pxTCB->ulNotifiedValue[ uxIndexToNotify ] == ~0UL
+0x0002D61D 0x3C08D63D ( ( &( pxTCB->xEventListItem ) )->pvContainer ) == ((void *)0)
+0x0002D65C 0x3C08D67C /IDF/components/freertos/esp_additions/private_include/freertos_tasks_c_additions.h
+0x0002D6B5 0x3C08D6D5 xReturn != ( -1 )
+0x0002D6C7 0x3C08D6E7 prvTaskPriorityRaise
+0x0002D6DC 0x3C08D6FC vTaskGenericNotifyGiveFromISR
+0x0002D6FA 0x3C08D71A ulTaskGenericNotifyTake
+0x0002D712 0x3C08D732 vTaskPriorityDisinheritAfterTimeout
+0x0002D736 0x3C08D756 xTaskPriorityDisinherit
+0x0002D74E 0x3C08D76E xTaskCheckForTimeOut
+0x0002D763 0x3C08D783 xTaskRemoveFromEventList
+0x0002D77C 0x3C08D79C vTaskPlaceOnEventList
+0x0002D792 0x3C08D7B2 taskSelectHighestPriorityTaskSMP
+0x0002D7C7 0x3C08D7E7 xTaskIncrementTick
+0x0002D7DA 0x3C08D7FA xTaskGetIdleTaskHandleForCPU
+0x0002D7F7 0x3C08D817 pcTaskGetName
+0x0002D805 0x3C08D825 xTaskResumeAll
+0x0002D814 0x3C08D834 vTaskStartScheduler
+0x0002D828 0x3C08D848 vTaskSuspend
+0x0002D835 0x3C08D855 vTaskPrioritySet
+0x0002D846 0x3C08D866 vTaskDelay
+0x0002D851 0x3C08D871 prvDeleteTCB
+0x0002D85E 0x3C08D87E prvDeleteTLS
+0x0002D86B 0x3C08D88B vTaskDelete
+0x0002D877 0x3C08D897 xTaskCreateStaticPinnedToCore
+0x0002D895 0x3C08D8B5 h != ((void *)0)
+0x0002D8A6 0x3C08D8C6 /IDF/components/newlib/locks.c
+0x0002D8C5 0x3C08D8E5 lock != NULL && "Uninitialized lock used"
+0x0002D8EF 0x3C08D90F xQueueGetMutexHolder( ( h ) ) == ((void *)0)
+0x0002D91C 0x3C08D93C handle == (SemaphoreHandle_t) &s_common_mutex
+0x0002D94A 0x3C08D96A handle == (SemaphoreHandle_t) &s_common_recursive_mutex
+0x0002D982 0x3C08D9A2 esp_newlib_locks_init
+0x0002D998 0x3C08D9B8 check_lock_nonzero
+0x0002D9AB 0x3C08D9CB lock_release_generic
+0x0002D9C0 0x3C08D9E0 lock_acquire_generic
+0x0002D9D5 0x3C08D9F5 _lock_close
+0x0002D9E1 0x3C08DA01 try_heap_caps_add_region(mem_start, mem_end)
+0x0002DA0E 0x3C08DA2E IDF/components/bt/controller/esp32c3/bt.c
+0x0002DA38 0x3C08DA58 esp_bt_controller_mem_release
+0x0002DA56 0x3C08DA76 wear_levelling
+0x0002DA65 0x3C08DA85 E (%u) %s: %s: invalid handle
+0x0002DA84 0x3C08DAA4 E (%u) %s: %s: instance[0x%08x] out of range
+0x0002DAB2 0x3C08DAD2 E (%u) %s: %s: instance[0x%08x] not initialized
+0x0002DAE3 0x3C08DB03 E (%u) %s: MAX_WL_HANDLES=%d instances already allocated
+0x0002DB1D 0x3C08DB3D E (%u) %s: %s: can't allocate Partition
+0x0002DB46 0x3C08DB66 E (%u) %s: %s: can't allocate WL_Flash
+0x0002DB6E 0x3C08DB8E E (%u) %s: %s: config instance=0x%08x, result=0x%x
+0x0002DBA2 0x3C08DBC2 E (%u) %s: %s: init instance=0x%08x, result=0x%x
+0x0002DBD4 0x3C08DBF4 wl_sector_size
+0x0002DBE3 0x3C08DC03 wl_size
+0x0002DBEB 0x3C08DC0B wl_read
+0x0002DBF3 0x3C08DC13 wl_write
+0x0002DBFC 0x3C08DC1C wl_erase_range
+0x0002DC0B 0x3C08DC2B wl_unmount
+0x0002DC16 0x3C08DC36 wl_mount
+0x0002DC1F 0x3C08DC3F wl_partition
+0x0002DC2C 0x3C08DC4C E (%u) %s: erase_range - start_address=0x%08x, size=0x%08x, result=0x%08x
+0x0002DCA3 0x3C08DCC3 Bwl_flash
+0x0002DCAD 0x3C08DCCD E (%u) %s: %s(%d): result = 0x%08x
+0x0002DCD1 0x3C08DCF1 E (%u) %s: %s - erase wl dummy sector result= 0x%08x
+0x0002DD07 0x3C08DD27 E (%u) %s: %s - not possible to read buffer, will try next time, result= 0x%08x
+0x0002DD58 0x3C08DD78 E (%u) %s: %s - not possible to write buffer, will try next time, result= 0x%08x
+0x0002DDAA 0x3C08DDCA E (%u) %s: %s - update position 1 result= 0x%08x
+0x0002DDDC 0x3C08DDFC E (%u) %s: %s - update position 2 result= 0x%08x
+0x0002DE19 0x3C08DE39 erase_range
+0x0002DE25 0x3C08DE45 erase_sector
+0x0002DE32 0x3C08DE52 updateWL
+0x0002DE3B 0x3C08DE5B updateWL
+0x0002DE44 0x3C08DE64 updateV1_V2
+0x0002DE50 0x3C08DE70 initSections
+0x0002DE5D 0x3C08DE7D recoverPos
+0x0002DE6D 0x3C08DE8D config
+0x0002DEA7 0x3C08DEC7 Bwl_handle + 1
+0x0002DEB6 0x3C08DED6 /IDF/components/fatfs/diskio/diskio_wl.c
+0x0002DEDF 0x3C08DEFF ff_diskio_spiflash
+0x0002DEF2 0x3C08DF12 E (%u) %s: wl_erase_range failed (%d)
+0x0002DF19 0x3C08DF39 E (%u) %s: wl_write failed (%d)
+0x0002DF3A 0x3C08DF5A E (%u) %s: wl_read failed (%d)
+0x0002DF6F 0x3C08DF8F Bff_wl_ioctl
+0x0002DF7C 0x3C08DF9C ff_wl_write
+0x0002DF88 0x3C08DFA8 ff_wl_read
+0x0002DF9D 0x3C08DFBD "*:<>?|
+0x0002DFA6 0x3C08DFC6 +,;=[]
+0x0002DFB0 0x3C08DFD0 MSDOS5.0
+0x0002DFB9 0x3C08DFD9 NO NAME    FAT32   
+0x0002DFCD 0x3C08DFED NO NAME    FAT     
+0x0002DFFE 0x3C08E01E CUEAAAACEEEIIIAAE
+0x0002E011 0x3C08E031 OOOUUYOUO
+0x0002E050 0x3C08E070 EEEIIII
+0x0002E3AC 0x3C08E3CC c%Q%W%]%
+0x0002E3CA 0x3C08E3EA Z%T%i%f%`%P%l%
+0x0002E43A 0x3C08E45A vfs_fat_spiflash
+0x0002E44B 0x3C08E46B E (%u) %s: Failed to find FATFS partition (type='data', subtype='fat', partition_label='%s'). Check the partition table.
+0x0002E4C5 0x3C08E4E5 E (%u) %s: failed to mount wear levelling layer. result = %i
+0x0002E503 0x3C08E523 E (%u) %s: ff_diskio_register_wl_partition failed pdrv=%i, error - 0x(%x)
+0x0002E54E 0x3C08E56E E (%u) %s: f_mkfs failed (%d)
+0x0002E56D 0x3C08E58D E (%u) %s: f_mount failed after formatting (%d)
+0x0002E59E 0x3C08E5BE pdrv < FF_VOLUMES
+0x0002E5B0 0x3C08E5D0 /IDF/components/fatfs/diskio/diskio.c
+0x0002E5D6 0x3C08E5F6 impl != NULL
+0x0002E5E3 0x3C08E603 ff_diskio_register
+0x0002E5FB 0x3C08E61B 0 && "unhandled FRESULT"
+0x0002E614 0x3C08E634 /IDF/components/fatfs/vfs/vfs_fat.c
+0x0002E638 0x3C08E658 vfs_fat
+0x0002E640 0x3C08E660 E (%u) %s: closing file opened for truncate failed
+0x0002E674 0x3C08E694 E (%u) %s: open: no free file descriptors
+0x0002E6A4 0x3C08E6C4 vfs_fat_readdir_r
+0x0002E6B6 0x3C08E6D6 vfs_fat_telldir
+0x0002E6C6 0x3C08E6E6 vfs_fat_seekdir
+0x0002E6D6 0x3C08E6F6 vfs_fat_closedir
+0x0002E6E7 0x3C08E707 fresult_to_errno
+0x0002E7C0 0x3C08E7E0 TUSB:DCD
+0x0002E7C9 0x3C08E7E9 E (%u) %s: Unknown Condition
+0x0002E7E7 0x3C08E807 E (%u) %s: Complete but not empty: %u/%u
+0x0002E811 0x3C08E831 E (%u) %s: XFER Timeout
+0x0002E8B0 0x3C08E8D0 esp_efuse_read_field_blob(ESP_EFUSE_BLK_VERSION_MAJOR, &blk_ver_major, ESP_EFUSE_BLK_VERSION_MAJOR[0]->bit_count)
+0x0002E922 0x3C08E942 version == 1
+0x0002E92F 0x3C08E94F /IDF/components/efuse/esp32s3/esp_efuse_rtc_calib.c
+0x0002E963 0x3C08E983 atten < 4
+0x0002E96D 0x3C08E98D adc_unit < ADC_NUM_MAX
+0x0002E984 0x3C08E9A4 esp_efuse_read_field_blob(desc[desc_index], &adc_icode_diff[diff_index], efuse_icode_bits)
+0x0002EA1F 0x3C08EA3F ?cal_temp_size == 9
+0x0002EA33 0x3C08EA53 esp_efuse_rtc_calib_get_cal_temp
+0x0002EA54 0x3C08EA74 esp_efuse_rtc_calib_get_init_code
+0x0002EA76 0x3C08EA96 esp_efuse_rtc_calib_get_ver
+0x0002EA92 0x3C08EAB2 blk >= 0 && blk < EFUSE_BLK_MAX
+0x0002EAB2 0x3C08EAD2 /IDF/components/efuse/src/esp_efuse_utility.c
+0x0002EAE0 0x3C08EB00 num_reg <= (range_read_addr_blocks[blk].end - range_read_addr_blocks[blk].start) / sizeof(uint32_t)
+0x0002EB4A 0x3C08EB6A E (%u) %s: Range of data does not match the coding scheme
+0x0002EB85 0x3C08EBA5 bits_counter <= req_size
+0x0002EB9E 0x3C08EBBE esp_efuse_utility_read_reg
+0x0002EBB9 0x3C08EBD9 esp_efuse_utility_process
+0x0002EC2B 0x3C08EC4B `cpuid == xPortGetCoreID()
+0x0002EC46 0x3C08EC66 /IDF/components/esp_ipc/src/esp_ipc.c
+0x0002EC72 0x3C08EC92 ipc_task
+0x0002EC7B 0x3C08EC9B esp_ipc_init
+0x0002EC8C 0x3C08ECAC start != ((void *)0)
+0x0002ECA1 0x3C08ECC1 /IDF/components/espcoredump/src/core_dump_common.c
+0x0002ECD4 0x3C08ECF4 esp_core_dump_get_user_ram_info
+0x0002ECF4 0x3C08ED14 checksum_size <= 32
+0x0002ED08 0x3C08ED28 /IDF/components/espcoredump/src/core_dump_flash.c
+0x0002ED3A 0x3C08ED5A Calculated checksum
+0x0002ED4E 0x3C08ED6E Image checksum
+0x0002ED5D 0x3C08ED7D esp_core_dump_image_check
+0x0002ED7C 0x3C08ED9C ESP_CORE_DUMP_INFO
+0x0002ED8F 0x3C08EDAF EXTRA_INFO
+0x0002ED9A 0x3C08EDBA elf_write_core_dump_info
+0x0002EDB3 0x3C08EDD3 elf_write_core_dump_user_data
+0x0002EDD1 0x3C08EDF1 elf_add_segment
+0x0002EDE1 0x3C08EE01 elf_save_task
+0x0002EDEF 0x3C08EE0F elf_write_segment_header
+0x0002EE08 0x3C08EE28 elf_process_note_segment
+0x0002EE21 0x3C08EE41 elf_write_note
+0x0002EE30 0x3C08EE50 elf_add_note
+0x0002EE3D 0x3C08EE5D elf_process_tasks_regs
+0x0002EE54 0x3C08EE74 elf_write_tasks_data
+0x0002EE69 0x3C08EE89 elf_write_file_header
+0x0002EE7F 0x3C08EE9F esp_core_dump_do_write_elf_pass
+0x0002EE9F 0x3C08EEBF esp_core_dump_write_elf
+0x0002EEB7 0x3C08EED7 stk_paddr != ((void *)0) && stk_vaddr != ((void *)0)
+0x0002EEEC 0x3C08EF0C /IDF/components/espcoredump/src/port/xtensa/core_dump_port.c
+0x0002EF29 0x3C08EF49 task != ((void *)0) && reg_dump != ((void *)0)
+0x0002EF58 0x3C08EF78 esp_core_dump_get_task_regs_dump
+0x0002EF79 0x3C08EF99 esp_core_dump_get_stack
+0x0002EF91 0x3C08EFB1 cks_ctx
+0x0002EF99 0x3C08EFB9 /IDF/components/espcoredump/src/core_dump_checksum.c
+0x0002EFCE 0x3C08EFEE cks_ctx != ((void *)0) || chs_ptr == ((void *)0)
+0x0002EFFF 0x3C08F01F checksum != ((void *)0)
+0x0002F017 0x3C08F037 esp_core_dump_print_checksum
+0x0002F034 0x3C08F054 esp_core_dump_checksum_finish
+0x0002F052 0x3C08F072 esp_core_dump_checksum_update
+0x0002F275 0x3C08F295 smartconfig
+0x0002F281 0x3C08F2A1 ESPNOW
+0x0002F2C8 0x3C08F2E8 esp-sha
+0x0002F2D0 0x3C08F2F0 E (%u) %s: Invalid t for SHA512/t, t = %u,cannot be 384
+0x0002F309 0x3C08F329 E (%u) %s: Invalid t for SHA512/t, t = %u, must equal or less than 512
+0x0002F351 0x3C08F371 E (%u) %s: SHA DMA buf_len cannot exceed max size for a single block
+0x0002F397 0x3C08F3B7 E (%u) %s: Failed to allocate buf memory
+0x0002F3C1 0x3C08F3E1 E (%u) %s: esp_sha_dma_start failed, no DMA channel available
+0x0002F400 0x3C08F420 crypto_shared_gdma
+0x0002F413 0x3C08F433 E (%u) %s: Failed to acquire DMA channel, Err=%d
+0x0002F445 0x3C08F465 Invalid coexist adapter function md5, internal: %s, idf: %s
+0x0002F482 0x3C08F4A2 coexist adapter function is NULL
+0x0002F4A3 0x3C08F4C3 coexist adapter function version error! Version %x is expected, but it is %x
+0x0002F4F1 0x3C08F511 coexist adapter function magic error! Magic %x is expected, but it is %x
+0x0002F53B 0x3C08F55B 9da3695
+0x0002F543 0x3C08F563 0f80fa0
+0x0002F54B 0x3C08F56B coexist rom version %s
+0x0002F5B9 0x3C08F5D9 St9exception
+0x0002F5CF 0x3C08F5EF <St9bad_alloc
+0x0002F5EB 0x3C08F60B <__gnu_cxx::__concurrence_lock_error
+0x0002F610 0x3C08F630 __gnu_cxx::__concurrence_unlock_error
+0x0002F636 0x3C08F656 N9__gnu_cxx24__concurrence_lock_errorE
+0x0002F66B 0x3C08F68B <N9__gnu_cxx26__concurrence_unlock_errorE
+0x0002F6F7 0x3C08F717 Bbasic_string::_M_create
+0x0002F710 0x3C08F730 %s: __pos (which is %zu) > this->size() (which is %zu)
+0x0002F747 0x3C08F767 basic_string::replace
+0x0002F75D 0x3C08F77D basic_string::_M_replace
+0x0002F776 0x3C08F796 St11logic_error
+0x0002F793 0x3C08F7B3 <St12length_error
+0x0002F7B3 0x3C08F7D3 <St12out_of_range
+0x0002F7FF 0x3C08F81F Bstd::bad_alloc
+0x0002F85F 0x3C08F87F Bnot enough space for format expansion (Please submit full bug report at https://gcc.gnu.org/bugs/):
+0x0002F8C9 0x3C08F8E9 0123456789
+0x0002F8D4 0x3C08F8F4 basic_string::_S_create
+0x0002F8EC 0x3C08F90C basic_string::_S_construct null not valid
+0x0002F9A5 0x3C08F9C5 !)@:F,@zj/@\G1@|
+0x0002F9CA 0x3C08F9EA :@:F<@Z
+0x0002F9D2 0x3C08F9F2 =@zj?@L~@@\GA@l
+0x0002FF71 0x3C08FF91          (((((                  
+0x0002FFB2 0x3C08FFD2 AAAAAA
+0x0002FFD2 0x3C08FFF2 BBBBBB
+0x0003049B 0x3C0904BB B0000000000000000                INF
+0x000304CC 0x3C0904EC 0123456789ABCDEF
+0x00030669 0x3C090689 %10[-+0-9A-Za-z]%n
+0x0003067C 0x3C09069C %10[A-Za-z]%n
+0x0003068A 0x3C0906AA M%hu%n.%hu%n.%hu%n
+0x0003069D 0x3C0906BD /%hu%n:%hu%n:%hu%n
+0x0003094B 0x3C09096B B0000000000000000                Infinity
+0x00030979 0x3C090999 REENT malloc succeeded
+0x00030990 0x3C0909B0 /builds/idf/crosstool-NG/.build/HOST-x86_64-w64-mingw32/xtensa-esp32s3-elf/src/newlib/newlib/libc/stdlib/dtoa.c
+0x00030A00 0x3C090A20 Balloc succeeded
+0x00030A11 0x3C090A31 /builds/idf/crosstool-NG/.build/HOST-x86_64-w64-mingw32/xtensa-esp32s3-elf/src/newlib/newlib/libc/stdlib/gdtoa-gethex.c
+0x00030C0C 0x3C090C2C /builds/idf/crosstool-NG/.build/HOST-x86_64-w64-mingw32/xtensa-esp32s3-elf/src/newlib/newlib/libc/stdlib/mprec.c
+0x00031043 0x3C091063 B0000000000000000                
+0x000314FB 0x3C09151B B0000000000000000                
+0x00000034 0x3FC946E4 -> -> -> -> -> 1000 HZ TONE RTTY DECODER 
+0x000000B8 0x3FC94768 Z2STEREO
+0x00000592 0x3FC94C42 hBPF\D
+0x00002887 0x3FC96F37 <4v7@`v7@
+0x00002919 0x3FC96FC9 s7@ls7@
+0x00002929 0x3FC96FD9 r7@,s7@
+0x00002A0A 0x3FC970BA 8@Stack smashing protect failure!
+0x00002A2C 0x3FC970DC Tasks currently running:
+0x00002A45 0x3FC970F5 CPU 0/1
+0x00002A7C 0x3FC9712C E (%u) %s: Core dump write binary failed with error=%d
+0x00002AB4 0x3FC97164 esp_core_dump_common
+0x00002AC9 0x3FC97179 E (%u) %s: Incorrect size of core dump image: %d
+0x00002AFB 0x3FC971AB E (%u) %s: Failed to read core dump data size (%d)!
+0x00002B30 0x3FC971E0 E (%u) %s: Too small core dump partition!
+0x00002B5B 0x3FC9720B E (%u) %s: No core dump partition found!
+0x00002B85 0x3FC97235 E (%u) %s: Core dump data check failed:
+0x00002BAE 0x3FC9725E E (%u) %s: Failed to read checksum from core dump (%d)!
+0x00002BE7 0x3FC97297 E (%u) %s: Failed to read data from core dump (%d)!
+0x00002C1C 0x3FC972CC E (%u) %s: Invalid flash partition config!
+0x00002C48 0x3FC972F8 E (%u) %s: Core dump flash config is corrupted! CRC=0x%x instead of 0x%x
+0x00002C92 0x3FC97342 E (%u) %s: Failed to flush cached data to flash (%d)!
+0x00002CC9 0x3FC97379 E (%u) %s: Failed to flush cached data to flash (%d)!
+0x00002D00 0x3FC973B0 E (%u) %s: Failed to erase flash (%d)!
+0x00002D28 0x3FC973D8 E (%u) %s: Not enough space to save core dump!
+0x00002D58 0x3FC97408 E (%u) %s: Failed to write data to flash (%d)!
+0x00002D88 0x3FC97438 E (%u) %s: Failed to write cached data to flash (%d)!
+0x00002DBF 0x3FC9746F E (%u) %s: No core dump partition found!
+0x00002DE9 0x3FC97499 esp_core_dump_flash
+0x00002DFD 0x3FC974AD E (%u) %s: Failed to end core dump (%d)!
+0x00002E27 0x3FC974D7 E (%u) %s: Failed to write core dump header (%d)!
+0x00002E5A 0x3FC9750A E (%u) %s: Failed to start core dump (%d)!
+0x00002E86 0x3FC97536 E (%u) %s: Failed to prepare core dump storage (%d)!
+0x00002EBC 0x3FC9756C E (%u) %s: %s(%u): Invalid input data.
+0x00002EE4 0x3FC97594 E (%u) %s: %s(%u): Version info writing failed. Returned (%d).
+0x00002F24 0x3FC975D4 E (%u) %s: %s(%u): memory regions writing error, returned (%d).
+0x00002F65 0x3FC97615 E (%u) %s: %s(%u): ELF Size writing error, returned (%d).
+0x00002FA0 0x3FC97650 E (%u) %s: %s(%u): ELF header writing error, returned (%d).
+0x00002FDD 0x3FC9768D E (%u) %s: %s(%u): ELF header writing error, returned (%d).
+0x0000301A 0x3FC976CA E (%u) %s: %s(%u): EXTRA_INFO note segment processing failure, returned(%d).
+0x00003068 0x3FC97718 E (%u) %s: %s(%u): Extra info note write failed. Returned (%d).
+0x000030A9 0x3FC97759 E (%u) %s: Zero size extra info!
+0x000030CB 0x3FC9777B E (%u) %s: %s(%u): Version info note write failed. Returned (%d).
+0x0000310E 0x3FC977BE E (%u) %s: %s(%u): memory region write failed. Returned (%d).
+0x0000314D 0x3FC977FD E (%u) %s: %s(%u): invalid memory region
+0x00003177 0x3FC97827 E (%u) %s: %s(%u): Interrupted task stack write failed, return (%d).
+0x000031BD 0x3FC9786D E (%u) %s: %s(%u): Task %x, TCB write failed, return (%d).
+0x000031F9 0x3FC978A9 E (%u) %s: %s(%u): Tasks regs addition failed, return (%d).
+0x00003236 0x3FC978E6 E (%u) %s: %s(%u): Task %x, stack write failed, return (%d).
+0x00003274 0x3FC97924 E (%u) %s: %s(%u): Task %x, TCB write failed, return (%d).
+0x000032B0 0x3FC97960 E (%u) %s: %s(%u): PR_STATUS note segment processing failure, returned(%d).
+0x000032FD 0x3FC979AD E (%u) %s: %s(%u): Task %x, PR_STATUS write failed, return (%d).
+0x0000333F 0x3FC979EF E (%u) %s: %s(%u): Task %x, PR_STATUS write failed, return (%d).
+0x00003381 0x3FC97A31 E (%u) %s: %s(%u): Task %x, PR_STATUS write failed, return (%d).
+0x000033C3 0x3FC97A73 E (%u) %s: %s(%u): Task %x, PR_STATUS write failed, return (%d).
+0x00003405 0x3FC97AB5 E (%u) %s: %s(%u): NOTE segment header write failure, returned (%d).
+0x0000344B 0x3FC97AFB E (%u) %s: Task (TCB:%x), (Stack:%x), stack processing failure = %d.
+0x00003491 0x3FC97B41 E (%u) %s: Task (TCB:%x) processing failure = %d
+0x000034C3 0x3FC97B73 E (%u) %s: Zero size register dump for task 0x%x!
+0x000034F6 0x3FC97BA6 E (%u) %s: %s(%u): Write ELF note data failure, returned (%d)
+0x00003535 0x3FC97BE5 E (%u) %s: %s(%u): Invalid data pointer for segment
+0x0000356A 0x3FC97C1A E (%u) %s: %s(%u): Write ELF note data failure (%d)
+0x0000359F 0x3FC97C4F E (%u) %s: %s(%u): Write ELF note name failure (%d)
+0x000035D4 0x3FC97C84 E (%u) %s: %s(%u): Write ELF note header failure (%d)
+0x0000360B 0x3FC97CBB E (%u) %s: %s(%u): Segment note name is too long %d.
+0x00003641 0x3FC97CF1 E (%u) %s: %s(%u): Write ELF segment data failure (%d)
+0x00003679 0x3FC97D29 E (%u) %s: %s(%u): Write ELF segment data failure (%d)
+0x000036B1 0x3FC97D61 E (%u) %s: %s(%u): Invalid data for segment.
+0x000036DF 0x3FC97D8F E (%u) %s: %s(%u): Write ELF segment header failure (%d)
+0x00003719 0x3FC97DC9 E (%u) %s: %s(%u): Write ELF header failure (%d)
+0x0000374B 0x3FC97DFB esp_core_dump_elf
+0x0000375D 0x3FC97E0D E (%u) %s: Error while registers processing.
+0x0000378B 0x3FC97E3B E (%u) %s: Too small stack to keep frame: %d bytes!
+0x000037C0 0x3FC97E70 esp_core_dump_port
+0x000037E1 0x3FC97E91 E (%u) %s: Empty data to add to checksum calculation!
+0x00003818 0x3FC97EC8 esp_core_dump_checksum
+0x00003848 0x3FC97EF8 [%u] CO: init coex schm error!
+0x00003868 0x3FC97F18 [%u] CO: create semaphore error!
+0x000038BC 0x3FC97F6C [%u] No memory to allocate coexist osi funcs
+0x000038EA 0x3FC97F9A [%u] CO: create schm semaphore error!
+0x00003914 0x3FC97FC4 rtc_clk
+0x0000391C 0x3FC97FCC E (%u) %s: unsupported frequency configuration
+0x0000394C 0x3FC97FFC E (%u) %s: invalid frequency
+0x0000396A 0x3FC9801A %s failed: esp_err_t 0x%x
+0x0000398A 0x3FC9803A  at 0x%08x
+0x00003996 0x3FC98046 file: "%s" line %d
+0x000039A9 0x3FC98059 func: %s
+0x000039B2 0x3FC98062 expression: %s
+0x000039C2 0x3FC98072 ESP_ERROR_CHECK
+0x000039D2 0x3FC98082 period < (1 << 26)
+0x000039E5 0x3FC98095 IDF/components/hal/esp32s3/include/hal/systimer_ll.h
+0x00003A1A 0x3FC980CA systimer_ll_set_alarm_period
+0x00003A37 0x3FC980E7 abort() was called at PC 0x
+0x00003A53 0x3FC98103  on core 
+0x00003A5D 0x3FC9810D <cached disabled>
+0x00003A71 0x3FC98121 assert failed: 
+0x00003A88 0x3FC98138 %d,%d,%d
+0x00003A92 0x3FC98142 error: pll_cal exceeds 2ms!!!
+0x00003AB1 0x3FC98161 correct_power=%d,temp=%d %d
+0x00003ACE 0x3FC9817E ulp:set=%d,init=%d
+0x00003AE2 0x3FC98192 temp=%d,%d,delta=%d
+0x00003B16 0x3FC981C6 start_address < 0x1000000
+0x00003B30 0x3FC981E0 /IDF/components/spi_flash/memspi_host_driver.c
+0x00003B5F 0x3FC9820F address + length <= 0x1000000
+0x00003B7D 0x3FC9822D memspi_host_program_page
+0x00003B96 0x3FC98246 memspi_host_erase_block
+0x00003BAE 0x3FC9825E memspi_host_erase_sector
+0x00003BC7 0x3FC98277 memspi
+0x00003BD9 0x3FC98289 +8@@+8@,,8@l,8@
+0x00003BE9 0x3FC98299 +8@d+8@
+0x00003C02 0x3FC982B2 8@P-8@P
+0x00003C2F 0x3FC982DF ?|-8@L28@d.8@
+0x00003C3D 0x3FC982ED 48@058@
+0x00003C50 0x3FC98300 H38@x68@
+0x00003C81 0x3FC98331 48@H48@
+0x00003C8D 0x3FC9833D 68@x18@
+0x00003CA1 0x3FC98351 .8@boya
+0x00003CB5 0x3FC98365 -8@L28@
+0x00003CC5 0x3FC98375 ?8@4@8@
+0x00003CD4 0x3FC98384 H38@x68@
+0x00003CF1 0x3FC983A1 08@H?8@
+0x00003D11 0x3FC983C1 68@x18@
+0x00003D1D 0x3FC983CD 18@L.8@
+0x00003D2B 0x3FC983DB E (%u) %s: configure host io mode failed - unsupported
+0x00003D63 0x3FC98413 E (%u) %s: No response from device when trying to retrieve Unique ID
+0x00003DAA 0x3FC9845A out_write_protect!=NULL
+0x00003DC2 0x3FC98472 /IDF/components/spi_flash/spi_flash_chip_generic.c
+0x00003DF5 0x3FC984A5 E (%u) %s: The flash you use doesn't support auto suspend, only 'XMC' is supported
+0x00003E49 0x3FC984F9 spi_flash_chip_generic_get_write_protect
+0x00003E7D 0x3FC9852D 48@L28@d.8@
+0x00003E89 0x3FC98539 48@058@
+0x00003E9C 0x3FC9854C H38@x68@
+0x00003ECD 0x3FC9857D 48@H48@
+0x00003ED9 0x3FC98589 68@x18@
+0x00003EE5 0x3FC98595 18@`78@
+0x00003EED 0x3FC9859D .8@generic
+0x00003EF8 0x3FC985A8 chip_generic
+0x00003F11 0x3FC985C1 88@L28@d.8@
+0x00003F1D 0x3FC985CD 48@058@
+0x00003F30 0x3FC985E0 H38@x68@
+0x00003F5D 0x3FC9860D 68@088@D88@
+0x00003F6D 0x3FC9861D 68@x18@
+0x00003F79 0x3FC98629 18@`88@
+0x00003F81 0x3FC98631 .8@issi
+0x00003F93 0x3FC98643 ?h88@L28@d.8@
+0x00003FA1 0x3FC98651 48@058@
+0x00003FB4 0x3FC98664 H38@x68@
+0x00003FE1 0x3FC98691 68@088@D88@
+0x00003FF1 0x3FC986A1 68@x18@
+0x00003FF9 0x3FC986A9 38@|78@
+0x00004005 0x3FC986B5 .8@mxic
+0x0000400D 0x3FC986BD (io_mode == SPI_FLASH_OPI_STR) || (io_mode == SPI_FLASH_OPI_DTR)
+0x0000404E 0x3FC986FE /IDF/components/spi_flash/spi_flash_chip_mxic_opi.c
+0x00004082 0x3FC98732 E (%u) %s: no response
+0x0000409B 0x3FC9874B out_write_protected!=NULL
+0x000040B5 0x3FC98765 spi_flash_chip_mxic_opi_get_write_protect
+0x000040DF 0x3FC9878F spi_flash_chip_mxic_opi_get_data_length_zoom
+0x00004113 0x3FC987C3 ? >8@L28@
+0x0000411D 0x3FC987CD 88@,98@
+0x00004125 0x3FC987D5 98@<:8@
+0x0000414D 0x3FC987FD /8@x;8@
+0x00004161 0x3FC98811 68@D>8@x=8@\<8@(=8@x18@
+0x00004179 0x3FC98829 38@|78@<>8@H;8@mxic (opi)
+0x0000419B 0x3FC9884B ?L>8@L28@d.8@
+0x000041A9 0x3FC98859 48@058@
+0x000041BC 0x3FC9886C H38@x68@
+0x000041ED 0x3FC9889D 48@H48@
+0x000041F9 0x3FC988A9 68@x18@
+0x00004205 0x3FC988B5 18@l>8@
+0x0000421D 0x3FC988CD @8@L28@d.8@
+0x0000422D 0x3FC988DD ?8@4@8@
+0x0000423C 0x3FC988EC H38@x68@
+0x00004259 0x3FC98909 08@H?8@
+0x0000426D 0x3FC9891D 48@H48@
+0x00004279 0x3FC98929 68@x18@
+0x0000428D 0x3FC9893D .8@winbond
+0x00004298 0x3FC98948 chip_wb
+0x000042A0 0x3FC98950 flash HPM
+0x000042AA 0x3FC9895A E (%u) %s: Flash high performance mode hasn't been executed successfully
+0x000042F4 0x3FC989A4 E (%u) %s: Flash does not have the ability to raise to that frequency
+0x0000433B 0x3FC989EB command
+0x00004349 0x3FC989F9 write sr3-bit5
+0x00004365 0x3FC98A15 A8@ A8@XC8@
+0x00004375 0x3FC98A25 A8@ C8@dA8@
+0x00004381 0x3FC98A31 A8@0C8@
+0x0000438D 0x3FC98A3D @8@HC8@0A8@ A8@XC8@`
+0x000043B4 0x3FC98A64 XC8@freqdiv > 0
+0x000043C4 0x3FC98A74 /IDF/components/spi_flash/esp32s3/spi_timing_config.c
+0x000043FA 0x3FC98AAA spi_timing_config_set_flash_clock
+0x00000059 0x40374059  84@30@
+0x0000010E 0x4037410E I@@IPPI``IppI
+0x00000117 0x42000137 ?<T7@d
+0x000002D3 0x420002F3 ?VUUUp
+0x000002DB 0x420002FB ?333333
+0x00000F0B 0x42000F2B @ffffff
+0x0000145F 0x4200147F <tU7@T%
+0x00001483 0x420014A3 B`w7@R%
+0x00001588 0x420015A8 `)8@8O
+0x000016CE 0x420016EE 7@@V7@
+0x00001BD2 0x42001BF2 7@Di7@P(
+0x00001BEB 0x42001C0B <Ph7@X
+0x00001CB5 0x42001CD5 p7@Lq7@
+0x00001CF0 0x42001D10 tk7@,t7@
+0x00001D19 0x42001D39 ,8@,l7@
+0x000022B7 0x420022D7 <L&8@~
+0x000025E0 0x42002600 RRaArrAaL2
+0x000027B7 0x420027D7 BUSBCUSBSL
+0x00002A1F 0x42002A3F <`)8@S
+0x00002B61 0x42002B81 (8@ m7@
+0x00002B7A 0x42002B9A 7@Lq7@
+0x00002F21 0x42002F41 ++CCUNGt
+0x0000316B 0x4200318B jb`d! /1 
+0x000031CF 0x420031EF 04!@O1P
+0x000031F5 0x42003215 pu!@O1
+0x000031FD 0x4200321D !P_1@w
+0x00003207 0x42003227 00tppt
+0x0000320F 0x4200322F tp#  ( 
+0x00003225 0x42003245 " 0"   
+0x00003233 0x42003253 '04! #!
+0x00003246 0x42003266 $! 3 0 
+0x000035F9 0x42003619 0?1 &!0"
+0x000053C1 0x420053E1  %<UA9
+0x00005665 0x42005685 w#[w:w
+0x000056AE 0x420056CE w#{w:w
+0x000058ED 0x4200590D w#kw:w
+0x00005A82 0x42005AA2 1zxpx!
+0x00005ACD 0x42005AED  eU@F7
+0x00005B46 0x42005B66 w#{w:w
+0x00005B7A 0x42005B9A w#[w:w
+0x00005F33 0x42005F53 @Z" !!
+0x00005FE9 0x42006009 kTj" !!
+0x00006067 0x42006087 0?1 &!0"
+0x000060B2 0x420060D2  /106! #
+0x00006236 0x42006256 P_1 &!P"
+0x0000630D 0x4200632D @O1 &!@"
+0x00006316 0x42006336 H1*$  
+0x000063B0 0x420063D0 1 &!p"
+0x000064D9 0x420064F9 `o1 &!
+0x00007219 0x42007239 `cAPSAYa
+0x00007856 0x42007876  (t D "
+0x00007E95 0x42007EB5 "  t'5G
+0x000086CA 0x420086EA =*D@A!
+0x00008777 0x42008797  !!`a!
+0x00008DA4 0x42008DC4 zUPQ!a
+0x00009789 0x420097A9  eFP 2 B
+0x0000A303 0x4200A323 ZX@A!*$PQ!A
+0x0000A45F 0x4200A47F pq!`a!
+0x0000A695 0x4200A6B5 ZWG%&Q
+0x0000C248 0x4200C268  euN1*
+0x0000C39D 0x4200C3BD zDRRSR
+0x0000D6F3 0x4200D713 !`_1P[
+0x0000D8DC 0x4200D8FC 3000tV
+0x0000DE5F 0x4200DE7F P_106!P3
+0x0000FE02 0x4200FE22 PXtP3 R
+0x00010087 0x420100A7 P3000t"
+0x00010486 0x420104A6 *301!9a
+0x00010698 0x420106B8 XQJUYQaZ
+0x0001077D 0x4201079D ha*3jCR
+0x000107A2 0x420107C2   t)q"
+0x00011571 0x42011591 f ``tV
+0x00011865 0x42011885 rAr`xArAY`p
+0x00011871 0x42011891 rAZPx!rAiPp1bAXrAj`huPxubA[rAkP`t0ptbAhpf
+0x000118A7 0x420118C7 AmbAx0
+0x000118B3 0x420118D3 AnbAy0
+0x000118BA 0x420118DA u@`1@Hu
+0x000118C2 0x420118E2 AobAzBA{
+0x000119AC 0x420119CC  pt!@B!
+0x00011D36 0x42011D56 p"0  t"E
+0x00011F83 0x42011FA3 @O106!@3
+0x000129FA 0x42012A1A UPPtRC
+0x00012BD4 0x42012BF4 "  t"C
+0x0001386B 0x4201388B  *0  t
+0x0001389C 0x420138BC  %9+!H
+0x00013FD0 0x42013FF0 i"i2iBbB
+0x00014431 0x42014451 I1Y!``t
+0x000146FC 0x4201471C  %O,6a
+0x00014A02 0x42014A22 RB4YrY
+0x00014B8D 0x42014BAD 9XP8t2
+0x00014BEB 0x42014C0B 9X@8t2
+0x00014C06 0x42014C26 h8#@Pt
+0x00014C32 0x42014C52 9X`8t2
+0x00014C48 0x42014C68 h8#``t
+0x00014D35 0x42014D55  (t )  
+0x00014DBF 0x42014DDF :" !!*$B
+0x00014DFF 0x42014E1F :D@C!JB"
+0x00014E59 0x42014E79 I1iQPP
+0x00014E71 0x42014E91 3000tV
+0x00014F76 0x42014F96 Z"hA)a
+0x00014FE3 0x42015003 UPPt01AJ
+0x00015086 0x420150A6 7#(104
+0x000151C7 0x420151E7 `b :UW
+0x000155E2 0x42015602 `3000t
+0x00015654 0x42015674 0t9Q0f
+0x00015818 0x42015838 3*UY1fc
+0x00015827 0x42015847 N2BMVs
+0x00015863 0x42015883 f``tPQA*wV
+0x00015E18 0x42015E38   t * ,
+0x00015E34 0x42015E54   t * ,
+0x00015E50 0x42015E70   t * 
+0x00016578 0x42016598 I3ZRX%
+0x00016797 0x420167B7 UPPtZ3
+0x000167A9 0x420167C9 @3 00tV
+0x00016C5A 0x42016C7A 2B%<C2B&,
+0x00016CA8 0x42016CC8 2B%<S2B&
+0x00016CFC 0x42016D1C <S2B%,
+0x00016D4C 0x42016D6C 2B%<C2B&
+0x00016D9D 0x42016DBD <C2B%,
+0x00016DEC 0x42016E0C 2B%<S2B&
+0x00016E36 0x42016E56 <S2B%,
+0x00017207 0x42017227 00t@@t
+0x000173BE 0x420173DE VPV P_
+0x000175F1 0x42017611 h-P^ PPt2K
+0x0001763D 0x4201765D 3Z301!
+0x000177AF 0x420177CF !"FM)A
+0x00017852 0x42017872 (!'b"(
+0x00017E39 0x42017E59 U:8ZXjd
+0x00017EB1 0x42017ED1 9XP8t2
+0x00017EC7 0x42017EE7 h8#PPt
+0x00017F0F 0x42017F2F 9X@8t2
+0x00017F2A 0x42017F4A h8#@@t
+0x00017F56 0x42017F76 9X`8t2
+0x00017F6C 0x42017F8C h8#``t
+0x0001835C 0x4201837C 00T09 00
+0x00018473 0x42018493 d%2d$2
+0x000184C1 0x420184E1 2$%:""d%
+0x00018511 0x42018531 r$$zfx
+0x00018522 0x42018542 bd$b$/r
+0x00018531 0x42018551 r$%zfbd%b
+0x00018579 0x42018599 "$$*32d$
+0x000187AB 0x420187CB J3 !!01!2V4"V5
+0x000189EE 0x42018A0E k403!9
+0x00018C63 0x42018C83 3PPt00tY
+0x00018D5A 0x42018D7A f``tjU
+0x00018E32 0x42018E52 300tZD:w
+0x000191F6 0x42019216 "$"00t0
+0x0001942B 0x4201944B ``t9ai1
+0x000196DE 0x420196FE %#"f%"
+0x00019AD2 0x42019AF2 $$"$(0
+0x00019B15 0x42019B35 d:""d$"d'"d(
+0x00019B33 0x42019B53 "d$"d'"d(2d%'
+0x00019B7B 0x42019B9B `U0PPtYa
+0x00019BAF 0x42019BCF /2$:Z32
+0x00019BB9 0x42019BD9 3#00`2d$2d'2d(
+0x00019BC9 0x42019BE9 2d%R$0
+0x00019BF7 0x42019C17 /"$7:"
+0x00019C3D 0x42019C5D "#*#  
+0x00019CDE 0x42019CFE 2"8J32
+0x00019DF8 0x42019E18 /2$7R$$j32
+0x00019E06 0x42019E26 Z3R$:jUR
+0x00019E24 0x42019E44 cZ32d%8a2d$2d'2d(2
+0x00019E51 0x42019E71 2d%2$$V
+0x00019E5C 0x42019E7C /2$:Z32
+0x00019E66 0x42019E86 3#00`2d$
+0x00019F72 0x42019F92 /"#8b!
+0x00019F7F 0x42019F9F B#$J""c$
+0x00019F9B 0x42019FBB "($"h'"h(F
+0x00019FD3 0x42019FF3 ":""d$
+0x00019FEA 0x4201A00A $$2$("a
+0x0001A02D 0x4201A04D d:""d$"d'"d(
+0x0001A04C 0x4201A06C "d$"d'"d(2d%'
+0x0001A084 0x4201A0A4 /2$7r$$Z32
+0x0001A092 0x4201A0B2 z3r$:ZWR
+0x0001A0BA 0x4201A0DA 2d$2d'2
+0x0001A0DD 0x4201A0FD 2d%2$$R
+0x0001A0E8 0x4201A108 2$:Z32
+0x0001A0F1 0x4201A111 3#00`2d$2$0
+0x0001A123 0x4201A143 /2$7Z3
+0x0001A13B 0x4201A15B $%R$9:
+0x0001A167 0x4201A187 3#Z300
+0x0001A18F 0x4201A1AF $':Ur$$R
+0x0001A258 0x4201A278 *&Xq9Q"a
+0x0001A266 0x4201A286 /B#6zD
+0x0001A471 0x4201A491 B#$J""c$
+0x0001A47F 0x4201A49F "($"h'"h(F
+0x0001A4B7 0x4201A4D7 ":""d$
+0x0001A4D7 0x4201A4F7 2E 2E%2E&
+0x0001A4FF 0x4201A51F 2b52b62b72b82b92b:2b;2B
+0x0001A563 0x4201A583 2b'2b(2b$2b%2b&b
+0x0001A578 0x4201A598 9E9eiuI5IU
+0x0001A584 0x4201A5A4 2BNbR&
+0x0001A59C 0x4201A5BC rb+bRXBb
+0x0001A5CC 0x4201A5EC  %b&6A
+0x0001A88F 0x4201A8AF  *0  t
+0x0001AE27 0x4201AE47 ``tppt
+0x0001AEAD 0x4201AECD @Ht@3 0X4,
+0x0001AED0 0x4201AEF0 400D0q!M
+0x0001AF8B 0x4201AFAB 08t0f 
+0x0001AF94 0x4201AFB4 @Ht@3 0H4
+0x0001AFB4 0x4201AFD4 0L4pD `a
+0x0001B326 0x4201B346 J2RRe.
+0x0001B391 0x4201B3B1 Pt00t@@tV5
+0x0001B41A 0x4201B43A 00t@@t
+0x0001B4D6 0x4201B4F6 \tLx0H
+0x0001B532 0x4201B552 00t@@t,
+0x0001B59A 0x4201B5BA L8\6@h
+0x0001B606 0x4201B626 00t@@tL
+0x0001B77C 0x4201B79C @@t2RXBB
+0x0001B8C9 0x4201B8E9 ``tppt
+0x0001B9B8 0x4201B9D8 2RPBRQbRS75
+0x0001BA68 0x4201BA88 2RPBRQbRS75
+0x0001BB08 0x4201BB28 2RPBRQbRSp
+0x0001BC03 0x4201BC23 3 @@tPPt D
+0x0001BC17 0x4201BC37 @3 ``tA
+0x0001BC2C 0x4201BC4C ppt`3 B
+0x0001BC9A 0x4201BCBA 00t@@tPPt&
+0x0001BDF1 0x4201BE11 3 2Rre
+0x0001C406 0x4201C426 P% 00tG
+0x0001C7EB 0x4201C80B Wf-IVj
+0x0001CB82 0x4201CBA2  )   t
+0x0001D48B 0x4201D4AB Z 00`@
+0x0001D5B8 0x4201D5D8  R @@t
+0x0001D6F6 0x4201D716 81BBX2b
+0x0001D821 0x4201D841 wecKRY
+0x0001DEA5 0x4201DEC5 3@@dBB
+0x0001E525 0x4201E545 %y<00t|
+0x0001ED81 0x4201EDA1 1IAIQIa*(
+0x0001F067 0x4201F087 00t `t91@ t2
+0x0001F4B1 0x4201F4D1 qY1IAiQ9a
+0x0001F537 0x4201F557 00t  t
+0x0001F6F8 0x4201F718 a00t@@tPPt'
+0x0001F791 0x4201F7B1 %^; R -
+0x0001F93E 0x4201F95E I5i%2E%
+0x0001F98B 0x4201F9AB 2A4RA>eZ
+0x0001F9F7 0x4201FA17 dBA*YQia
+0x0001FB2F 0x4201FB4F 00t@@t
+0x0001FD30 0x4201FD50 @A`01`7
+0x0001FFDC 0x4201FFFC  *0  t  `
+0x00020FA2 0x42020FC2  &#"&3&&
+0x00021811 0x42021831 bc/bc.
+0x00021824 0x42021844 bc1bc0Z48
+0x00021AF8 0x42021B18 2b/2b.z&8
+0x00021B14 0x42021B34 2b12b0z&8
+0x00021BDC 0x42021BFC 2b/2b.
+0x00021C24 0x42021C44 Bb1Bb.Bb0
+0x00021CDB 0x42021CFB PPt``t
+0x00022133 0x42022153 00t@@t
+0x0002220E 0x4202222E YA9QBa
+0x0002236E 0x4202238E YA9QBa
+0x000225D0 0x420225F0 (EfR:`
+0x00022620 0x42022640 "  t'4
+0x00022925 0x42022945 f6\ax{`D 
+0x000229A6 0x420229C6 1[{@!A)!:
+0x000229DD 0x420229FD 8#ia9q
+0x000236A5 0x420236C5 1Px*SR
+0x00023739 0x42023759 300t2H
+0x00024502 0x42024522  PPtP3
+0x00024729 0x42024749 2e aft`
+0x0002474C 0x4202476C PD BC R
+0x000254F5 0x42025515 XTaSnR
+0x000259DE 0x420259FE oI-Y=)]
+0x00025A95 0x42025AB5 oK5J3|
+0x00025DC3 0x42025DE3  B 0# 
+0x00026DFC 0x42026E1C Z0D IGM
+0x000274E2 0x42027502 &Z(&z;
+0x00027DBA 0x42027DDA 008A0?000t7
+0x00027DDE 0x42027DFE zrrd7F
+0x00027F34 0x42027F54  Rb7""7
+0x000283B5 0x420283D5 bA,f*%)1JUM
+0x00028853 0x42028873 1"e'#J
+0x000288A6 0x420288C6 d:2001
+0x00028F58 0x42028F78 00t@@t
+0x00029381 0x420293A1 Q:[00t
+0x0002948F 0x420294AF yq0pt1
+0x00029993 0x420299B3 :20C G
+0x00029BC8 0x42029BE8  IAIQIae
+0x00029EAF 0x42029ECF )*):)J)Z)j)z"j
+0x00029FAA 0x42029FCA yJyZyjyzy
+0x0002A148 0x4202A168 "@ tPR (#Y3
+0x0002A424 0x4202A444 BR j39
+0x0002A448 0x4202A468 00t@@t
+0x0002A715 0x4202A735 DBR!Vz
+0x0002AB56 0x4202AB76 AEU0# 
+0x0002AB9D 0x4202ABBD ta3Uppt
+0x0002AD3E 0x4202AD5E ~06c2a
+0x0002B09F 0x4202B0BF x!&'0x
+0x0002B2C0 0x4202B2E0 jc`v w
+0x0002C261 0x4202C281 #6!?W|
+0x0002C2B9 0x4202C2D9 #6!)W|
+0x0002C5A4 0x4202C5C4 AxV92`C
+0x0002C73F 0x4202C75F !!V1!V7
+0x0002C9EA 0x4202CA0A U2A,Ba
+0x0002CB86 0x4202CBA6 !CUACU
+0x0002CBBC 0x4202CBDC !2UA2U
+0x0002D780 0x4202D7A0 C0" )h
+0x0002E0AB 0x4202E0CB "c-Rc.rc/
+0x0002E131 0x4202E151 '4_A"P
+0x0002E266 0x4202E286 2%-78C
+0x0002E88F 0x4202E8AF )!91  t
+0x0002E8D3 0x4202E8F3 )!91  t
+0x0002EFA8 0x4202EFC8 4@"CB!
+0x0002EFF2 0x4202F012 9*y:YJ
+0x0002F051 0x4202F071 !qLqrLX
+0x0002F28B 0x4202F2AB 1&(`&8mV(
+0x0002FDC0 0x4202FDE0 !>G96IF)VRf
+0x0002FF3E 0x4202FF5E G;2ji(
+0x000301A8 0x420301C8 1gHAhH
+0x00030387 0x420303A7 PZ0PPt
+0x00030E8F 0x42030EAF 1rEApE
+0x00030FE1 0x42031001 ; A2EV
+0x000313D7 0x420313F7 AFD b @
+0x00031F7B 0x42031F9B "$R"&h
+0x0003276F 0x4203278F ?00tZ"X
+0x00032873 0x42032893 AP?JHG
+0x00032C82 0x42032CA2 :@3 AN>
+0x00032CBF 0x42032CDF eAJ>bE
+0x00032D6C 0x42032D8C f ``tbE
+0x00032DB4 0x42032DD4 @H4@C @@t
+0x00032F65 0x42032F85 U:DYbIr
+0x0003340F 0x4203342F HBQz<B
+0x0003343A 0x4203345A @UA75g
+0x00033791 0x420337B1 5*,PQA
+0x00033BFE 0x42033C1E PD BB+
+0x00033C67 0x42033C87 Awj$Ao:
+0x00033C86 0x42033CA6 D @@t\
+0x00033E0A 0x42033E2A )19!9q%
+0x00033F27 0x42033F47 7daHahw
+0x00033F91 0x42033FB1 @@3 Haxw
+0x000340B8 0x420340D8 xV(6p"
+0x000341B2 0x420341D2 VJ3JHIV
+0x00034385 0x420343A5 7iW`isi7F
+0x000344FA 0x4203451A pf Y2bB
+0x00034569 0x42034589 6<p``PV
+0x0003457E 0x4203459E R77^XR:UYRX1b
+0x00034A0E 0x42034A2E "J<RJG
+0x00034D36 0x42034D56 9Q1'6  
+0x00034D75 0x42034D95 (Q'918A
+0x00034E92 0x42034EB2 " !A;"
+0x00034F9C 0x42034FBC RG.RG/RG1RG3R
+0x000351E8 0x42035208  !AJ"|
+0x00035391 0x420353B1 *(  tF
+0x00035412 0x42035432 &*:&:?-
+0x00035420 0x42035440 jA&zJf
+0x00035E4D 0x42035E6D '2JB:2
+0x00036253 0x42036273 <)D!'1G
+0x000365F8 0x42036618 Q]0Ra Q\0Ra!Q\0Ra"Q10Z<
+0x0003671B 0x4203673B +U*URC
+0x00036762 0x42036782 9Q2!1L
+0x0003678B 0x420367AB HQ8a(qRa
+0x00036EC0 0x42036EE0 PXAPS P0
+0x00036F68 0x42036F88 2H<BH=RH>
+0x00037007 0x42037027 00t Pt&
+0x00037163 0x42037183 a)-  t
+0x000373A7 0x420373C7 08A05 
+0x000373E4 0x42037404 #2A*2A+,
+0x00037551 0x42037571 ,2D>RT
+0x000376AE 0x420376CE @@Ccwi
+0x00037735 0x42037755  PXcRY
+0x00037AA2 0x42037AC2 D@@tQR+
+0x00037B75 0x42037B95 t@@tPPt
+0x00037DB0 0x42037DD0 c"&#?fC
+0x00037E9A 0x42037EBA PPDPptf
+0x000380E7 0x42038107 jg``tjl
+0x00038283 0x420382A3 (1^)@pd
+0x0003828D 0x420382AD @WAj3Z3
+0x000382E8 0x42038308 AE)QV)
+0x00038309 0x42038329 1<)AO)
+0x00038697 0x420386B7 8b|uP3
+0x000386D8 0x420386F8 `Q5`04fE
+0x00038770 0x42038790 !;(Q7(B
+0x00038977 0x42038997 a&$`U 
+0x0003941B 0x4203943B A-% pt"
+0x000395C2 0x420395E2  Pt0 t
+0x0003978F 0x420397AF Ab$00t
+0x00039B97 0x42039BB7 RC RC!BC#
+0x00039D89 0x42039DA9 %P3 2B!-
+0x00039DC3 0x42039DE3 Pw zv]
+0x0003A0B2 0x4203A0D2 j"**jU
+0x0003A1AE 0x4203A1CE `D J"**,F':
+0x0003A326 0x4203A346 )5)E)U
+0x0003A52C 0x4203A54C 6"A0"A1"
+0x0003A53C 0x4203A55C bA.2A2"A3
+0x0003A714 0x4203A734   3 `c
+0x0003A76D 0x4203A78D `mA9QV
+0x0003A8C7 0x4203A8E7 A-   t
+0x0003A93D 0x4203A95D  )4)D"d
+0x0003AB05 0x4203AB25 PQAP^0
+0x0003BBFD 0x4203BC1D &"#&2,|
+0x0003C332 0x4203C352 B8"iQYa
+0x0003C5D4 0x4203C5F4 DBQ$eQ
+0x0003C5FB 0x4203C61B Q%<L2Q3
+0x0003CEE6 0x4203CF06 H#"H$RH%RH&RH'
+0x0003CF0D 0x4203CF2D H+"H,RH-RH.RH/
+0x0003CF34 0x4203CF54 H3"H4RH5RH6RH7
+0x0003CF5B 0x4203CF7B H;"H<RH=RH>RH?
+0x0003CF82 0x4203CFA2 HC"HDRHERHFRHG
+0x0003CFA9 0x4203CFC9 HK"HLRHMRHNRHO
+0x0003CFD0 0x4203CFF0 HS"HTRHURHVRHW
+0x0003CFF7 0x4203D017 H["H\RH]RH^RH_
+0x0003D01E 0x4203D03E Hc"HdRHeRHfRHgP
+0x0003D02F 0x4203D04F P(tRHh"HiP uPXu"HjRHk"
+0x0003D047 0x4203D067 X)"DH"
+0x0003D05F 0x4203D07F RDL"DKP(t"DMP u"DNP(u"DO
+0x0003D10A 0x4203D12A P(tRDL"DMP uPXu"DNRDOFD
+0x0003D142 0x4203D162 DH"DKX)P(tRDL"DMP uPXu"DNRDO
+0x0003D1AF 0x4203D1CF  u"EV!
+0x0003DEC7 0x4203DEE7 I!Y1iAyQ9
+0x0003DEEF 0x4203DF0F I!Y1iAyQ9
+0x0003E10F 0x4203E12F 0s 0C 
+0x0003E19F 0x4203E1BF 04 2bH
+0x0003E3B9 0x4203E3D9 wppt&'
+0x0003F127 0x4203F147   `)X"
+0x0003F35B 0x4203F37B OJGj574
+0x0003FC7E 0x4203FC9E V?LUUUUU
+0x0003FCE3 0x4203FD03 ?IUUUUU
+0x0003FD9F 0x4203FDBF ?/lj,D
+0x00040006 0x42040026 0@gfff
+0x0004012F 0x4204014F @`)8@ 
+0x00040427 0x42040447 Bh%8@L
+0x00040432 0x42040452 8@x%8@
+0x0004046F 0x4204048F ?8(8@l
+0x000415C9 0x420415E9 PD IBH
+0x00041E49 0x42041E69 @ `@" P
+0x0004240D 0x4204242D 84`U0`30Y
+0x0004258B 0x420425AB )A(AAp
+0x00042970 0x42042990 0?1 "!02
+0x00042B70 0x42042B90 zqr'xp
+0x00042E7F 0x42042E9F JA"d(2d)
+0x0004307A 0x4204309A "!(B!)b!*2!+
+0x000430A9 0x420430C9 i( D0 30 +0I
+0x00043302 0x42043322 raV"aP
+0x00043309 0x42043329 %"aRRaSbaQ|
+0x00043322 0x42043342 @C!R!P
+0x00043331 0x42043351 u"aT l
+0x000443D7 0x420443F7 Ib2b72b8
+0x00044472 0x42044492 9B9R9b0
+0x00045242 0x42045262 YbI"X2HB
+0x0004526F 0x4204528F 3IB9RIr
+0x0004528D 0x420452AD eYbX2B
+0x00045296 0x420452B6 UY2I"V
+0x000452B4 0x420452D4 TYRjDPP
+0x00045307 0x42045327 lJUYrHB
+0x000455E0 0x42045600 3I29Bf
+0x0004563B 0x4204565B  8BH2&
+0x000459BA 0x420459DA ZT@o1PR!`U
+0x00045A13 0x42045A33 9QIaYqi
+0x00045C9C 0x42045CBC EPD BS
+0x00045EC6 0x42045EE6 PP`9"Yb
+0x00045F03 0x42045F23 ba$ra%
+0x00045F6B 0x42045F8B Ra#ba$ra%
+0x00046003 0x42046023 !Ra#ba$ra%
+0x00046051 0x42046071 Ra#ba$ra%
+0x0004608E 0x420460AE Ba"Ra#ba$ra%
+0x000460F4 0x42046114 Ra#ba$ra%
+0x000465DC 0x420465FC hA # )
+0x000467F3 0x42046813   ` 04
+0x00046A95 0x42046AB5 @> VC?1)
+0x00046C5C 0x42046C7C a"0?02a#B!"R!#
+0x00047429 0x42047449 t<z  D
+0x00047768 0x42047788 KRY$W,
+0x000486AF 0x420486CF 0_1@B!PD
+0x0004870D 0x4204872D "F9J+"
+0x00048777 0x42048797 fZ2:DBa
+0x000498D7 0x420498F7 006 PSA"H
+0x000499F0 0x42049A10 0 4*$"
+0x00049A04 0x42049A24 02 PTAP# VB
+0x00049F75 0x42049F95 00` r 
+0x0004A22E 0x4204A24E j"Po1Pf
+0x0004A248 0x4204A268 J90"c2!
+0x0004A55C 0x4204A57C @#S*U"!
+0x0004A7E2 0x4204A802 PPt\oW
+0x0004B228 0x4204B248 ,C9"2"
+0x0004C4AD 0x4204C4CD ,B)$B'
+0x0004CC31 0x4204CC51 0?1PU!P3
+0x0004CD3D 0x4204CD5D JLZDI^
+0x0004D255 0x4204D275 t<z  D
+0x0004D594 0x4204D5B4 KRY$W,
+0x0004E5B4 0x4204E5D4 0_1@B!PD
+0x0004E611 0x4204E631 "F9J+"
+0x0004E67B 0x4204E69B fZ2:DBa
+0x0004EF4F 0x4204EF6F "rFUa\
+0x0004F7DF 0x4204F7FF 006 PSA"H
+0x0004F8F8 0x4204F918 0 4*$"
+0x0004F90C 0x4204F92C 02 PTAP# VB
+0x0004FE7D 0x4204FE9D 00` r 
+0x00050136 0x42050156 j"Po1Pf
+0x00050150 0x42050170 J90"c2!
+0x00050470 0x42050490 @#S*U"!
+0x00050773 0x42050793 YAiQra
+0x0005084B 0x4205086B )#(S  `)c
+0x0005085B 0x4205087B HSI#HC
+0x0005099C 0x420509BC IAYQ"!)
+0x00050AAA 0x42050ACA 2JBhA@
+0x00050CE6 0x42050D06 :"`4!H
+0x00050D92 0x42050DB2 0c @A!
+0x00051012 0x42051032 )A9QHa
+0x00051047 0x42051067 HAjcXQiAF
+0x00051369 0x42051389 P"0)a(
+0x00051A14 0x42051A34 4&(0&85f
+0x00052202 0x42052222 PE xChD
+0x0005239A 0x420523BA p7 @A!
+0x000528BA 0x420528DA Ba"Ra#ba$ra%
+0x00052920 0x42052940 Ra#ba$ra%
+0x00052DCD 0x42052DED t<z  D
+0x0005310C 0x4205312C KRY$W,
+0x00054C4E 0x42054C6E RC8BC9
+0x00054CB7 0x42054CD7 `@$`cA
+0x00054CC1 0x42054CE1 0`h psABC
+0x00054DC8 0x42054DE8 `@4JEB
+0x00054DDB 0x42054DFB `d ptApF V
+0x000552CB 0x420552EB 0Pt0 t
+0x000553E8 0x42055408 2gsBg}Rgpbgq
+0x000553F5 0x42055415 gr"gn"g|"gt"g{"gz"gv"gyB'}
+0x00055605 0x42055625 R'u@U Rgu
+0x0005578F 0x420557AF gn2gr7"
+0x000557A0 0x420557C0 ,B"gr"'p2'r
+0x000557CF 0x420557EF ,B"gr"'p2'r:""
+0x0005583C 0x4205585C gn2gr7"
+0x0005584F 0x4205586F ,B"gr"'p2'r
+0x0005587F 0x4205589F ,B"gr"'p2'r:""
+0x000558E9 0x42055909 %"gnbm2-
+0x000558FF 0x4205591F ,C2m22"0b"2
+0x0005592D 0x4205594D ,B"m2"%02%2:""
+0x00055991 0x420559B1 %"gnbm2-
+0x000559A7 0x420559C7 ,C2m22"0b"2
+0x000559D7 0x420559F7 ,B"m2"%02%2:""
+0x000559E9 0x42055A09 R'vP/1Y
+0x00055A39 0x42055A59 %"gnbm2-
+0x00055A4F 0x42055A6F ,C2m22"0b"2
+0x00055A7F 0x42055A9F ,B"m2"%02%2:""
+0x00055BA9 0x42055BC9 HBgn2m27"
+0x00055BBC 0x42055BDC ,B"m2"'p2'r
+0x00055BEF 0x42055C0F ,B"m2"$02$2:""
+0x00055CB6 0x42055CD6 hbgn2m27"
+0x00055CCB 0x42055CEB ,B"m2"'p2'r
+0x00055CFF 0x42055D1F ,B"m2"&02&2:""
+0x00055F0D 0x42055F2D )"gnBm2-
+0x00055F23 0x42055F43 ,C2m22"0B"2
+0x00055F54 0x42055F74 ,B"m2"&02&2:""
+0x0005600D 0x4205602D )"gnBm2-
+0x00056023 0x42056043 ,C2m22"0B"2
+0x00056054 0x42056074 ,B"m2"&02&2:""
+0x00056095 0x420560B5 B'vb'y*D
+0x0005609E 0x420560BE fBgvbgy
+0x00056111 0x42056131 HBgn2m27"
+0x00056124 0x42056144 ,B"m2"'p2'r
+0x00056157 0x42056177 ,B"m2"$02$2:""
+0x00056212 0x42056232 XRgn2m27"
+0x00056227 0x42056247 ,B"m2"'p2'r
+0x0005625B 0x4205627B ,B"m2"%02%2:""
+0x000564E9 0x42056509 )"gnBm2-
+0x00056500 0x42056520 $2m22"0B"2
+0x0005652F 0x4205654F ,B"m2"&02&2:""
+0x000565E9 0x42056609 )"gnBm2-
+0x000565FF 0x4205661F ,C2m22"0B"2
+0x0005662F 0x4205664F ,B"m2"&02&2:""
+0x000566E8 0x42056708 2'yB'v
+0x000566EF 0x4205670F 3*D2gyBgv
+0x00056765 0x42056785 HBgn2m27"
+0x00056778 0x42056798 ,B"m2"'p2'r
+0x000567AB 0x420567CB ,B"m2"$02$2:""
+0x00056876 0x42056896 hbgn2m27"
+0x0005688B 0x420568AB ,B"m2"'p2'r
+0x000568BF 0x420568DF ,B"m2"&02&2:""
+0x00056B51 0x42056B71 ("gnBm2-
+0x00056B67 0x42056B87 ,C2m22"0B"2
+0x00056B95 0x42056BB5 ,B"m2"&02&2:""
+0x00056C45 0x42056C65 ("gnBm2-
+0x00056C5B 0x42056C7B ,C2m22"0B"2
+0x00056C8B 0x42056CAB ,B"m2"&02&2:""
+0x00056D3C 0x42056D5C "'v:"2'y"gv
+0x00056E14 0x42056E34 URguR'~
+0x00056F1F 0x42056F3F WdqB'n
+0x00056F5B 0x42056F7B gn2gr7"
+0x00056F8A 0x42056FAA ,B"grF
+0x00056FEB 0x4205700B gn2gr7"
+0x00056FFC 0x4205701C ,B"gr"'p2'r
+0x0005702B 0x4205704B ,B"gr"'p2'r:""
+0x0005709B 0x420570BB gn2gr7"
+0x000570AC 0x420570CC ,B"gr"'p2'r
+0x000570DB 0x420570FB ,B"gr"'p2'r:""
+0x0005711C 0x4205713C gn2m27"
+0x0005712F 0x4205714F ,B"m2"#0
+0x0005714B 0x4205716B ,B"m2"#0
+0x000571D3 0x420571F3 gn2gr7"
+0x000571E4 0x42057204 ,B"gr"'p2'r
+0x00057213 0x42057233 ,B"gr"'p2'r:""
+0x00057273 0x42057293 gn"m2'(
+0x00057287 0x420572A7 ,B"m2"'p2'r
+0x000572B7 0x420572D7 ,B"m2"'p2'r:""
+0x000572D8 0x420572F8 B'w:7R'~b'v04
+0x000572E6 0x42057306 Z3:fbgv
+0x00057361 0x42057381 Bgy"'y
+0x00057635 0x42057655 t<z  D
+0x00057974 0x42057994 KRY$W,
+0x00059492 0x420594B2 RC<BC=
+0x000594FB 0x4205951B `@$`cA
+0x00059505 0x42059525 0`h psABC
+0x000595F7 0x42059617 `@4JEB
+0x0005960A 0x4205962A `d ptApF V
+0x00059978 0x42059998 PSSZD2!
+0x0005A0D4 0x4205A0F4 :4P" "S
+0x0005A11B 0x4205A13B PP4:D@A!JH
+0x0005A15D 0x4205A17D :D@C!JH00$
+0x0005A177 0x4205A197 %09 2D
+0x0005A25A 0x4205A27A `" ZTW
+0x0005A27C 0x4205A29C Z|fIZZT
+0x0005A29D 0x4205A2BD " !!*#2
+0x0005A2A6 0x4205A2C6 00406 2B
+0x0005A2C7 0x4205A2E7 " !!*#2
+0x0005A344 0x4205A364 01`h!91`1!|
+0x0005A423 0x4205A443 Bg Rg!bg""g
+0x0005A502 0x4205A522 g"(12g
+0x0005A50C 0x4205A52C Z3jD2g
+0x0005A63C 0x4205A65C (!+")!
+0x0005A6AF 0x4205A6CF @ t00tB
+0x0005AA54 0x4205AA74 #0f bB
+0x0005B97A 0x4205B99A PPtJCG3
+0x0005BDE3 0x4205BE03 j@bj0C
+0x0005BDEE 0x4205BE0E 0j Fj`'
+0x0005C2CD 0x4205C2ED 9Q8"IaV#
+0x0005C764 0x4205C784 9Q9aHa
+0x0005CDE7 0x4205CE07 `U Yb(r
+0x0005CF42 0x4205CF62 8B0>T7+
+0x0005CF4C 0x4205CF6C 8B00D7*
+0x0005D199 0x4205D1B9 00$@3 9
+0x000000CD 0x40375351 /8@848@
+0x00000110 0x40375394 d48@t48@
+0x000003F5 0x40375679 XT8&Z3X69&W
+0x00000498 0x4037571C `Ptz3jwrh
+0x0000062C 0x403758B0 9!919A&
+0x00000644 0x403758C8 8!f##1
+0x000008AA 0x40375B2E PP5V5$8
+0x0000090A 0x40375B8E V*Y(af
+0x000009A1 0x40375C25 i'bg&bG
+0x00000A1F 0x40375CA3 wrc&r#
+0x00001088 0x4037630C   tPPt
+0x0000117A 0x403763FE PPTPS 
+0x00001660 0x403768E4 ((C)H(C
+0x00001CDF 0x40376F63 peci!V
+0x00001D40 0x40376FC4 81(#(R
+0x000027A9 0x40377A2D d  tP"
+0x00002B3B 0x40377DBF  R @@t"
+0x0000310C 0x40378390 $@3 ;"|
+0x00003150 0x403783D4 pf x$pf 0f
+0x0000315F 0x403783E3 cox4aN
+0x00003169 0x403783ED jww9bKr
+0x00004012 0x40379296   t00t@@t
+0x00004046 0x403792CA   t00t@@tPPt``t
+0x00004084 0x40379308   t00t@@tPPt
+0x000040B7 0x4037933B   t00t@@tPPt``tppt
+0x000042F5 0x40379579 HI!Y1iAyQ9
+0x00004458 0x403796DC )Q9aIq
+0x0000500D 0x4037A291 "H08 2bH
+0x00005583 0x4037A807   t00t@@tQ
+0x00007102 0x4037C386  !A941
+0x000071F4 0x4037C478 EP3 9"I
+0x000072B6 0x4037C53A EP3 9"I
+0x000072EB 0x4037C56F YAiQyq
+0x00007C44 0x4037CEC8 )Q9aIqY
+0x00009D43 0x4037EFC7 *$(2(2
+0x0000ABF2 0x4037FE76 h%x5i$y4
+0x0000B3BA 0x4038063E (HZYP;
+0x0000B3E6 0x4038066A PPtPR 
+0x0000B986 0x40380C0A PPTPR 
+0x0000BB46 0x40380DCA "(8`b 
+0x0000C5EF 0x40381873 &#J&3j%
+0x0000C60D 0x40381891 Rh&@AA
+0x0000CF7A 0x403821FE XBPGuG
+0x0000CFD8 0x4038225C Y4I%XBh
+0x0000D100 0x40382384 XBPGuG9
+0x0000D120 0x403823A4 Y4I%XBh
+0x0000D23E 0x403824C2 `U Yb(r
+0x0000D6B0 0x40382934 9q)A!i
+0x0000DABB 0x40382D3F 0Dc@"c
+0x0000DDF5 0x40383079 Zd fc(
+0x0000E2F1 0x40383575 @3 9r8
+0x0000E361 0x403835E5 @3 9r8
+0x0000E3C9 0x4038364D @3 9r8
+0x0000E704 0x40383988 @3 9r8
+0x0000E78E 0x40383A12 @3 9r8
+0x0000E81A 0x40383A9E @3 9r8
+0x0000E899 0x40383B1D @3 9r8
+0x0000F26F 0x403844F3 0"  0` 3
+0x0000F2AC 0x40384530 i#y3 aA
+0x0000F413 0x40384697  4  300

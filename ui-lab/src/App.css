@@ -1,0 +1,101 @@
+.lab-app {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.lab-app__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.lab-app__eyebrow {
+  margin: 0 0 4px;
+  font:
+    700 0.75rem/1 'IBM Plex Mono', 'SFMono-Regular', ui-monospace,
+    monospace;
+  letter-spacing: 0.18em;
+  color: rgb(255 255 255 / 0.62);
+}
+
+.lab-app__title {
+  margin: 0;
+  font:
+    700 clamp(1.6rem, 3vw, 2.4rem)/1 'Space Grotesk', 'Avenir Next',
+    'Trebuchet MS', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.lab-app__subtitle {
+  margin: 8px 0 0;
+  max-width: 64ch;
+  color: rgb(236 242 255 / 0.82);
+}
+
+.lab-app__hint {
+  border-radius: 999px;
+  padding: 8px 12px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.04);
+  color: rgb(240 246 255 / 0.88);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.scene-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.scene-picker button {
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.03);
+  color: rgb(239 246 255 / 0.86);
+  padding: 8px 12px;
+  font:
+    600 0.78rem/1 'IBM Plex Mono', 'SFMono-Regular', ui-monospace,
+    monospace;
+  cursor: pointer;
+}
+
+.scene-picker button:hover {
+  border-color: rgb(255 255 255 / 0.22);
+  background: rgb(255 255 255 / 0.06);
+}
+
+.scene-picker button.is-active {
+  border-color: rgb(155 206 255 / 0.44);
+  background: rgb(116 193 255 / 0.12);
+  box-shadow: 0 0 0 1px rgb(116 193 255 / 0.14) inset;
+}
+
+.scene-preview {
+  border-radius: 20px;
+  padding: 14px;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  background:
+    radial-gradient(circle at 18% 12%, rgb(120 191 255 / 0.07), transparent 52%),
+    radial-gradient(circle at 84% 88%, rgb(255 198 108 / 0.05), transparent 52%),
+    rgb(255 255 255 / 0.02);
+}
+
+@media (max-width: 760px) {
+  .lab-app {
+    padding: 14px;
+  }
+
+  .lab-app__header {
+    flex-direction: column;
+  }
+
+  .lab-app__hint {
+    align-self: flex-start;
+  }
+}

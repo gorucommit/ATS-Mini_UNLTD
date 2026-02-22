@@ -1,0 +1,434 @@
+.fw320-root {
+  display: inline-block;
+}
+
+.fw320-root--backdrop {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #090c10;
+}
+
+.fw320-stage {
+  position: relative;
+}
+
+.fw320-native-wrap {
+  position: relative;
+}
+
+.fw320-screen {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  image-rendering: pixelated;
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', ui-monospace, monospace;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.04) inset;
+}
+
+.fw320-screen--v2 {
+  background:
+    radial-gradient(circle at 50% 58%, rgb(var(--fw-accent-rgb) / 0.06), transparent 45%),
+    radial-gradient(circle at 18% 12%, rgb(255 255 255 / 0.05), transparent 40%),
+    #030405;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.04),
+    inset 0 12px 18px rgb(255 255 255 / 0.02),
+    inset 0 -12px 18px rgb(0 0 0 / 0.35);
+}
+
+.fw320-v2-bg,
+.fw320-v2-bloom,
+.fw320-v2-grid,
+.fw320-v2-scanlines,
+.fw320-v2-bezel {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.fw320-v2-bg {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.015), transparent 34%),
+    radial-gradient(circle at 82% 18%, rgb(var(--fw-accent-rgb) / 0.08), transparent 36%);
+}
+
+.fw320-v2-bloom {
+  background:
+    radial-gradient(circle at 47% 64%, rgb(var(--fw-accent-rgb) / 0.1), transparent 34%),
+    radial-gradient(circle at 46% 39%, rgb(255 255 255 / 0.035), transparent 28%);
+  mix-blend-mode: screen;
+}
+
+.fw320-v2-grid {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.014) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.012) 1px, transparent 1px);
+  background-size:
+    100% 4px,
+    4px 100%;
+  opacity: 0.35;
+}
+
+.fw320-v2-scanlines {
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.02) 0,
+      rgb(255 255 255 / 0.02) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  opacity: 0.22;
+}
+
+.fw320-v2-bezel {
+  border: 1px solid rgb(255 255 255 / 0.06);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.02),
+    inset 0 0 24px rgb(0 0 0 / 0.45);
+}
+
+.fw320-fade {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 170px;
+  pointer-events: none;
+}
+
+.fw320-fade--v2 {
+  filter: blur(0.3px);
+}
+
+.fw320-text {
+  position: absolute;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.fw320-font1 {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.fw320-font2 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.fw320-freq {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-shadow: 0 0 4px rgb(255 255 255 / 0.12);
+}
+
+.fw320-freq--v2 {
+  color: #f5f7fb;
+  text-shadow:
+    0 0 3px rgb(255 255 255 / 0.14),
+    0 0 8px rgb(var(--fw-accent-rgb) / 0.12);
+}
+
+.fw320-unit--v2,
+.fw320-stereo--v2 {
+  text-shadow: 0 0 3px rgb(var(--fw-accent-rgb) / 0.08);
+}
+
+.fw320-rds--v2 {
+  opacity: 0.9;
+  letter-spacing: 0.04em;
+}
+
+.fw320-signaltext--v2 {
+  opacity: 0.95;
+}
+
+.fw320-op-label {
+  text-shadow: 0 0 5px rgb(var(--fw-accent-rgb) / 0.28);
+}
+
+.fw320-muted {
+  color: #7b7b7b;
+}
+
+.fw320-chip {
+  position: absolute;
+  background: #181818;
+  border: 1px solid #7b7b7b;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+.fw320-chip--v2 {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.015)),
+    #121417;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    inset 0 -1px 0 rgb(0 0 0 / 0.4);
+}
+
+.fw320-chip--v2.fw320-chip--large {
+  background:
+    linear-gradient(180deg, rgb(var(--fw-accent-rgb) / 0.05), transparent 55%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.015)),
+    #121417;
+}
+
+.fw320-chip--v2.is-focused {
+  border-color: rgb(var(--fw-accent-rgb) / 0.95) !important;
+  box-shadow:
+    0 0 0 1px rgb(var(--fw-accent-rgb) / 0.16) inset,
+    0 0 6px rgb(var(--fw-accent-rgb) / 0.14);
+}
+
+.fw320-chip--v2.is-editing {
+  border-color: #ff7e47 !important;
+  box-shadow:
+    0 0 0 1px rgb(255 126 71 / 0.18) inset,
+    0 0 8px rgb(255 126 71 / 0.18);
+}
+
+.fw320-chip--v2.is-disabled {
+  opacity: 0.9;
+  filter: saturate(0.75);
+}
+
+.fw320-chip__text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.fw320-chip__text--f1 {
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.fw320-chip__text--f2 {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.fw320-chip--v2 .fw320-chip__text--f2 {
+  letter-spacing: 0.03em;
+}
+
+.fw320-chip--v2.is-focused .fw320-chip__text {
+  color: #ffffff !important;
+  text-shadow: 0 0 4px rgb(var(--fw-accent-rgb) / 0.14);
+}
+
+.fw320-battery {
+  position: absolute;
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.fw320-battery__body {
+  position: relative;
+  border: 1px solid #fff;
+  box-sizing: border-box;
+}
+
+.fw320-chip--v2 .fw320-battery__body {
+  border-color: rgb(255 255 255 / 0.9);
+}
+
+.fw320-battery__fill {
+  position: absolute;
+  left: 1px;
+  top: 1px;
+}
+
+.fw320-battery__tip {
+  width: 2px;
+  height: 4px;
+  background: #fff;
+  margin-top: 3px;
+}
+
+.fw320-battery__pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.fw320-moon {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  transform: translate(-50%, -50%);
+}
+
+.fw320-moon__outer,
+.fw320-moon__cutout {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.fw320-moon__outer {
+  inset: 0;
+  background: currentColor;
+}
+
+.fw320-moon__cutout {
+  width: 8px;
+  height: 8px;
+  background: #000;
+  left: 2px;
+  top: -1px;
+}
+
+.fw320-scale-line {
+  position: absolute;
+  height: 1px;
+  background: #636363;
+}
+
+.fw320-scale-line--v2 {
+  background: rgb(194 204 216 / 0.42);
+}
+
+.fw320-scale-line-glow {
+  position: absolute;
+  height: 1px;
+  background: rgb(var(--fw-accent-rgb) / 0.15);
+  filter: blur(0.5px);
+}
+
+.fw320-scale-tick {
+  position: absolute;
+  width: 1px;
+  background: #636363;
+}
+
+.fw320-scale-tick--v2 {
+  background: rgb(194 204 216 / 0.34);
+}
+
+.fw320-scale-marker {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 7px solid #00ff00;
+}
+
+.fw320-scale-marker--v2 {
+  filter: drop-shadow(0 0 3px rgb(var(--fw-accent-rgb) / 0.35));
+}
+
+.fw320-scale-marker-glow {
+  position: absolute;
+  width: 14px;
+  height: 4px;
+  border-radius: 999px;
+  filter: blur(2px);
+  opacity: 0.25;
+}
+
+.fw320-meter-tray {
+  position: absolute;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.02), rgb(255 255 255 / 0.005));
+  border: 1px solid rgb(255 255 255 / 0.03);
+}
+
+.fw320-meter-tray--rssi {
+  box-shadow: inset 0 0 12px rgb(0 255 0 / 0.035);
+}
+
+.fw320-meter-tray--snr {
+  box-shadow: inset 0 0 12px rgb(255 255 0 / 0.03);
+}
+
+.fw320-meter-divider {
+  position: absolute;
+  width: 1px;
+  background:
+    linear-gradient(180deg, transparent, rgb(255 255 255 / 0.16), transparent);
+}
+
+.fw320-meter-bar {
+  position: absolute;
+  width: 8px;
+  height: 6px;
+  border-radius: 0;
+}
+
+.fw320-meter-bar--v2 {
+  border-radius: 1px;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 0 0 1px rgb(0 0 0 / 0.16);
+}
+
+.fw320-volume {
+  position: absolute;
+  background: #080808;
+  border: 1px solid #ffff00;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.fw320-volume--v2 {
+  background:
+    linear-gradient(180deg, rgb(10 12 15 / 0.94), rgb(7 8 10 / 0.95));
+  border-color: rgb(var(--fw-accent-rgb) / 0.78);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 0 10px rgb(var(--fw-accent-rgb) / 0.12);
+}
+
+.fw320-volume__bar {
+  position: absolute;
+  border: 1px solid #7b7b7b;
+  box-sizing: border-box;
+}
+
+.fw320-volume__bar--v2 {
+  border-color: rgb(255 255 255 / 0.26);
+  background: rgb(255 255 255 / 0.02);
+}
+
+.fw320-volume__fill {
+  position: absolute;
+  left: 1px;
+  top: 1px;
+}
+
+.fw320-volume__fill--v2 {
+  box-shadow: 0 0 6px rgb(0 255 0 / 0.18);
+}
+
+.fw320-volume-dim {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 4px;
+  height: 38px;
+  background: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.38) 35%, rgb(0 0 0 / 0.46));
+  pointer-events: none;
+}

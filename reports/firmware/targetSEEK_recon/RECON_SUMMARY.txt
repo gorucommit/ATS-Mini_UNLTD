@@ -1,0 +1,22 @@
+Input: /Users/beegee/Documents/ats mini/other firmware/targetSEEK.bin
+File SHA256: dac10c695ccc073979264ceca45a6ca14ad566781069f639bd43a8871f808593
+Output: /Users/beegee/Documents/ats mini/ats-mini-UNLTD/reports/firmware/targetSEEK_recon
+
+bootloader.bin: offset=0x00000000 size=0x00003AF0
+partitions.bin: offset=0x00008000 size=0x00001000
+app0.bin: offset=0x00010000 size=0x000AC7E0
+segment 0: file=0x00010020 size=0x0003A948 load=0x3C060020 -> seg0_0x3C060020.bin
+segment 1: file=0x0004A970 size=0x0000441C load=0x3FC946B0 -> seg1_0x3FC946B0.bin
+segment 2: file=0x0004ED94 size=0x00001284 load=0x40374000 -> seg2_0x40374000.bin
+  disasm: seg2_0x40374000.S
+segment 3: file=0x00050020 size=0x0005D33C load=0x42000020 -> seg3_0x42000020.bin
+  disasm: seg3_0x42000020.S
+segment 4: file=0x000AD364 size=0x0000F424 load=0x40375284 -> seg4_0x40375284.bin
+  disasm: seg4_0x40375284.S
+segment 5: file=0x000BC790 size=0x0000002C load=0x600FE000 -> seg5_0x600FE000.bin
+objdump used: /Users/beegee/Library/Arduino15/packages/esp32/tools/esp-x32/2511/bin/xtensa-esp32s3-elf-objdump
+
+Next step:
+1) Open disasm/*.S and behavior_anchors.txt together.
+2) Trace anchor strings back to nearby call sites.
+3) Build function tags (UI, seek engine, radio I/O, storage).

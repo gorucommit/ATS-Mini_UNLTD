@@ -1,0 +1,50 @@
+# seek_etm string xrefs (seg0 cstring resolved)
+
+0x42011AB9 -> 0x3C060560 -> <unresolved>
+0x42011AD1 -> 0x3C060B72 ->  entries found.
+0x42011AFD -> 0x3C060B82 -> Done.
+0x42011B45 -> 0x3C060639 -> 9998
+0x42011B5B -> 0x3C060B88 -> Receiving Stations...
+0x42011B6B -> 0x3C060645 -> /user.txt
+0x42011B7D -> 0x3C06129A -> <unresolved>
+0x42011BBD -> 0x3C060B9E -> Failed to save incoming data
+0x42011BE1 -> 0x3C060BBB -> erase
+0x42011BF0 -> 0x3C060645 -> /user.txt
+0x42011C29 -> 0x3C060BCA -> Reset to default stations done.
+0x42011C51 -> 0x3C060BC5 -> show
+0x42011C64 -> 0x3C060613 -> 9999
+0x42011C74 -> 0x3C060BEA -> Receiving Memories...
+0x42011CED -> 0x3C060C05 ->  userStations
+0x42011D01 -> 0x3C061110 -> <unresolved>
+0x42011D53 -> 0x3C060DA3 -> <unresolved>
+0x42011D61 -> 0x3C060B6E -> off
+0x42011D8C -> 0x3C060C13 -> Radio will destroy in five sceconds...
+0x420125FF -> 0x3C061834 -> <unresolved>
+0x420126D7 -> 0x3C0617B4 -> <unresolved>
+0x420126DD -> 0x3C0617FC -> <unresolved>
+0x420128B6 -> 0x3C060C8F -> Volume  
+0x420128E0 -> 0x3C060CAA -> Freeze  
+0x42012901 -> 0x3C060C98 -> TuneLock
+0x4201292D -> 0x3C060CB3 -> NumPad  
+0x42012942 -> 0x3C0602B3 -> <unresolved>
+0x42012AA2 -> 0x3C060CFC -> LOCKED
+0x42012C12 -> 0x3C060D03 -> VFO 
+0x42012CEF -> 0x3C060CA1 -> TuneFast
+0x42012D2E -> 0x3C060CBC -> Frozen  
+0x42012D8D -> 0x3C060CC5 ->  Hardcopy 
+0x42012E05 -> 0x3C060CD0 ->  Memories 
+0x42012E7D -> 0x3C060CDB ->  Stations 
+0x42012EFB -> 0x3C060CE6 ->  ETM-List 
+0x42012F73 -> 0x3C060CF1 ->  Settings 
+0x42012FEB -> 0x3C0608C5 -> <unresolved>
+0x42013074 -> 0x3C060C3E ->  TINT 
+0x4201307A -> 0x3C060C45 ->  Normal 
+0x42013106 -> 0x3C060C4E ->  Fast 
+0x4201310C -> 0x3C060C55 ->  Slow 
+0x42013194 -> 0x3C060C5C ->  Inverse 
+0x4201319A -> 0x3C060C45 ->  Normal 
+0x42013224 -> 0x3C060C66 ->  GreyScale 
+0x4201322A -> 0x3C060C72 ->  Color 
+0x420132B4 -> 0x3C060C7A ->  SEEK ON 
+0x420132BA -> 0x3C060C84 ->  SEEK OFF 
+0x42013560 -> 0x3C0608C2 -> <unresolved>

@@ -1,0 +1,48 @@
+# unique strings in seek_etm window
+
+0x3c060560 <unknown>
+0x3c060b72 entries found.
+0x3c060b82 <unknown>
+0x3c060639 <unknown>
+0x3c060b88 Receiving Stations...
+0x3c060645 /user.txt
+0x3c06129a <unknown>
+0x3c060b9e Failed to save incoming data
+0x3c060bbb <unknown>
+0x3c060bca Reset to default stations done.
+0x3c060bc5 <unknown>
+0x3c060613 <unknown>
+0x3c060bea Receiving Memories...
+0x3c060c05 userStations
+0x3c061110 <unknown>
+0x3c060da3 <unknown>
+0x3c060b6e <unknown>
+0x3c060c13 Radio will destroy in five sceconds...
+0x3c061834 <unknown>
+0x3c0617b4 <unknown>
+0x3c0617fc <unknown>
+0x3c060c8f Volume  
+0x3c060caa Freeze  
+0x3c060c98 TuneLock
+0x3c060cb3 NumPad  
+0x3c0602b3 <unknown>
+0x3c060cfc LOCKED
+0x3c060d03 <unknown>
+0x3c060ca1 TuneFast
+0x3c060cbc Frozen  
+0x3c060cc5 Hardcopy 
+0x3c060cd0 Memories 
+0x3c060cdb Stations 
+0x3c060ce6 ETM-List 
+0x3c060cf1 Settings 
+0x3c0608c5 <unknown>
+0x3c060c3e TINT 
+0x3c060c45 Normal 
+0x3c060c4e Fast 
+0x3c060c55 Slow 
+0x3c060c5c Inverse 
+0x3c060c66 GreyScale 
+0x3c060c72 Color 
+0x3c060c7a SEEK ON 
+0x3c060c84 SEEK OFF 
+0x3c0608c2 <unknown>

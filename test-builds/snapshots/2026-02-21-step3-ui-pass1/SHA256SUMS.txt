@@ -1,0 +1,4 @@
+ac32a9384dc02d1a6dc459ae97a5d1ed4ff75125a6692722eae7600c77e65777  /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new/test-builds/2026-02-21-step3-ui-pass1/ats-mini-new.ino.bin
+f96b0924b33989a8bafb6ad7449f7c83a5541b2e0785c8cad572a3907bed05fd  /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new/test-builds/2026-02-21-step3-ui-pass1/ats-mini-new.ino.bootloader.bin
+3bd6ecd24b63d4ad5ed2cbf5fedb9cd6f0d48a0691de2934716505f30d872471  /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new/test-builds/2026-02-21-step3-ui-pass1/ats-mini-new.ino.merged.bin
+e62c77319610898fb524685f371a95a100686bea384cf43df43503a243dd303c  /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new/test-builds/2026-02-21-step3-ui-pass1/ats-mini-new.ino.partitions.bin
