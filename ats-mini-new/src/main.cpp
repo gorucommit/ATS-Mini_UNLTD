@@ -154,8 +154,13 @@ void cycleOperationMode() {
   }
 }
 
-void changeVolume(int8_t direction) {
-  int16_t nextVolume = static_cast<int16_t>(g_state.radio.volume) + direction;
+void changeVolume(int8_t direction, int8_t repeats = 1) {
+  if (direction == 0 || repeats <= 0) {
+    return;
+  }
+
+  const int16_t delta = static_cast<int16_t>(direction) * static_cast<int16_t>(repeats);
+  int16_t nextVolume = static_cast<int16_t>(g_state.radio.volume) + delta;
   if (nextVolume < 0) {
     nextVolume = 0;
   }
@@ -639,9 +644,7 @@ void handleRotation(int8_t delta) {
 
   if (services::input::isButtonHeld()) {
     const uint8_t oldVolume = g_state.radio.volume;
-    while (repeats-- > 0) {
-      changeVolume(direction);
-    }
+    changeVolume(direction, repeats);
     if (g_state.radio.volume != oldVolume) {
       services::ui::notifyVolumeAdjust(g_state.radio.volume);
     }

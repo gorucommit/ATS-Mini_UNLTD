@@ -73,6 +73,10 @@ uint8_t g_lastRssi = 0;
 uint8_t g_lastSnr = 0;
 UiRenderKey g_lastRenderKey{};
 bool g_hasRenderKey = false;
+app::MemorySlot g_lastMemoryHashSnapshot[app::kMemoryCount]{};
+bool g_hasMemoryHashSnapshot = false;
+uint32_t g_cachedFavoritesHash = 2166136261UL;
+uint32_t g_cachedFavoriteNamesHash = 2166136261UL;
 int32_t g_lastRenderedMinute = -1;
 uint32_t g_volumeHudUntilMs = 0;
 uint8_t g_volumeHudValue = 0;
@@ -178,6 +182,18 @@ uint32_t favoriteNamesHash(const app::AppState& state) {
   return hash;
 }
 
+void refreshFavoriteHashCacheIfNeeded(const app::AppState& state) {
+  const size_t bytes = sizeof(state.memories);
+  if (g_hasMemoryHashSnapshot && memcmp(g_lastMemoryHashSnapshot, state.memories, bytes) == 0) {
+    return;
+  }
+
+  g_cachedFavoritesHash = favoritesHash(state);
+  g_cachedFavoriteNamesHash = favoriteNamesHash(state);
+  memcpy(g_lastMemoryHashSnapshot, state.memories, bytes);
+  g_hasMemoryHashSnapshot = true;
+}
+
 UiRenderKey buildRenderKey(const app::AppState& state) {
   UiRenderKey key{};
 
@@ -216,12 +232,13 @@ UiRenderKey buildRenderKey(const app::AppState& state) {
   key.uiLayout = static_cast<uint8_t>(state.global.uiLayout);
   key.zoomMenu = state.global.zoomMenu;
 
-  key.favoritesHash = favoritesHash(state);
+  refreshFavoriteHashCacheIfNeeded(state);
+  key.favoritesHash = g_cachedFavoritesHash;
 
   const bool favoritePopupVisible = state.ui.layer == app::UiLayer::QuickEdit &&
                                     state.ui.quickEditEditing &&
                                     state.ui.quickEditItem == app::QuickEditItem::Favorite;
-  key.favoriteNamesHash = favoritePopupVisible ? favoriteNamesHash(state) : 0U;
+  key.favoriteNamesHash = favoritePopupVisible ? g_cachedFavoriteNamesHash : 0U;
 
   return key;
 }

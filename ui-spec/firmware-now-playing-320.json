@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "notes": "Storybook preview layout spec. Chips shifted upward for top-align preview before firmware approval.",
+  "dimensions": {
+    "width": 320,
+    "height": 170
+  },
+  "chipRects": {
+    "Fine": { "x": 4, "y": 32, "w": 48, "h": 14 },
+    "Favorite": { "x": 4, "y": 16, "w": 48, "h": 14 },
+    "Avc": { "x": 4, "y": 48, "w": 48, "h": 14 },
+    "Mode": { "x": 58, "y": 0, "w": 58, "h": 34 },
+    "Band": { "x": 118, "y": 0, "w": 58, "h": 34 },
+    "Step": { "x": 178, "y": 0, "w": 46, "h": 16 },
+    "Bandwidth": { "x": 178, "y": 18, "w": 46, "h": 16 },
+    "Agc": { "x": 226, "y": 0, "w": 46, "h": 16 },
+    "Sql": { "x": 226, "y": 18, "w": 46, "h": 16 },
+    "Sys": { "x": 272, "y": 0, "w": 46, "h": 34 },
+    "Settings": { "x": 244, "y": 36, "w": 74, "h": 14 }
+  },
+  "anchors": {
+    "clock": { "x": 4, "y": 2, "datum": "TL" },
+    "frequency": { "x": 154, "y": 66, "datum": "MC" },
+    "unit": { "x": 245, "y": 64, "datum": "ML" },
+    "stereo": { "x": 282, "y": 64, "datum": "ML" },
+    "rds": { "x": 160, "y": 100, "datum": "MC" },
+    "signalText": { "x": 160, "y": 116, "datum": "MC" }
+  },
+  "bottomScale": {
+    "x0": 20,
+    "x1": 300,
+    "y": 140,
+    "meter": {
+      "y": 156,
+      "totalBars": 24,
+      "barWidth": 8,
+      "barHeight": 6,
+      "barSpacing": 12
+    }
+  },
+  "volumeHud": {
+    "width": 180,
+    "height": 28,
+    "bottomMargin": 6,
+    "labelX": 8,
+    "labelY": 9,
+    "valueRightX": 174,
+    "valueY": 9,
+    "bar": {
+      "x": 36,
+      "y": 8,
+      "height": 12,
+      "rightInset": 12
+    }
+  },
+  "quickPopup": {
+    "width": 172,
+    "height": 92,
+    "margin": 2,
+    "anchorGap": 2,
+    "titleX": 6,
+    "titleY": 4,
+    "rowStartY": 18,
+    "rowHeight": 14,
+    "rowVisibleCount": 5,
+    "selectedRowInsetX": 5,
+    "selectedRowHeight": 13
+  }
+}

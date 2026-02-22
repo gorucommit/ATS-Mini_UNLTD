@@ -56,6 +56,12 @@ export const Native320x170V2: Story = {
   },
 }
 
+export const Native320x170V3: Story = {
+  args: {
+    skin: 'v3',
+  },
+}
+
 export const VolumeHudOverlay: Story = {
   args: {
     volumeHud: true,
@@ -65,6 +71,13 @@ export const VolumeHudOverlay: Story = {
 export const VolumeHudOverlayV2: Story = {
   args: {
     skin: 'v2',
+    volumeHud: true,
+  },
+}
+
+export const VolumeHudOverlayV3: Story = {
+  args: {
+    skin: 'v3',
     volumeHud: true,
   },
 }
@@ -90,6 +103,17 @@ export const ScaledPreviewV2: Story = {
   },
 }
 
+export const ScaledPreviewV3: Story = {
+  args: {
+    skin: 'v3',
+    previewScale: 3,
+    showBackdrop: true,
+  },
+  parameters: {
+    layout: 'fullscreen',
+  },
+}
+
 export const SeekAccent: Story = {
   args: {
     operation: 'SEEK',
@@ -107,12 +131,32 @@ export const SeekAccentV2: Story = {
   },
 }
 
+export const SeekAccentV3: Story = {
+  args: {
+    skin: 'v3',
+    operation: 'SEEK',
+    focusedItem: 'Step',
+    freqMhz: 101.7,
+  },
+}
+
 export const ScanEditingV2: Story = {
   args: {
     skin: 'v2',
     operation: 'SCAN',
     focusedItem: 'Bandwidth',
     editing: true,
+    freqMhz: 99.9,
+  },
+}
+
+export const ScanEditingV3: Story = {
+  args: {
+    skin: 'v3',
+    operation: 'SCAN',
+    focusedItem: 'Bandwidth',
+    editing: true,
+    popupIndex: 1,
     freqMhz: 99.9,
   },
 }
