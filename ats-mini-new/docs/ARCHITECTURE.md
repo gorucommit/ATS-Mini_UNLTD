@@ -8,12 +8,16 @@ The codebase is split so UX rewrites do not destabilize radio behavior.
 - Mutation policy:
   - `input` emits events only.
   - `radio` applies/reads hardware state.
+  - `rds` decodes RDS groups, applies commit/stale policy, and writes committed RDS fields.
+  - `clock` derives display time and applies CT-backed time base when enabled.
   - `seekscan` mutates seek/scan-related fields and drives seek/scan flow.
   - `ui` reads state and renders only.
   - `main.cpp` is coordinator and owns orchestration.
 
 ## Modules
 - `services::radio`: SI473x control, tuning, modulation, volume, RF metrics.
+- `services::rds`: FM RDS polling/decoding, voting, quality/stale policy, committed PS/RT/PI/PTY/CT state.
+- `services::clock`: display clock state, synthetic clock fallback, CT-backed UTC base + local offset application.
 - `services::input`: encoder/button processing and gesture event extraction.
 - `services::ui`: rendering and transient UI feedback only.
 - `services::seekscan`: seek/scan algorithm, hit gating/merge, found-station navigation.
@@ -27,9 +31,13 @@ The codebase is split so UX rewrites do not destabilize radio behavior.
   - `input -> app_state`
   - `ui -> app_state`
   - `radio -> app_state`
+  - `clock -> app_state`
+  - `rds -> app_state`
 - Explicit allowed exception:
   - `seekscan -> radio` (Option A, selected intentionally for deterministic hardware behavior and lower complexity).
   - Rationale: seek/scan must issue tune commands and read RSSI/SNR in tight loops.
+  - `rds -> radio` (selected for raw RDS group polling through `radio_service` hardware API).
+  - `rds -> clock` (selected so CT updates stay out of `ui` and `main` business logic).
 - Prohibited:
   - `ui -> radio` direct control.
   - `input -> radio` direct control.
@@ -42,6 +50,7 @@ The codebase is split so UX rewrites do not destabilize radio behavior.
   - Dispatch state transitions.
   - Trigger `seekscan` ticks/requests.
   - Apply radio updates.
+  - Trigger `rds` and `clock` ticks.
   - Drive settings persistence.
   - Schedule UI refresh.
 

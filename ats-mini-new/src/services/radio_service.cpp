@@ -10,7 +10,28 @@
 
 namespace services::radio {
 namespace {
-SI4735 g_rx;
+class SI4735Local : public SI4735 {
+ public:
+  bool readRdsStatusRaw(si47x_rds_status& out, uint8_t intAck, uint8_t mtFifo, uint8_t statusOnly) {
+    getRdsStatus(intAck, mtFifo, statusOnly);
+    out = currentRdsStatus;
+    return true;
+  }
+
+  void flushRdsFifo() { getRdsStatus(0, 1, 1); }
+
+  uint16_t readRdsPiFixed() const {
+    return static_cast<uint16_t>((static_cast<uint16_t>(currentRdsStatus.resp.BLOCKAH) << 8) | currentRdsStatus.resp.BLOCKAL);
+  }
+
+  uint8_t readRdsPtyFixed() const {
+    const uint16_t blockB =
+        static_cast<uint16_t>((static_cast<uint16_t>(currentRdsStatus.resp.BLOCKBH) << 8) | currentRdsStatus.resp.BLOCKBL);
+    return static_cast<uint8_t>((blockB >> 5) & 0x1F);
+  }
+};
+
+SI4735Local g_rx;
 bool g_ready = false;
 bool g_hasAppliedState = false;
 bool g_ssbPatchLoaded = false;
@@ -24,6 +45,7 @@ const char* g_lastError = "not-initialized";
 app::RadioState g_lastApplied{};
 app::FmRegion g_lastAppliedRegion = app::FmRegion::World;
 bool g_hasRuntimeSnapshot = false;
+bool g_rdsConfiguredForFm = false;
 
 struct RuntimeSnapshot {
   uint8_t bandIndex;
@@ -256,6 +278,30 @@ void configureSeekProperties(const app::AppState& state) {
 
 void applyMuteState() { g_rx.setAudioMute(g_muted ? 1 : 0); }
 
+void configureRdsForFm(bool enable) {
+  if (!g_ready) {
+    return;
+  }
+
+  if (enable) {
+    // Keep library-side thresholds permissive and let rds_service gate commits with BLE/quality logic.
+    g_rx.setRdsConfig(1, 2, 2, 2, 2);
+    g_rx.setFifoCount(1);
+    g_rx.clearRdsBuffer();
+    g_rx.flushRdsFifo();
+    g_rdsConfiguredForFm = true;
+    return;
+  }
+
+  if (!g_rdsConfiguredForFm) {
+    return;
+  }
+
+  g_rx.clearRdsBuffer();
+  g_rx.flushRdsFifo();
+  g_rdsConfiguredForFm = false;
+}
+
 uint8_t mwSearchSpacingKhzFor(const app::FmRegion region) {
   return app::defaultMwStepKhzForRegion(region);
 }
@@ -392,9 +438,12 @@ void configureModeAndBand(const app::AppState& state) {
 
   if (radio.modulation == app::Modulation::FM) {
     g_rx.setFM(bandMinKhz, bandMaxKhz, radio.frequencyKhz, radio.fmStepKhz);
+    configureRdsForFm(true);
   } else if (radio.modulation == app::Modulation::AM) {
+    configureRdsForFm(false);
     g_rx.setAM(bandMinKhz, bandMaxKhz, radio.frequencyKhz, radio.amStepKhz);
   } else {
+    configureRdsForFm(false);
     if (!g_ssbPatchLoaded) {
       g_rx.loadPatch(ssb_patch_content, sizeof(ssb_patch_content));
       g_ssbPatchLoaded = true;
@@ -507,6 +556,9 @@ void apply(const app::AppState& state) {
 
     if (radio.frequencyKhz != g_lastApplied.frequencyKhz) {
       g_rx.setFrequency(radio.frequencyKhz);
+      if (radio.modulation == app::Modulation::FM) {
+        configureRdsForFm(true);
+      }
     }
 
     if (app::isSsb(radio.modulation) && radio.bfoHz != g_lastApplied.bfoHz) {
@@ -637,6 +689,54 @@ bool readSignalQuality(uint8_t* rssi, uint8_t* snr) {
   }
 
   return true;
+}
+
+bool pollRdsGroup(RdsGroupSnapshot* snapshot) {
+  if (snapshot == nullptr || !g_ready || !g_hasAppliedState || g_lastApplied.modulation != app::Modulation::FM) {
+    return false;
+  }
+
+  si47x_rds_status raw{};
+  g_rx.readRdsStatusRaw(raw, 0, 0, 0);
+
+  const bool hasNewBlock = raw.resp.RDSNEWBLOCKA || raw.resp.RDSNEWBLOCKB;
+  if (!raw.resp.RDSSYNC || (!raw.resp.RDSRECV && !hasNewBlock && raw.resp.RDSFIFOUSED == 0)) {
+    return false;
+  }
+
+  const uint16_t blockA = static_cast<uint16_t>((static_cast<uint16_t>(raw.resp.BLOCKAH) << 8) | raw.resp.BLOCKAL);
+  const uint16_t blockB = static_cast<uint16_t>((static_cast<uint16_t>(raw.resp.BLOCKBH) << 8) | raw.resp.BLOCKBL);
+  const uint16_t blockC = static_cast<uint16_t>((static_cast<uint16_t>(raw.resp.BLOCKCH) << 8) | raw.resp.BLOCKCL);
+  const uint16_t blockD = static_cast<uint16_t>((static_cast<uint16_t>(raw.resp.BLOCKDH) << 8) | raw.resp.BLOCKDL);
+
+  snapshot->received = raw.resp.RDSRECV;
+  snapshot->sync = raw.resp.RDSSYNC;
+  snapshot->syncFound = raw.resp.RDSSYNCFOUND;
+  snapshot->syncLost = raw.resp.RDSSYNCLOST;
+  snapshot->groupLost = raw.resp.GRPLOST;
+  snapshot->fifoUsed = raw.resp.RDSFIFOUSED;
+  snapshot->groupType = static_cast<uint8_t>((blockB >> 12) & 0x0F);
+  snapshot->versionB = ((blockB >> 11) & 0x01U) != 0;
+  snapshot->pty = static_cast<uint8_t>((blockB >> 5) & 0x1FU);
+  snapshot->textAbFlag = static_cast<uint8_t>((blockB >> 4) & 0x01U);
+  snapshot->segmentAddress = static_cast<uint8_t>(blockB & 0x0FU);
+  snapshot->blockA = blockA;
+  snapshot->blockB = blockB;
+  snapshot->blockC = blockC;
+  snapshot->blockD = blockD;
+  snapshot->bleA = raw.resp.BLEA;
+  snapshot->bleB = raw.resp.BLEB;
+  snapshot->bleC = raw.resp.BLEC;
+  snapshot->bleD = raw.resp.BLED;
+  return true;
+}
+
+void resetRdsDecoder() {
+  if (!g_ready || !g_hasAppliedState || g_lastApplied.modulation != app::Modulation::FM) {
+    return;
+  }
+
+  configureRdsForFm(true);
 }
 
 void tick() {}

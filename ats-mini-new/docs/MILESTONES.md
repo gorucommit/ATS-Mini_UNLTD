@@ -71,6 +71,21 @@
 - [ ] Implement found-station list lifetime/clear policy from `PRODUCT_SPEC.md`.
 - [ ] Implement clean cancel path from active seek/scan to corresponding idle state (`SEEK`/`SCAN`).
 
+## M4.5 - FM RDS + Clock integration (implemented 2026-02-22, hardware tuning pending)
+- [x] Add dedicated `rds_service` and `clock_service` modules with coordinator loop integration.
+- [x] Extend `AppState` with `RdsState` and `ClockState`.
+- [x] Add radio-side raw RDS snapshot polling API (`pollRdsGroup`) and reset hook.
+- [x] Implement decode-all, commit-gated RDS path (no hard SNR gate for decode attempts).
+- [x] Port signal-scale PI/PS/RT commit and stale heuristics (vote windows, quality gating, RT AB debounce, stale clear).
+- [x] Implement CT decode and clock integration (CT applies only in `RDS=ALL`).
+- [x] Replace RDS settings modes with `Off`, `PS`, `Full-CT`, `ALL` and safe persistence migration.
+- [x] Update FM Now Playing layout: PS name slot, RT text line, PI/PTY under clock.
+- [x] Remove `RDS ---` placeholder from FM PS slot (blank until PS is committed).
+- [x] Fix PS group-0 address decoding bug (use block B low 2 bits).
+- [x] UI polish: lower large frequency readout by +2 px.
+- [ ] Tune thresholds/timing on real hardware across weak/strong FM stations.
+- [ ] Validate CT station clock sanity on multiple broadcasters.
+
 ## M5 - Polish and validation
 - [ ] Add smoke checklist for FM/AM/SW/SSB mode transitions.
 - [ ] Validate encoder behavior under fast rotations.

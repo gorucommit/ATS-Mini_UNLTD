@@ -14,6 +14,8 @@ inline constexpr size_t kMemoryNameCapacity = 17;
 inline constexpr size_t kWebCredentialCapacity = 33;
 inline constexpr size_t kWifiSsidCapacity = 33;
 inline constexpr size_t kWifiPasswordCapacity = 65;
+inline constexpr size_t kRdsPsCapacity = 9;
+inline constexpr size_t kRdsRtCapacity = 65;
 
 enum class OperationMode : uint8_t {
   Tune = 0,
@@ -67,8 +69,9 @@ enum class Theme : uint8_t {
 
 enum class RdsMode : uint8_t {
   Off = 0,
-  Basic = 1,
-  Full = 2,
+  Ps = 1,
+  FullNoCt = 2,
+  All = 3,
 };
 
 enum class UiLayout : uint8_t {
@@ -114,6 +117,40 @@ struct SeekScanState {
   uint16_t pointsVisited;
   uint8_t foundCount;
   int16_t foundIndex;
+};
+
+struct ClockState {
+  uint8_t displayHour;
+  uint8_t displayMinute;
+  int16_t displayMinuteToken;
+  uint8_t usingRdsCt;
+  uint8_t hasRdsBase;
+  uint16_t rdsMjd;
+  uint16_t rdsUtcMinutesOfDay;
+  uint32_t rdsBaseUptimeMs;
+};
+
+struct RdsState {
+  char ps[kRdsPsCapacity];
+  char rt[kRdsRtCapacity];
+  uint16_t pi;
+  uint8_t pty;
+  uint8_t quality;
+  uint8_t hasPs;
+  uint8_t hasRt;
+  uint8_t hasPi;
+  uint8_t hasPty;
+  uint8_t hasCt;
+  uint16_t ctMjd;
+  uint8_t ctHour;
+  uint8_t ctMinute;
+  uint32_t lastGroupMs;
+  uint32_t lastGoodGroupMs;
+  uint32_t lastPsCommitMs;
+  uint32_t lastRtCommitMs;
+  uint32_t lastPiCommitMs;
+  uint32_t lastPtyCommitMs;
+  uint32_t lastCtCommitMs;
 };
 
 struct GlobalSettings {
@@ -179,6 +216,8 @@ struct AppState {
   RadioState radio;
   UiState ui;
   SeekScanState seekScan;
+  ClockState clock;
+  RdsState rds;
   GlobalSettings global;
   BandRuntimeState perBand[kBandCount];
   MemorySlot memories[kMemoryCount];
@@ -198,6 +237,40 @@ inline void copyText(char (&dst)[N], const char* src) {
 
   strncpy(dst, src, N - 1);
   dst[N - 1] = '\0';
+}
+
+inline void resetClockState(ClockState& clock) {
+  clock.displayHour = 0;
+  clock.displayMinute = 0;
+  clock.displayMinuteToken = 0;
+  clock.usingRdsCt = 0;
+  clock.hasRdsBase = 0;
+  clock.rdsMjd = 0;
+  clock.rdsUtcMinutesOfDay = 0;
+  clock.rdsBaseUptimeMs = 0;
+}
+
+inline void resetRdsState(RdsState& rds) {
+  memset(rds.ps, 0, sizeof(rds.ps));
+  memset(rds.rt, 0, sizeof(rds.rt));
+  rds.pi = 0;
+  rds.pty = 0;
+  rds.quality = 0;
+  rds.hasPs = 0;
+  rds.hasRt = 0;
+  rds.hasPi = 0;
+  rds.hasPty = 0;
+  rds.hasCt = 0;
+  rds.ctMjd = 0;
+  rds.ctHour = 0;
+  rds.ctMinute = 0;
+  rds.lastGroupMs = 0;
+  rds.lastGoodGroupMs = 0;
+  rds.lastPsCommitMs = 0;
+  rds.lastRtCommitMs = 0;
+  rds.lastPiCommitMs = 0;
+  rds.lastPtyCommitMs = 0;
+  rds.lastCtCommitMs = 0;
 }
 
 inline constexpr bool isSsb(Modulation modulation) {
@@ -416,6 +489,8 @@ inline AppState makeDefaultState() {
   state.seekScan.pointsVisited = 0;
   state.seekScan.foundCount = 0;
   state.seekScan.foundIndex = -1;
+  resetClockState(state.clock);
+  resetRdsState(state.rds);
 
   state.global.volume = state.radio.volume;
   state.global.lastBandIndex = state.radio.bandIndex;
@@ -432,7 +507,7 @@ inline AppState makeDefaultState() {
   state.global.sleepTimerMinutes = 0;
   state.global.sleepMode = SleepMode::Disabled;
   state.global.theme = Theme::Classic;
-  state.global.rdsMode = RdsMode::Basic;
+  state.global.rdsMode = RdsMode::Ps;
   state.global.zoomMenu = 0;
   state.global.scrollDirection = 1;
   state.global.utcOffsetMinutes = 0;

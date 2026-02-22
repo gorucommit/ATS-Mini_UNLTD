@@ -19,6 +19,10 @@ Clean scaffold for a custom ATS-mini firmware built from the minimal `ats-nano` 
 - `docs/`: architecture, milestones, dependency lock.
 - `tft_setup.h`: active TFT_eSPI setup used by this firmware.
 
+## Recent implementation notes
+- FM RDS/CT port status, behavior contract, fixes, and test snapshots:
+  - `docs/RDS_PORT_2026-02-22.md`
+
 ## Workspace layout
 - `../references/`: other firmware trees and reference snapshots.
 - `../test-builds/`: centralized build outputs and test binaries.

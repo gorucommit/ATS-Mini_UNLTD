@@ -7,6 +7,28 @@
 namespace services {
 
 namespace radio {
+struct RdsGroupSnapshot {
+  bool received;
+  bool sync;
+  bool syncFound;
+  bool syncLost;
+  bool groupLost;
+  uint8_t fifoUsed;
+  uint8_t groupType;
+  bool versionB;
+  uint8_t pty;
+  uint8_t textAbFlag;
+  uint8_t segmentAddress;
+  uint16_t blockA;
+  uint16_t blockB;
+  uint16_t blockC;
+  uint16_t blockD;
+  uint8_t bleA;
+  uint8_t bleB;
+  uint8_t bleC;
+  uint8_t bleD;
+};
+
 void prepareBootPower();
 bool begin();
 bool ready();
@@ -16,6 +38,8 @@ void applyRuntimeSettings(const app::AppState& state);
 bool seek(app::AppState& state, int8_t direction);
 void setMuted(bool muted);
 bool readSignalQuality(uint8_t* rssi, uint8_t* snr);
+bool pollRdsGroup(RdsGroupSnapshot* snapshot);
+void resetRdsDecoder();
 void tick();
 }  // namespace radio
 
@@ -41,6 +65,12 @@ void notifyVolumeAdjust(uint8_t volume);
 void render(const app::AppState& state);
 }  // namespace ui
 
+namespace clock {
+void tick(app::AppState& state);
+void setRdsUtcBase(app::AppState& state, uint16_t mjd, uint8_t hourUtc, uint8_t minuteUtc);
+void clearRdsUtcBase(app::AppState& state);
+}  // namespace clock
+
 namespace settings {
 bool begin();
 bool load(app::AppState& state);
@@ -57,5 +87,10 @@ void syncContext(app::AppState& state);
 bool navigateFound(app::AppState& state, int8_t direction);
 bool tick(app::AppState& state);
 }  // namespace seekscan
+
+namespace rds {
+void tick(app::AppState& state);
+void reset(app::AppState& state);
+}  // namespace rds
 
 }  // namespace services

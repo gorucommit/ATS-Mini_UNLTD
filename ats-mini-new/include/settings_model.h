@@ -66,7 +66,7 @@ inline bool itemEditable(const AppState& state, Item item) {
 inline constexpr uint8_t valueCount(Item item) {
   switch (item) {
     case Item::Rds:
-      return 3;
+      return 4;
     case Item::Eibi:
       return 2;
     case Item::Brightness:
@@ -140,7 +140,7 @@ inline uint8_t valueIndexForCurrent(const AppState& state, Item item) {
   switch (item) {
     case Item::Rds: {
       const uint8_t mode = static_cast<uint8_t>(state.global.rdsMode);
-      return mode > 2 ? 1 : mode;
+      return mode > 3 ? 1 : mode;
     }
     case Item::Eibi:
       return state.global.scrollDirection > 0 ? 1 : 0;
@@ -216,11 +216,14 @@ inline void formatValue(const AppState& state, Item item, char* out, size_t outS
         case RdsMode::Off:
           snprintf(out, outSize, "Off");
           return;
-        case RdsMode::Basic:
-          snprintf(out, outSize, "Basic");
+        case RdsMode::Ps:
+          snprintf(out, outSize, "PS");
           return;
-        case RdsMode::Full:
-          snprintf(out, outSize, "Full");
+        case RdsMode::FullNoCt:
+          snprintf(out, outSize, "Full-CT");
+          return;
+        case RdsMode::All:
+          snprintf(out, outSize, "ALL");
           return;
       }
       break;

@@ -227,8 +227,8 @@ void sanitizeGlobal(app::GlobalSettings& global) {
   }
 
   const uint8_t rdsRaw = static_cast<uint8_t>(global.rdsMode);
-  if (rdsRaw > static_cast<uint8_t>(app::RdsMode::Full)) {
-    global.rdsMode = app::RdsMode::Basic;
+  if (rdsRaw > static_cast<uint8_t>(app::RdsMode::All)) {
+    global.rdsMode = app::RdsMode::Ps;
   }
 
   global.zoomMenu = clampValue<uint8_t>(global.zoomMenu, 0, 8);

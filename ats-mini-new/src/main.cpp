@@ -812,6 +812,7 @@ void setup() {
   normalizeRadioStateForBand(g_state.radio, g_state.global.fmRegion);
   app::syncPersistentStateFromRadio(g_state);
   services::seekscan::syncContext(g_state);
+  services::clock::tick(g_state);
   g_state.ui.muted = false;
 
   g_radioReady = services::radio::begin();
@@ -858,6 +859,8 @@ void loop() {
   flushPendingTunePersistIfIdle();
 
   services::radio::tick();
+  services::rds::tick(g_state);
+  services::clock::tick(g_state);
   services::settings::tick(g_state);
 
   const uint32_t nowMs = millis();

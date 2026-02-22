@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <TFT_eSPI.h>
 
+#include <string.h>
+
 #include "../../include/app_services.h"
 #include "../../include/bandplan.h"
 #include "../../include/hardware_pins.h"
@@ -64,8 +66,19 @@ struct UiRenderKey {
   uint8_t sleepMode;
   uint16_t sleepTimerMinutes;
   int16_t utcOffsetMinutes;
+  uint8_t clockHour;
+  uint8_t clockMinute;
+  uint8_t clockUsingRdsCt;
   uint8_t fmRegion;
   uint8_t rdsMode;
+  uint8_t rdsFlags;
+  uint8_t rdsPty;
+  uint8_t rdsQuality;
+  uint16_t rdsPi;
+  uint16_t rdsCtMjd;
+  uint16_t rdsCtMinuteOfDay;
+  uint32_t rdsPsHash;
+  uint32_t rdsRtHash;
   int8_t scrollDirection;
   uint8_t brightness;
   uint8_t theme;
@@ -162,6 +175,8 @@ uint32_t hashMix(uint32_t hash, uint32_t value) {
   return (hash ^ value) * 16777619UL;
 }
 
+uint32_t textHashN(const char* text, size_t maxLen);
+
 uint32_t favoritesHash(const app::AppState& state) {
   uint32_t hash = 2166136261UL;
 
@@ -240,8 +255,23 @@ UiRenderKey buildRenderKey(const app::AppState& state) {
   key.sleepMode = static_cast<uint8_t>(state.global.sleepMode);
   key.sleepTimerMinutes = state.global.sleepTimerMinutes;
   key.utcOffsetMinutes = state.global.utcOffsetMinutes;
+  key.clockHour = state.clock.displayHour;
+  key.clockMinute = state.clock.displayMinute;
+  key.clockUsingRdsCt = state.clock.usingRdsCt;
   key.fmRegion = static_cast<uint8_t>(state.global.fmRegion);
   key.rdsMode = static_cast<uint8_t>(state.global.rdsMode);
+  key.rdsFlags = static_cast<uint8_t>((state.rds.hasPs ? 0x01 : 0) |
+                                      (state.rds.hasRt ? 0x02 : 0) |
+                                      (state.rds.hasPi ? 0x04 : 0) |
+                                      (state.rds.hasPty ? 0x08 : 0) |
+                                      (state.rds.hasCt ? 0x10 : 0));
+  key.rdsPty = state.rds.pty;
+  key.rdsQuality = state.rds.quality;
+  key.rdsPi = state.rds.pi;
+  key.rdsCtMjd = state.rds.ctMjd;
+  key.rdsCtMinuteOfDay = static_cast<uint16_t>(state.rds.ctHour * 60U + state.rds.ctMinute);
+  key.rdsPsHash = textHashN(state.rds.ps, sizeof(state.rds.ps));
+  key.rdsRtHash = textHashN(state.rds.rt, sizeof(state.rds.rt));
   key.scrollDirection = state.global.scrollDirection;
   key.brightness = state.global.brightness;
   key.theme = static_cast<uint8_t>(state.global.theme);
@@ -284,8 +314,19 @@ bool sameRenderKey(const UiRenderKey& lhs, const UiRenderKey& rhs) {
          lhs.sleepMode == rhs.sleepMode &&
          lhs.sleepTimerMinutes == rhs.sleepTimerMinutes &&
          lhs.utcOffsetMinutes == rhs.utcOffsetMinutes &&
+         lhs.clockHour == rhs.clockHour &&
+         lhs.clockMinute == rhs.clockMinute &&
+         lhs.clockUsingRdsCt == rhs.clockUsingRdsCt &&
          lhs.fmRegion == rhs.fmRegion &&
          lhs.rdsMode == rhs.rdsMode &&
+         lhs.rdsFlags == rhs.rdsFlags &&
+         lhs.rdsPty == rhs.rdsPty &&
+         lhs.rdsQuality == rhs.rdsQuality &&
+         lhs.rdsPi == rhs.rdsPi &&
+         lhs.rdsCtMjd == rhs.rdsCtMjd &&
+         lhs.rdsCtMinuteOfDay == rhs.rdsCtMinuteOfDay &&
+         lhs.rdsPsHash == rhs.rdsPsHash &&
+         lhs.rdsRtHash == rhs.rdsRtHash &&
          lhs.scrollDirection == rhs.scrollDirection &&
          lhs.brightness == rhs.brightness &&
          lhs.theme == rhs.theme &&
@@ -360,26 +401,155 @@ bool readSignalQuality() {
 }
 
 void formatClock(const app::AppState& state, char* out, size_t outSize) {
-  const int32_t daySeconds = 24 * 60 * 60;
-  int32_t seconds = static_cast<int32_t>(millis() / 1000U) + static_cast<int32_t>(state.global.utcOffsetMinutes) * 60;
-  seconds %= daySeconds;
-  if (seconds < 0) {
-    seconds += daySeconds;
-  }
-
-  const int32_t hours = seconds / 3600;
-  const int32_t minutes = (seconds % 3600) / 60;
-  snprintf(out, outSize, "%02ld:%02ld", static_cast<long>(hours), static_cast<long>(minutes));
+  snprintf(out,
+           outSize,
+           "%02u:%02u",
+           static_cast<unsigned>(state.clock.displayHour),
+           static_cast<unsigned>(state.clock.displayMinute));
 }
 
 int32_t clockMinuteToken(const app::AppState& state) {
-  const int32_t dayMinutes = 24 * 60;
-  int32_t minutes = static_cast<int32_t>(millis() / 60000U) + state.global.utcOffsetMinutes;
-  minutes %= dayMinutes;
-  if (minutes < 0) {
-    minutes += dayMinutes;
+  return state.clock.displayMinuteToken;
+}
+
+uint32_t textHashN(const char* text, size_t maxLen) {
+  uint32_t hash = 2166136261UL;
+  if (text == nullptr) {
+    return hash;
   }
-  return minutes;
+
+  for (size_t i = 0; i < maxLen; ++i) {
+    const uint8_t value = static_cast<uint8_t>(text[i]);
+    hash = hashMix(hash, value);
+    if (value == 0) {
+      break;
+    }
+  }
+  return hash;
+}
+
+const char* ptyLabel(app::FmRegion region, uint8_t pty) {
+  static const char* kRdsPty[32] = {
+      "None",     "News",      "Affairs",  "Info",     "Sport",    "Educate", "Drama",     "Culture",
+      "Science",  "Varied",    "Pop M",    "Rock M",   "Easy M",   "Light M", "Classics",  "Other M",
+      "Weather",  "Finance",   "Children", "Social",   "Religion", "Phone In","Travel",    "Leisure",
+      "Jazz",     "Country",   "Nation M", "Oldies",   "Folk M",   "Document","TEST",      "Alarm",
+  };
+  static const char* kRbdsPty[32] = {
+      "None",      "News",      "Info",      "Sports",    "Talk",      "Rock",      "Classic R", "Adult Hits",
+      "Soft Rock", "Top 40",    "Country",   "Oldies",    "Soft",      "Nostalgia", "Jazz",      "Classical",
+      "R&B",       "Soft R&B",  "Lang",      "Rel Music", "Rel Talk",  "Personality","Public",    "College",
+      "Spanish",   "Hip Hop",   "Weather",   "Emergency", "Traffic",   "TEST",      "Alarm",     "Alarm!",
+  };
+
+  const uint8_t index = static_cast<uint8_t>(pty & 0x1F);
+  return (region == app::FmRegion::US) ? kRbdsPty[index] : kRdsPty[index];
+}
+
+void copyEllipsized(const char* src, char* out, size_t outSize, size_t maxChars) {
+  if (out == nullptr || outSize == 0) {
+    return;
+  }
+
+  out[0] = '\0';
+  if (src == nullptr) {
+    return;
+  }
+
+  if (maxChars > (outSize - 1)) {
+    maxChars = outSize - 1;
+  }
+  if (maxChars == 0) {
+    return;
+  }
+
+  size_t len = 0;
+  const size_t scanMax = outSize > 0 ? (outSize - 1) : 0;
+  while (len < scanMax && src[len] != '\0') {
+    ++len;
+  }
+  while (len > 0 && src[len - 1] == ' ') {
+    --len;
+  }
+
+  if (len <= maxChars) {
+    if (len > 0) {
+      memcpy(out, src, len);
+    }
+    out[len] = '\0';
+    return;
+  }
+
+  if (maxChars < 4) {
+    size_t copyLen = maxChars;
+    memcpy(out, src, copyLen);
+    out[copyLen] = '\0';
+    return;
+  }
+  const size_t copyLen = maxChars - 3;
+  memcpy(out, src, copyLen);
+  out[copyLen] = '.';
+  out[copyLen + 1] = '.';
+  out[copyLen + 2] = '.';
+  out[copyLen + 3] = '\0';
+}
+
+void buildFmRdsDisplayLines(const app::AppState& state,
+                            char* psOut,
+                            size_t psOutSize,
+                            char* rtOut,
+                            size_t rtOutSize,
+                            char* piOut,
+                            size_t piOutSize,
+                            char* ptyOut,
+                            size_t ptyOutSize) {
+  if (psOutSize > 0) {
+    psOut[0] = '\0';
+  }
+  if (rtOutSize > 0) {
+    rtOut[0] = '\0';
+  }
+  if (piOutSize > 0) {
+    piOut[0] = '\0';
+  }
+  if (ptyOutSize > 0) {
+    ptyOut[0] = '\0';
+  }
+
+  if (state.radio.modulation != app::Modulation::FM) {
+    return;
+  }
+
+  switch (state.global.rdsMode) {
+    case app::RdsMode::Off:
+      return;
+    case app::RdsMode::Ps:
+    case app::RdsMode::FullNoCt:
+    case app::RdsMode::All:
+      break;
+  }
+
+  if (state.rds.hasPs && state.rds.ps[0] != '\0') {
+    char psText[app::kRdsPsCapacity];
+    copyEllipsized(state.rds.ps, psText, sizeof(psText), 8);
+    snprintf(psOut, psOutSize, "%s", psText);
+  }
+
+  if (state.global.rdsMode == app::RdsMode::Ps) {
+    return;
+  }
+
+  if (state.rds.hasRt && state.rds.rt[0] != '\0') {
+    copyEllipsized(state.rds.rt, rtOut, rtOutSize, 26);
+  }
+
+  if (state.rds.hasPi) {
+    snprintf(piOut, piOutSize, "PI:%04X", static_cast<unsigned>(state.rds.pi));
+  }
+
+  if (state.rds.hasPty) {
+    copyEllipsized(ptyLabel(state.global.fmRegion, state.rds.pty), ptyOut, ptyOutSize, 14);
+  }
 }
 
 void formatFrequency(const app::RadioState& radio, char* freq, size_t freqSize, char* unit, size_t unitSize) {
@@ -1099,13 +1269,27 @@ void drawScreen(const app::AppState& state) {
   g_spr.setTextDatum(MC_DATUM);
   g_spr.drawString(clockText, 291, 60);
 
+  char rdsPsText[24];
+  char rdsRtText[40];
+  char rdsPiText[16];
+  char rdsPtyText[24];
+  buildFmRdsDisplayLines(state,
+                         rdsPsText,
+                         sizeof(rdsPsText),
+                         rdsRtText,
+                         sizeof(rdsRtText),
+                         rdsPiText,
+                         sizeof(rdsPiText),
+                         rdsPtyText,
+                         sizeof(rdsPtyText));
+
   char freqText[20];
   char unitText[8];
   formatFrequency(state.radio, freqText, sizeof(freqText), unitText, sizeof(unitText));
   const bool stereo = state.radio.modulation == app::Modulation::FM && g_lastSnr >= 12;
   const char* stereoText = stereo ? "ST" : "MO";
 
-  const int kFreqY = 58;
+  const int kFreqY = 60;
   const int kUnitY = 70;
   const int kStereoY = 56;
   const int kFreqPreferredX = 150;
@@ -1164,14 +1348,30 @@ void drawScreen(const app::AppState& state) {
   g_spr.drawString(stereoText, clusterX, kStereoY);
 
   g_spr.setTextDatum(MC_DATUM);
-  g_spr.setTextFont(2);
-  g_spr.setTextColor(kColorMuted, kColorBg);
-  g_spr.drawString(state.radio.modulation == app::Modulation::FM ? "RDS ---" : "EiBi ---", 160, 94);
-
-  char rssiText[24];
-  snprintf(rssiText, sizeof(rssiText), "RSSI:%u SNR:%u", static_cast<unsigned>(g_lastRssi), static_cast<unsigned>(g_lastSnr));
   g_spr.setTextFont(1);
-  g_spr.drawString(rssiText, 160, 108);
+  g_spr.setTextColor(rdsPiText[0] != '\0' ? kColorText : kColorMuted, kColorBg);
+  g_spr.drawString(rdsPiText, 291, 73);
+  g_spr.setTextColor(rdsPtyText[0] != '\0' ? kColorText : kColorMuted, kColorBg);
+  g_spr.drawString(rdsPtyText, 291, 82);
+
+  g_spr.setTextDatum(MC_DATUM);
+  g_spr.setTextFont(2);
+  const bool showPsStrong = state.radio.modulation == app::Modulation::FM && state.rds.hasPs && state.global.rdsMode != app::RdsMode::Off;
+  g_spr.setTextColor(showPsStrong ? kColorText : kColorMuted, kColorBg);
+  g_spr.drawString(state.radio.modulation == app::Modulation::FM ? rdsPsText : "EiBi ---",
+                   160,
+                   94);
+
+  g_spr.setTextFont(1);
+  if (state.radio.modulation == app::Modulation::FM) {
+    g_spr.setTextColor(rdsRtText[0] != '\0' ? kColorText : kColorMuted, kColorBg);
+    g_spr.drawString(rdsRtText[0] != '\0' ? rdsRtText : "", 160, 108);
+  } else {
+    char rssiText[24];
+    snprintf(rssiText, sizeof(rssiText), "RSSI:%u SNR:%u", static_cast<unsigned>(g_lastRssi), static_cast<unsigned>(g_lastSnr));
+    g_spr.setTextColor(kColorMuted, kColorBg);
+    g_spr.drawString(rssiText, 160, 108);
+  }
 
   drawBottomScale(state);
   drawQuickPopup(state);

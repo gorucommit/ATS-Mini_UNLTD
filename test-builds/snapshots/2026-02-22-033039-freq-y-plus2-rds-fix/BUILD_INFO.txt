@@ -1,0 +1,13 @@
+snapshot: 2026-02-22-033039-freq-y-plus2-rds-fix
+created_utc: 2026-02-22T03:31:19Z
+sketch_dir: /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new
+profile: ats-mini-s3
+build_path: /Users/beegee/Documents/ats mini/ats-mini-UNLTD/test-builds/arduino-cli/snapshot-2026-02-22-033039
+arduino-cli  Version: 1.4.1 Commit: Homebrew Date: 2026-01-19T16:11:40Z
+git_toplevel: /Users/beegee/Documents/ats mini/ats-mini-UNLTD
+git_head: N/A
+git_dirty_entries: 25
+flash_usage: Sketch uses 459743 bytes (2%) of program storage space. Maximum is 16777216 bytes.
+ram_usage: Global variables use 30536 bytes (9%) of dynamic memory, leaving 297144 bytes for local variables. Maximum is 327680 bytes.
+build_options_json: present
+flash_args: present
