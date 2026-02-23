@@ -93,6 +93,18 @@ static uint16_t countPointsInSegment(const app::EtmSegment& seg) {
   return count;
 }
 
+// FM verification scoring: FREQOFF dominant, then pilot, RSSI/SNR, multipath penalty.
+static float scoreCandidateFm(const app::EtmCandidate& c) {
+  float score = 0.0f;
+  const int absOff = static_cast<int>(c.freqOff >= 0 ? c.freqOff : -c.freqOff);
+  score += (10 - (absOff < 10 ? absOff : 10)) * 3.0f;
+  if (c.pilotPresent) score += 15.0f;
+  score += c.rssi * 0.5f;
+  score += c.snr * 0.8f;
+  score -= c.multipath * 0.3f;
+  return score;
+}
+
 class EtmScanner {
  public:
   EtmScanner() = default;
@@ -114,10 +126,6 @@ class EtmScanner {
     if (state.radio.modulation == app::Modulation::FM) {
       if (!addSegment(state, bandMinKhz, bandMaxKhz, band)) return false;
     } else {
-      const uint16_t stepKhz = (band.id == app::BandId::MW || band.id == app::BandId::LW)
-                                   ? app::defaultMwStepKhzForRegion(state.global.fmRegion)
-                                   : 5u;
-
       if (band.id == app::BandId::All) {
         for (size_t i = 0; i < app::kBroadcastRedLineAllCount; ++i) {
           const app::SubBandDef& sub = app::kBroadcastRedLineAll[i];
@@ -163,7 +171,7 @@ class EtmScanner {
     pointsVisited_ = 0;
     awaitingMeasure_ = false;
     nextActionMs_ = 0;
-    settleMs_ = segmentProfiles_[0]->settleMs;
+    settleMs_ = segmentProfiles_[0]->coarseSettleMs;
     phase_ = app::EtmPhase::CoarseScan;
     return true;
   }
@@ -177,6 +185,8 @@ class EtmScanner {
         return tickCoarse(state, now);
       case app::EtmPhase::FineScan:
         return tickFine(state, now);
+      case app::EtmPhase::VerifyScan:
+        return tickVerify(state, now);
       case app::EtmPhase::Finalize:
         return tickFinalize(state);
       case app::EtmPhase::Cancelling:
@@ -211,7 +221,7 @@ class EtmScanner {
     state.seekScan.foundCount = memory_.count;
     state.seekScan.foundIndex = memory_.cursor;
     state.seekScan.totalPoints = totalPoints_;
-    state.seekScan.fineScanActive = (phase_ == app::EtmPhase::FineScan);
+    state.seekScan.fineScanActive = (phase_ == app::EtmPhase::FineScan || phase_ == app::EtmPhase::VerifyScan);
     state.seekScan.cursorScanPass =
         (memory_.cursor >= 0 && static_cast<uint8_t>(memory_.cursor) < memory_.count)
             ? memory_.stations[memory_.cursor].scanPass
@@ -336,6 +346,9 @@ class EtmScanner {
       c.frequencyKhz = freqKhz;
       c.rssi = rssi;
       c.snr = snr;
+      c.freqOff = 0;
+      c.pilotPresent = false;
+      c.multipath = 0;
       c.scanPass = pass;
       c.segmentIndex = segIdx;
       return;
@@ -352,6 +365,9 @@ class EtmScanner {
       candidates_[evict].frequencyKhz = freqKhz;
       candidates_[evict].rssi = rssi;
       candidates_[evict].snr = snr;
+      candidates_[evict].freqOff = 0;
+      candidates_[evict].pilotPresent = false;
+      candidates_[evict].multipath = 0;
       candidates_[evict].scanPass = pass;
       candidates_[evict].segmentIndex = segIdx;
     }
@@ -378,11 +394,18 @@ class EtmScanner {
     uint8_t rssi = 0, snr = 0;
     services::radio::readSignalQuality(&rssi, &snr);
 
-    const uint8_t sensIdx = static_cast<uint8_t>(state.global.scanSensitivity) % 2;
-    const app::EtmSensitivity& sens = (state.radio.modulation == app::Modulation::FM)
-                                          ? app::kEtmSensitivityFm[sensIdx]
-                                          : app::kEtmSensitivityAm[sensIdx];
-    const bool above = (rssi >= sens.rssiMin && snr >= sens.snrMin);
+    const app::EtmSensitivity* sens = nullptr;
+    if (state.radio.modulation == app::Modulation::FM &&
+        state.global.scanSpeed == app::ScanSpeed::Thorough &&
+        segmentCount_ > 0 && segmentProfiles_[0]->verifySettleMs > 0) {
+      sens = &app::kEtmCoarseThresholdFm;  // permissive for FM Thorough coarse
+    } else {
+      const uint8_t sensIdx = static_cast<uint8_t>(state.global.scanSensitivity) % 2;
+      sens = (state.radio.modulation == app::Modulation::FM)
+                 ? &app::kEtmSensitivityFm[sensIdx]
+                 : &app::kEtmSensitivityAm[sensIdx];
+    }
+    const bool above = (rssi >= sens->rssiMin && snr >= sens->snrMin);
     if (above)
       addCandidate(currentKhz_, rssi, snr, app::kScanPassCoarse, segmentIndex_);
 
@@ -391,6 +414,14 @@ class EtmScanner {
     if (!advancePoint()) {
       if (state.global.scanSpeed == app::ScanSpeed::Fast) {
         phase_ = app::EtmPhase::Finalize;
+        nextActionMs_ = now;
+        return true;
+      }
+      const app::EtmBandProfile* prof = segmentCount_ > 0 ? segmentProfiles_[0] : &app::kEtmProfileFm;
+      if (state.radio.modulation == app::Modulation::FM && prof->verifySettleMs > 0) {
+        verifyCandidateIndex_ = 0;
+        verifySettleMs_ = prof->verifySettleMs;
+        phase_ = app::EtmPhase::VerifyScan;
         nextActionMs_ = now;
         return true;
       }
@@ -483,7 +514,7 @@ class EtmScanner {
     fineBestRssi_ = w.bestRssi;
     fineBestSnr_ = 0;
     fineAwaitingMeasure_ = false;
-    fineSettleMs_ = prof != nullptr ? prof->settleMs : settleMs_;
+    fineSettleMs_ = prof != nullptr ? prof->coarseSettleMs : settleMs_;
     (void)state;
     (void)now;
   }
@@ -501,6 +532,45 @@ class EtmScanner {
         return;
       }
     }
+  }
+
+  bool tickVerify(app::AppState& state, uint32_t now) {
+    state.seekScan.active = true;
+    state.seekScan.seeking = false;
+    state.seekScan.scanning = true;
+    publishState(state);
+
+    if (verifyCandidateIndex_ >= candidateCount_) {
+      phase_ = app::EtmPhase::Finalize;
+      nextActionMs_ = now;
+      return true;
+    }
+
+    app::EtmCandidate& c = candidates_[verifyCandidateIndex_];
+    if (!verifyAwaitingMeasure_) {
+      state.radio.frequencyKhz = c.frequencyKhz;
+      state.radio.bfoHz = 0;
+      services::radio::apply(state);
+      verifyAwaitingMeasure_ = true;
+      nextActionMs_ = now + verifySettleMs_;
+      return true;
+    }
+
+    uint8_t rssi = 0, snr = 0;
+    int8_t freqOff = 0;
+    bool pilotPresent = false;
+    uint8_t multipath = 0;
+    if (services::radio::readFullRsqFm(&rssi, &snr, &freqOff, &pilotPresent, &multipath)) {
+      c.rssi = rssi;
+      c.snr = snr;
+      c.freqOff = freqOff;
+      c.pilotPresent = pilotPresent;
+      c.multipath = multipath;
+    }
+    ++verifyCandidateIndex_;
+    verifyAwaitingMeasure_ = false;
+    nextActionMs_ = now;
+    return true;
   }
 
   bool tickFine(app::AppState& state, uint32_t now) {
@@ -553,15 +623,64 @@ class EtmScanner {
   bool tickFinalize(app::AppState& state) {
     const app::EtmBandProfile* prof = segmentCount_ > 0 ? segmentProfiles_[0] : &app::kEtmProfileFm;
     const uint16_t mergeKhz = prof->mergeDistanceKhz;
+    const uint16_t clusterDistKhz = (segmentCount_ > 0 ? segments_[0].coarseStepKhz : 10) * 2;
 
-    // Merge candidates into memory: dedupe by mergeKhz, best RSSI wins; sort by freq
+    uint8_t commitList[app::kEtmMaxCandidates];
+    uint8_t commitCount = 0;
+
+    if (modulation_ == app::Modulation::FM && verifySettleMs_ > 0 && candidateCount_ > 0) {
+      // Sort candidates by frequency for clustering
+      for (uint8_t i = 1; i < candidateCount_; ++i) {
+        app::EtmCandidate key = candidates_[i];
+        int8_t j = static_cast<int8_t>(i) - 1;
+        while (j >= 0 && candidates_[j].frequencyKhz > key.frequencyKhz) {
+          candidates_[j + 1] = candidates_[j];
+          --j;
+        }
+        candidates_[j + 1] = key;
+      }
+      // Cluster within 2*coarseStep; score; commit clear winner or keep all in cluster
+      constexpr float kClearWinnerMargin = 5.0f;
+      for (uint8_t i = 0; i < candidateCount_; ) {
+        uint8_t clusterStart = i;
+        uint8_t clusterEnd = i + 1;
+        while (clusterEnd < candidateCount_ &&
+               absDeltaKhz(candidates_[clusterEnd].frequencyKhz, candidates_[clusterStart].frequencyKhz) <= clusterDistKhz) {
+          ++clusterEnd;
+        }
+        float bestScore = scoreCandidateFm(candidates_[clusterStart]);
+        uint8_t bestIdx = clusterStart;
+        float secondScore = -1e9f;
+        for (uint8_t k = clusterStart + 1; k < clusterEnd; ++k) {
+          const float s = scoreCandidateFm(candidates_[k]);
+          if (s > bestScore) {
+            secondScore = bestScore;
+            bestScore = s;
+            bestIdx = k;
+          } else if (s > secondScore) {
+            secondScore = s;
+          }
+        }
+        if (clusterEnd - clusterStart > 1 && bestScore - secondScore >= kClearWinnerMargin) {
+          if (commitCount < app::kEtmMaxCandidates) commitList[commitCount++] = bestIdx;
+        } else {
+          for (uint8_t k = clusterStart; k < clusterEnd && commitCount < app::kEtmMaxCandidates; ++k) {
+            commitList[commitCount++] = k;
+          }
+        }
+        i = clusterEnd;
+      }
+    } else {
+      for (uint8_t i = 0; i < candidateCount_; ++i) commitList[commitCount++] = i;
+    }
+
     memory_.count = 0;
     memory_.cursor = -1;
     memory_.bandIndex = bandIndex_;
     memory_.modulation = modulation_;
 
-    for (uint8_t i = 0; i < candidateCount_; ++i) {
-      const app::EtmCandidate& c = candidates_[i];
+    for (uint8_t ci = 0; ci < commitCount; ++ci) {
+      const app::EtmCandidate& c = candidates_[commitList[ci]];
       int16_t found = -1;
       for (uint8_t j = 0; j < memory_.count; ++j) {
         if (absDeltaKhz(memory_.stations[j].frequencyKhz, c.frequencyKhz) <= mergeKhz) {
@@ -581,7 +700,6 @@ class EtmScanner {
         continue;
       }
       if (memory_.count >= app::kEtmMaxStations) {
-        // Evict: pass 0 first, then 1
         int16_t evict = -1;
         for (uint8_t j = 0; j < memory_.count; ++j) {
           if (memory_.stations[j].scanPass == 2) continue;
@@ -721,6 +839,10 @@ class EtmScanner {
   uint8_t fineBestSnr_ = 0;
   uint16_t fineSettleMs_ = 0;
   bool fineAwaitingMeasure_ = false;
+
+  uint8_t verifyCandidateIndex_ = 0;
+  uint16_t verifySettleMs_ = 0;
+  bool verifyAwaitingMeasure_ = false;
 };
 
 EtmScanner g_scanner;

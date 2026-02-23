@@ -42,6 +42,7 @@ bool seekForScan(app::AppState& state, int8_t direction);
 bool lastSeekAborted();
 void setMuted(bool muted);
 bool readSignalQuality(uint8_t* rssi, uint8_t* snr);
+bool readFullRsqFm(uint8_t* rssi, uint8_t* snr, int8_t* freqOff, bool* pilotPresent, uint8_t* multipath);
 bool pollRdsGroup(RdsGroupSnapshot* snapshot);
 void resetRdsDecoder();
 void tick();

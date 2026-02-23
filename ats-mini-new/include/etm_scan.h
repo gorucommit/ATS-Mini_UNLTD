@@ -33,6 +33,9 @@ inline constexpr EtmSensitivity kEtmSensitivityAm[] = {
     {10, 3},   // High (default)
 };
 
+// Fixed permissive threshold for FM Thorough coarse pass only (not user-configurable).
+inline constexpr EtmSensitivity kEtmCoarseThresholdFm = {3, 1};
+
 // --- Scan pass constants ---
 
 constexpr uint8_t kScanPassSeek = 0;    // found by seek, not scan-confirmed
@@ -80,20 +83,19 @@ struct EtmBandProfile {
   uint16_t coarseStepKhz;
   uint16_t fineStepKhz;
   uint16_t fineWindowKhz;   // ±window around each coarse candidate
-  uint16_t settleMs;
+  uint16_t coarseSettleMs;   // settle time for coarse pass
+  uint16_t verifySettleMs;   // settle for FM verification pass (0 = no verify)
   uint16_t mergeDistanceKhz;
 };
 
 // All values in kHz for AM bands (MW/LW/SW). For FM, band limits are in 10 kHz units
 // (8750 = 87.5 MHz), so FM profile steps are also in 10 kHz units: 10 = 100 kHz.
-// FM uses coarse-only (no fine pass); channel raster is 100 kHz everywhere.
-inline constexpr EtmBandProfile kEtmProfileFm = {10, 0, 0, 70, 9};  // 100 kHz coarse only, 70 ms settle, 90 kHz merge
-// MW/LW: coarse-only (fineStepKhz=0). Channel raster is the correct frequency; fine pass would push off-channel.
-inline constexpr EtmBandProfile kEtmProfileMw9 = {9, 0, 0, 90, 8};   // 9 kHz region
-inline constexpr EtmBandProfile kEtmProfileMw10 = {10, 0, 0, 90, 9};  // 10 kHz region
-inline constexpr EtmBandProfile kEtmProfileLw = {9, 0, 0, 90, 8};
-// SW: coarse-only (fineStepKhz=0). SW broadcast uses 5 kHz raster (xx30, xx35, etc.); 1 kHz fine gives wrong/mid frequencies.
-inline constexpr EtmBandProfile kEtmProfileSw = {5, 0, 0, 90, 4};
+// FM: 30 ms coarse (permissive), 100 ms verify for Thorough; AM-family: no verify.
+inline constexpr EtmBandProfile kEtmProfileFm = {10, 0, 0, 30, 100, 9};   // coarse 30ms, verify 100ms, 90 kHz merge
+inline constexpr EtmBandProfile kEtmProfileMw9 = {9, 0, 0, 90, 0, 8};     // 9 kHz region
+inline constexpr EtmBandProfile kEtmProfileMw10 = {10, 0, 0, 90, 0, 9};  // 10 kHz region
+inline constexpr EtmBandProfile kEtmProfileLw = {9, 0, 0, 90, 0, 8};
+inline constexpr EtmBandProfile kEtmProfileSw = {5, 0, 0, 90, 0, 4};
 
 // --- Working candidate (during scan only) ---
 
@@ -101,6 +103,9 @@ struct EtmCandidate {
   uint16_t frequencyKhz;
   uint8_t rssi;
   uint8_t snr;
+  int8_t freqOff;       // carrier offset (~1 kHz units); 0 if not verified (AM or unset)
+  bool pilotPresent;    // stereo pilot (FM); false if not verified
+  uint8_t multipath;    // MULT from RSQ; 0 if not verified
   uint8_t scanPass;     // 1=coarse, 2=fine-confirmed
   uint8_t segmentIndex;
 };
@@ -123,6 +128,7 @@ enum class EtmPhase : uint8_t {
   FineScan = 2,
   Finalize = 3,
   Cancelling = 4,
+  VerifyScan = 5,  // FM Thorough: re-tune to each candidate, read full RSQ
 };
 
 }  // namespace app

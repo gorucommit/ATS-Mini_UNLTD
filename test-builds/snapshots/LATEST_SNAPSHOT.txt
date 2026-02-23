@@ -1,1 +1,1 @@
-test-builds/snapshots/2026-02-22-213359-band-scan-complete
+test-builds/snapshots/etm-fm-two-pass-verify

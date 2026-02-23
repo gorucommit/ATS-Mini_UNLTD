@@ -358,6 +358,25 @@ bool readCurrentSignalQuality(uint8_t& rssi, uint8_t& snr) {
   return true;
 }
 
+// Full RSQ for FM verification pass: RSSI, SNR, signed FREQOFF (~1 kHz units), PILOT, MULT.
+bool readFullRsqFm(uint8_t& rssi, uint8_t& snr, int8_t& freqOff, bool& pilotPresent, uint8_t& multipath) {
+  if (!g_ready) {
+    rssi = 0;
+    snr = 0;
+    freqOff = 0;
+    pilotPresent = false;
+    multipath = 0;
+    return false;
+  }
+  g_rx.getCurrentReceivedSignalQuality();
+  rssi = g_rx.getCurrentRSSI();
+  snr = g_rx.getCurrentSNR();
+  freqOff = static_cast<int8_t>(g_rx.getCurrentSignedFrequencyOffset());
+  pilotPresent = g_rx.getCurrentPilot();
+  multipath = g_rx.getCurrentMultipath();
+  return true;
+}
+
 bool isValidSeekResult(const app::AppState& state,
                        uint16_t frequencyKhz,
                        uint16_t startFrequencyKhz,
@@ -756,6 +775,27 @@ bool readSignalQuality(uint8_t* rssi, uint8_t* snr) {
     *snr = currentSnr;
   }
   return true;
+}
+
+bool readFullRsqFm(uint8_t* rssi, uint8_t* snr, int8_t* freqOff, bool* pilotPresent, uint8_t* multipath) {
+  if (!g_ready || g_radio_mux == nullptr) {
+    return false;
+  }
+  if (xSemaphoreTake(g_radio_mux, portMAX_DELAY) != pdTRUE) {
+    return false;
+  }
+  uint8_t r = 0, s = 0;
+  int8_t f = 0;
+  bool p = false;
+  uint8_t m = 0;
+  const bool ok = readFullRsqFm(r, s, f, p, m);
+  xSemaphoreGive(g_radio_mux);
+  if (rssi != nullptr) *rssi = r;
+  if (snr != nullptr) *snr = s;
+  if (freqOff != nullptr) *freqOff = f;
+  if (pilotPresent != nullptr) *pilotPresent = p;
+  if (multipath != nullptr) *multipath = m;
+  return ok;
 }
 
 bool pollRdsGroup(RdsGroupSnapshot* snapshot) {
