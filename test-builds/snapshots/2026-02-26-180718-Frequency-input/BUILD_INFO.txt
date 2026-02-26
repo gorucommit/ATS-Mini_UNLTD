@@ -1,0 +1,14 @@
+snapshot: 2026-02-26-180718-Frequency-input
+description: Frequency input (dial pad redesign)
+branch: main
+created_utc: 2026-02-26T18:07:58Z
+sketch_dir: /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new
+profile: ats-mini-s3
+build_system: arduino-cli
+build_path: /Users/beegee/Documents/ats mini/ats-mini-UNLTD/test-builds/arduino-cli/esp32.esp32.esp32s3
+git_toplevel: /Users/beegee/Documents/ats mini/ats-mini-UNLTD
+git_head: 99740b6
+flash_usage: Sketch uses 474515 bytes (2%) of program storage space.
+ram_usage: Global variables use 33024 bytes (10%) of dynamic memory.
+
+To return to this state: git checkout 99740b6
