@@ -60,6 +60,7 @@ bool consumeVeryLongPress();
 bool isButtonHeld();
 void setMultiClickWindowMs(uint32_t windowMs);
 void clearAbortRequest();
+void requestAbortEvent();
 bool consumeAbortRequest();
 bool consumeAbortEventRequest();
 }  // namespace input

@@ -746,19 +746,24 @@ void handleQuickEditRotation(int8_t direction, int8_t repeats) {
   }
 }
 
+bool cancelActiveSeekOrScanIfBusy() {
+  if (!services::etm::busy() && !services::seekscan::busy()) {
+    return false;
+  }
+  if (services::etm::busy()) {
+    services::etm::requestCancel();
+  } else {
+    services::seekscan::requestCancel();
+  }
+  return true;
+}
+
 void handleRotation(int8_t delta) {
   if (delta == 0) {
     return;
   }
 
-  if (services::etm::busy() || services::seekscan::busy()) {
-    if (services::etm::busy()) {
-      services::etm::requestCancel();
-    } else {
-      services::seekscan::requestCancel();
-    }
-    return;
-  }
+  if (cancelActiveSeekOrScanIfBusy()) return;
 
   const int8_t direction = delta > 0 ? -1 : 1;
   int8_t repeats = static_cast<int8_t>(abs(delta));
@@ -796,14 +801,7 @@ void handleRotation(int8_t delta) {
 }
 
 void handleSingleClick() {
-  if (services::etm::busy() || services::seekscan::busy()) {
-    if (services::etm::busy()) {
-      services::etm::requestCancel();
-    } else {
-      services::seekscan::requestCancel();
-    }
-    return;
-  }
+  if (cancelActiveSeekOrScanIfBusy()) return;
 
   if (g_state.ui.layer == app::UiLayer::DialPad) {
       g_dialPadLastInputMs = millis();
@@ -881,11 +879,7 @@ void handleSingleClick() {
 }
 
 void handleDoubleClick() {
-  if (services::etm::busy() || services::seekscan::busy()) {
-    if (services::etm::busy()) services::etm::requestCancel();
-    else services::seekscan::requestCancel();
-    return;
-  }
+  if (cancelActiveSeekOrScanIfBusy()) return;
 
   if (g_state.ui.layer != app::UiLayer::NowPlaying) {
     return;
@@ -895,11 +889,7 @@ void handleDoubleClick() {
 }
 
 void handleTripleClick() {
-  if (services::etm::busy() || services::seekscan::busy()) {
-    if (services::etm::busy()) services::etm::requestCancel();
-    else services::seekscan::requestCancel();
-    return;
-  }
+  if (cancelActiveSeekOrScanIfBusy()) return;
 
   if (g_state.ui.layer != app::UiLayer::NowPlaying) {
     return;
@@ -909,11 +899,7 @@ void handleTripleClick() {
 }
 
 void handleLongPress() {
-  if (services::etm::busy() || services::seekscan::busy()) {
-    if (services::etm::busy()) services::etm::requestCancel();
-    else services::seekscan::requestCancel();
-    return;
-  }
+  if (cancelActiveSeekOrScanIfBusy()) return;
 
   switch (g_state.ui.layer) {
     case app::UiLayer::NowPlaying:

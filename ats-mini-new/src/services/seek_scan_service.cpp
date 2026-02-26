@@ -10,6 +10,7 @@ namespace {
 enum class Operation : uint8_t {
   None = 0,
   SeekPending = 1,
+  Seeking = 2,
 };
 
 struct ContextKey {
@@ -21,7 +22,6 @@ struct ContextKey {
 
 Operation g_operation = Operation::None;
 int8_t g_direction = 1;
-bool g_cancelRequested = false;
 
 ContextKey g_context = {0xFF, 0, 9, app::FmRegion::World};
 
@@ -51,7 +51,6 @@ bool sameContext(const ContextKey& lhs, const ContextKey& rhs) {
 
 void clearOperationState() {
   g_operation = Operation::None;
-  g_cancelRequested = false;
 }
 
 void publishSeekCompleteState(app::AppState& state, bool found) {
@@ -89,7 +88,15 @@ void requestScan(int8_t /* direction */) {
   (void)0;
 }
 
-void requestCancel() { g_cancelRequested = true; }
+void requestCancel() {
+  if (g_operation == Operation::SeekPending) {
+    clearOperationState();
+    return;
+  }
+  if (g_operation == Operation::Seeking) {
+    services::input::requestAbortEvent();
+  }
+}
 
 bool busy() { return g_operation != Operation::None; }
 
@@ -120,6 +127,7 @@ bool tick(app::AppState& state) {
   state.seekScan.scanning = false;
   state.seekScan.direction = g_direction;
 
+  g_operation = Operation::Seeking;
   const bool found = services::radio::seek(state, g_direction);
 
   uint8_t rssi = 0;

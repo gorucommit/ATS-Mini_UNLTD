@@ -283,6 +283,12 @@ void clearAbortRequest() {
   interrupts();
 }
 
+void requestAbortEvent() {
+  noInterrupts();
+  g_abortRequested = true;
+  interrupts();
+}
+
 bool consumeAbortRequest() {
   // During seek, allow hold-to-cancel regardless of debounce stage.
   if (digitalRead(hw::kPinEncoderButton) == LOW) {
