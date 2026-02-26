@@ -1,5 +1,9 @@
 # Assessment: FM ETM two-pass verification and FREQOFF-based scoring
 
+> Status (2026-02-26): Historical planning/assessment/session document.
+> It may not reflect the current firmware implementation exactly. For current implementation docs, use docs/ARCHITECTURE.md, docs/FIRMWARE_MAP.md, docs/ETM_SCAN.md, docs/UI_INTERACTION_SPEC.md, and source under src/ and include/
+
+
 **Variant assessed:** Coarse pass with short settle + permissive threshold → verification pass (long settle, full RSQ) → cluster adjudication using FREQOFF, PILOT, MULT, RSSI, SNR. MW/SW/LW unchanged.
 
 **Conclusion:** **Sound and implementable.** The design correctly addresses AGC stability and adjacent-channel bleed for FM. Library support for FREQOFF, PILOT, and MULT is present. A few clarifications and small risks are noted below; no blocking issues.

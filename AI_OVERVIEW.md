@@ -1,50 +1,62 @@
-# ATS-Mini UNLTD — overview for AI readers
+# ATS-Mini UNLTD — overview for AI/code readers
 
-This file is intended for AI agents that read the repo via URL. Use the **raw** links below to get plain text (no HTML).
+This file is for tools/agents that read the repository over GitHub URLs. Prefer raw URLs for plain text.
 
 **Repo:** https://github.com/gorucommit/ATS-Mini_UNLTD  
 **Raw root:** https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/
 
-## What this project is
+## Current repo reality (2026-02-26)
 
-- **Firmware** for the ATS-Mini portable radio: ESP32-S3, SI4735 (FM/AM/SW), TFT display, encoder + button.
-- **Main codebase:** `ats-mini-new/` — C++, PlatformIO, Arduino framework.
-- **Features:** FM/AM/SW/LW, RDS, seek/scan, band plan, settings (NVS), ETM-style scan.
+- Main firmware project: `ats-mini-new/`
+- Firmware stack: ESP32-S3 + Arduino framework + SI4735 + TFT_eSPI
+- Build configs present:
+  - `ats-mini-new/platformio.ini` (PlatformIO, checked-in and active)
+  - `ats-mini-new/sketch.yaml` (Arduino CLI profile, also present)
+- Main runtime files:
+  - `src/main.cpp` coordinator/orchestrator
+  - `src/services/radio_service.cpp` SI4735 hardware + seek + RDS raw polling
+  - `src/services/seek_service.cpp` seek wrapper/service (namespace remains `services::seekscan`)
+  - `src/services/etm_scan_service.cpp` ETM scan engine
+  - `src/services/rds_service.cpp`, `clock_service.cpp`, `ui_service.cpp`, `settings_service.cpp`, `input_service.cpp`
 
-## Key files (raw URLs — fetch these for plain text)
+## Recommended docs to read first (current implementation)
 
 - Project README: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/README.md
 - Firmware README: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/README.md
-- This overview: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/AI_OVERVIEW.md
-- Full firmware map: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/FIRMWARE_MAP.md
-- Product spec: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/PRODUCT_SPEC.md
-- Development plan: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/DEVELOPMENT_PLAN.md
 - Architecture: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/ARCHITECTURE.md
-- App state (central): https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/include/app_state.h
-- Main loop: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/main.cpp
-- Radio (SI4735): https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/services/radio_service.cpp
-- Seek/scan: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/services/seek_scan_service.cpp
-- ETM scan: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/services/etm_scan_service.cpp
-- UI: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/services/ui_service.cpp
-- Band plan: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/include/bandplan.h
-- Settings model: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/include/settings_model.h
+- Firmware map: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/FIRMWARE_MAP.md
+- ETM scan implementation doc: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/ETM_SCAN.md
+- UI interaction contract (current behavior): https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/UI_INTERACTION_SPEC.md
 
-## Directory layout
+## Key source files (raw URLs)
 
-- **ats-mini-new/** — firmware: `src/`, `include/`, `docs/`, `platformio.ini`, `partitions.csv`
-- **references/** — reference firmware (e.g. ats-nano, vendor)
-- **test-builds/** — build outputs (often not in git)
-- **tools/** — scripts
-- **ui-lab/** — UI experiments
+- `app_state.h` (canonical runtime state): https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/include/app_state.h
+- `app_services.h` (service interfaces): https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/include/app_services.h
+- `main.cpp` (setup/loop + input dispatch): https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/main.cpp
+- `radio_service.cpp`: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/services/radio_service.cpp
+- `seek_service.cpp`: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/services/seek_service.cpp
+- `etm_scan_service.cpp`: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/services/etm_scan_service.cpp
+- `rds_service.cpp`: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/services/rds_service.cpp
+- `ui_service.cpp`: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/services/ui_service.cpp
+- `settings_service.cpp`: https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/src/services/settings_service.cpp
 
-## How to get plain text from GitHub
+## Repo layout (current)
+
+- `ats-mini-new/` — firmware project (`src/`, `include/`, `docs/`, `platformio.ini`, `sketch.yaml`)
+- `test-builds/` — local/snapshot build outputs (PlatformIO + Arduino CLI outputs may exist here)
+- `ui-lab/` — UI experiments/prototypes
+- `ui-spec/` — UI/spec artifacts
+
+## Historical/planning docs
+
+Many files in `ats-mini-new/docs/` are plans, assessments, or session logs. Treat them as design history unless they explicitly say they are current implementation docs.
+
+## Raw URL tip
 
 Replace:
 
-  https://github.com/gorucommit/ATS-Mini_UNLTD/blob/main/ats-mini-new/README.md
+`https://github.com/gorucommit/ATS-Mini_UNLTD/blob/main/ats-mini-new/README.md`
 
 with:
 
-  https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/README.md
-
-Many AI “read URL” tools work better with `raw.githubusercontent.com` because they receive the file content directly instead of the GitHub web UI.
+`https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/README.md`

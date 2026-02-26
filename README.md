@@ -1,40 +1,47 @@
 # ATS-Mini UNLTD
 
-Custom firmware for the ATS-Mini portable radio (ESP32-S3 + SI4735 + TFT). This repo contains the **ats-mini-new** firmware project.
+Custom firmware for the ATS-Mini portable radio (ESP32-S3 + SI4735 + TFT). This repository contains the active firmware project in `ats-mini-new/`.
 
-## Main firmware: ats-mini-new
+## Main firmware
 
-- **Path:** [ats-mini-new/](ats-mini-new/)
-- **Stack:** Arduino CLI, ESP32-S3 (ESP32 core 3.3.6), esptool, SI4735, TFT_eSPI.
-- **Docs:** [ats-mini-new/docs/](ats-mini-new/docs/) — architecture, specs, band plan, milestones.
+- Path: `ats-mini-new/`
+- Framework: Arduino (ESP32-S3)
+- Build configs currently present:
+  - `platformio.ini` (PlatformIO)
+  - `sketch.yaml` (Arduino CLI)
+- Core libraries:
+  - PU2CLR `SI4735` (`2.1.8`)
+  - `TFT_eSPI` (`2.5.43`)
 
-### Quick links (raw text for tools/AI)
+## Current implementation docs
 
-- [ats-mini-new README](https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/README.md)
-- [Firmware map & file structure](https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/FIRMWARE_MAP.md)
-- [Product spec](https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/PRODUCT_SPEC.md)
-- [Development plan](https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/DEVELOPMENT_PLAN.md)
+- `ats-mini-new/docs/ARCHITECTURE.md`
+- `ats-mini-new/docs/FIRMWARE_MAP.md`
+- `ats-mini-new/docs/ETM_SCAN.md`
+- `ats-mini-new/docs/UI_INTERACTION_SPEC.md`
 
-### Build & flash (Arduino CLI + esptool)
+Planning/spec/assessment docs in `ats-mini-new/docs/` are kept for design history and may not describe the exact current code path.
 
-We use **Arduino CLI** for building and **esptool** for flashing. PlatformIO is not used.
+## Build / flash
 
-```bash
-cd ats-mini-new
-arduino-cli compile --profile ats-mini-s3 --build-path "../test-builds/arduino-cli/esp32.esp32.esp32s3"
-# Then flash with esptool (see ats-mini-new/README.md for full command)
-```
-
-See [ats-mini-new/README.md](ats-mini-new/README.md) for complete build and flash instructions.
+See `ats-mini-new/README.md` for current build and flash instructions. The firmware tree currently keeps both PlatformIO and Arduino CLI configurations.
 
 ## Repo layout
 
-| Folder        | Purpose                    |
-|---------------|----------------------------|
-| **ats-mini-new** | Main firmware (Arduino CLI sketch) |
-| **test-builds/** | Build outputs (Arduino CLI)  |
-| **ui-lab/**   | UI experiments              |
+| Path | Purpose |
+|---|---|
+| `ats-mini-new/` | Main firmware project |
+| `test-builds/` | Local/snapshot build outputs |
+| `ui-lab/` | UI experiments |
+| `ui-spec/` | UI/spec artifacts |
+
+## Raw links (for tools/AI)
+
+- [AI_OVERVIEW.md](https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/AI_OVERVIEW.md)
+- [Firmware README](https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/README.md)
+- [Architecture](https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/ARCHITECTURE.md)
+- [Firmware map](https://raw.githubusercontent.com/gorucommit/ATS-Mini_UNLTD/main/ats-mini-new/docs/FIRMWARE_MAP.md)
 
 ## License
 
-See ats-mini-new and source files for license information.
+See source headers and firmware subproject files for license information.

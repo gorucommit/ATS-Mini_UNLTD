@@ -1,5 +1,9 @@
 # Acoustic Inertia Engine (AIE) — Implementation Assessment
 
+> Status (2026-02-26): Historical planning/assessment/session document.
+> It may not reflect the current firmware implementation exactly. For current implementation docs, use docs/ARCHITECTURE.md, docs/FIRMWARE_MAP.md, docs/ETM_SCAN.md, docs/UI_INTERACTION_SPEC.md, and source under src/ and include/
+
+
 **Document Version:** 1.0  
 **Date:** 2026-02-22  
 **Author:** Engineering Analysis  

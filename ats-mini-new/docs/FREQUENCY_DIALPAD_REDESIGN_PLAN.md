@@ -1,5 +1,9 @@
 # Frequency Dial Pad Redesign Plan
 
+> Status (2026-02-26): Historical planning/assessment/session document.
+> It may not reflect the current firmware implementation exactly. For current implementation docs, use docs/ARCHITECTURE.md, docs/FIRMWARE_MAP.md, docs/ETM_SCAN.md, docs/UI_INTERACTION_SPEC.md, and source under src/ and include/
+
+
 ## Overview
 
 Replace the current frequency input implementation with a **phone-style dial pad**: digits 0–9 in a grid, plus Back, AM, and FM actions. The user selects the target band (AM or FM) explicitly via on-screen buttons rather than inheriting from the current band. Invalid inputs show "error" and clear the buffer.

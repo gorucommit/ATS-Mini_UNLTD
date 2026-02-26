@@ -1,114 +1,176 @@
-# UI Interaction Spec
+# UI Interaction Spec (Current Implementation)
 
-This file defines encoder/button behavior as a state-action contract.
+This document describes the behavior implemented in the current firmware source (`src/main.cpp`, `include/quick_edit_model.h`, `include/settings_model.h`).
 
-## Global rules
-- `Rotate`: move focus in Quick Selection browse; change value in edit contexts.
-- `Press+Rotate`: adjust volume.
-- `Double click`: cycle operation mode `TUNE -> SEEK -> SCAN -> TUNE`.
-- `Triple click`: save current station to favorites.
-- Hold progress bar shows press level thresholds (`click`, `long`, `longer`).
-- Quick chips are always visible in `Now Playing`; click activates ring focus/highlight, not chip visibility.
-- Volume level `0` is treated as mute.
+## Global input rules
 
-## Timing constants
-- Debounce window: `30 ms`.
-- Multi-click window (double/triple detection): `500 ms`.
-- Long-press threshold: `700 ms`.
-- Longer-press threshold: `1800 ms`.
-- Quick Selection focus-resume window: `8000 ms`.
+- `Rotate`
+  - Normal: layer/operation-dependent action
+  - If seek/scan is active: treated as cancel request first
+- `Press + Rotate`
+  - Adjust volume (all normal layers; not while active seek/scan)
+- `Single click`
+  - Layer/operation-dependent action
+  - If seek/scan is active: treated as cancel request first
+- `Double click`
+  - In `NowPlaying` only: cycle operation `Tune -> Seek -> Scan -> Tune`
+  - If seek/scan is active: treated as cancel request first
+- `Triple click`
+  - In `NowPlaying` only: save current station to next favorite slot
+  - If seek/scan is active: treated as cancel request first
+- `Long press`
+  - Layer/operation-dependent action
+  - If seek/scan is active: treated as cancel request first
+- `Very long press`
+  - Toggle mute (`ui.muted` + `radio::setMuted`)
 
-## Gesture precedence and scope
-- `Longer press` supersedes `Long press` when hold time crosses the longer threshold.
-- `Press+Rotate` takes precedence over plain `Rotate`, except during active seek/scan where any rotation is treated as cancel.
-- `Double click` and `Triple click` are active only in operation idle states (`TUNE`, `SEEK`, `SCAN` idle).
-- In UI layers (`QUICK EDIT`, `SYS SUBMENU`, `FAVORITES`, `SETTINGS`, `DIAL PAD`), multi-click gestures are ignored unless explicitly defined in that layer.
+## Timing constants (code)
 
-## Context behavior
+- Debounce: `30 ms`
+- Multi-click window (NowPlaying): `500 ms`
+- Menu/dial-pad click window target: `0 ms`, but input service clamps to minimum `120 ms`
+- Long press: `700 ms`
+- Very long press: `1800 ms`
+- Quick Edit auto-timeout: `10 s`
+- Quick Edit focus resume window: `8 s`
+- Dial pad timeout: `5 s`
+- Dial pad error display: `1.5 s`
 
-### TUNE (idle)
-- `Click`: enter Quick Selection with focus restore behavior (last focused chip within resume window, otherwise `BAND`).
-- `Long press`: open frequency-entry dial pad.
-- `Longer press`: mute toggle.
-- `Rotate`: tune frequency with band wrap and mode-aware step/BFO behavior.
+## Operation modes (`NowPlaying`)
 
-### SEEK (idle)
-- `Click`: enter Quick Selection with focus restore behavior (last focused chip within resume window, otherwise `BAND`).
-- `Rotate`: start one seek in direction of rotation.
-- `Long press`: open frequency-entry dial pad.
-- `Longer press`: mute toggle.
+### Tune
 
-### SEEK (active)
-- `Click` or `Rotate`: cancel active seek and return to `SEEK` idle.
+- `Rotate`: tune frequency
+  - FM/AM: step tuning with wrap within current band
+  - SSB: BFO/frequency coupled tuning (`25 Hz` BFO steps, frequency rolls on ±500 Hz crossings)
+- `Click`: enter `QuickEdit`
+- `Long press`: open `DialPad`
 
-### SCAN (idle)
-- `Click`: enter Quick Selection with focus restore behavior (last focused chip within resume window, otherwise `BAND`).
-- `Rotate`: navigate found station list (prev/next).
-- `Long press`: start full-band scan.
-- `Longer press`: mute toggle.
+### Seek
 
-### SCAN (active)
-- `Click` or `Rotate`: cancel active scan and return to `SCAN` idle.
+- `Rotate`: request one seek in direction of rotation
+- `Click`: enter `QuickEdit`
+- `Long press`: open `DialPad`
 
-### QUICK EDIT
-- Ring order (clockwise):
-  - `BAND -> STEP -> BW -> AGC/ATT -> SQL -> SYS(POWER/WiFi/SLEEP) -> SETTINGS -> FAV -> FINETUNE -> MODE -> BAND`
-- Entry focus:
-  - Restore last focused chip if re-entered within focus-resume window.
-  - Otherwise `BAND`.
-- Browse state:
-  - `Rotate right`: move focus clockwise.
-  - `Rotate left`: move focus counterclockwise.
-  - `Click`: activate focused chip.
-- Edit state (for value chips such as `STEP`, `BW`, `AGC/ATT`, `SQL`, `MODE`, `FINETUNE`):
-  - `Rotate`: change chip value.
-  - `Click`: commit and return to Quick Selection browse state.
-- `SYS` chip:
-  - `Click`: enter SYS submenu (`Battery Saver`, `Sleep Timer`, `Wi-Fi`, `BLE`).
-- `SETTINGS` chip:
-  - `Click`: enter `SETTINGS` layer.
-- `FAV` chip:
-  - `Click`: enter `FAV ACTIONS` menu (`Save Current`, `Recall`).
-- `Long press`: back/cancel to the parent operation state from which Quick Edit was entered (`TUNE`, `SEEK`, or `SCAN`).
+### Scan (ETM)
 
-### FAV ACTIONS
-- Items order:
-  - `Save Current -> Recall`
-- `Rotate`: move action focus.
-- `Click` on `Save Current`: save current station to favorites and return to Quick Selection browse.
-- `Click` on `Recall`: open `FAVORITES LIST`.
-- `Long press`: return to Quick Selection browse.
+- `Rotate`: navigate ETM found-station list (`prev/next`)
+- `Click`: enter `QuickEdit`
+- `Long press`: start ETM scan (`services::etm::requestScan`)
+  - In SSB, ETM scan request returns false (no UI error message is currently shown)
 
-### SYS SUBMENU
-- Items order:
-  - `Battery Saver -> Sleep Timer -> Wi-Fi -> BLE`
-- `Rotate`: move item focus in submenu.
-- `Click`: edit/toggle focused item.
-- `Long press`: return to Quick Selection browse.
+## Active seek / scan cancellation
 
-### FAVORITES LIST
-- `Rotate`: move favorite selection.
-- `Click`: tune to selected favorite and return to parent operation idle state.
-- `Long press`: return to Quick Selection browse.
+- While ETM scan or seek is active, any click/rotate/long-press path hits the shared cancel helper in `main.cpp` first.
+- ETM scan cancel: `services::etm::requestCancel()`
+- Seek cancel:
+  - pending seek request: cleared before entering radio seek
+  - active seek: `services::seekscan::requestCancel()` injects an input abort event used by the radio seek callback
 
-### SETTINGS
-- Items order:
-  - `RDS -> EiBi -> Brightness -> Region -> Theme -> UI Layout -> About`
-- `Rotate`: change current field.
-- `Click`: select/enter next item.
-- `Long press`: back one level.
+## UI layers
 
-### DIAL PAD
-- `Rotate`: move highlight over digit (1–9, 0), Back, AM, or FM.
-- `Press` on digit: append to buffer (max 5).
-- `Press` on Back: remove last digit.
-- `Press` on AM or FM: parse buffer, validate, apply frequency and exit, or show ERROR.
-- `Long press`: exit without applying.
-- `Timeout 5s`: exit without applying.
+### `NowPlaying`
 
-## Feedback
-- Show transient labels for each action.
-- Keep active-focus highlight visible.
-- Hold bar fill must clearly indicate thresholds for click/long/longer.
-- `TUNE`, `SEEK`, and `SCAN` screens must be visually distinct at a glance.
-- Avoid full-screen redraw flicker; prefer partial updates.
+- Default/main layer
+- Quick chips are always visible
+- Shows frequency, mode, signal, battery, clock, RDS fields (FM), quick-edit chips, scale, and optional volume HUD
+
+### `QuickEdit`
+
+Quick Edit has two states:
+
+- browse mode (`quickEditEditing = false`)
+- popup edit mode (`quickEditEditing = true`)
+
+#### Focus behavior
+
+- On entry:
+  - restore last focused item if within `8 s`
+  - otherwise start at `Band`
+- Non-editable chips are skipped (e.g. `BFO` outside SSB, `AVC` in FM, `Mode` in fixed-FM bands)
+
+#### Focus order (implemented)
+
+- `Mode -> Band -> Step -> Bandwidth -> Agc -> Sql -> Sys -> Settings -> Fine (BFO) -> Avc -> Favorite`
+
+#### Browse mode actions
+
+- `Rotate`: move focus
+- `Click`:
+  - `Settings` chip opens `Settings` layer directly
+  - other editable chips open popup editor
+- `Long press`: return to `NowPlaying` (restores parent operation mode)
+
+#### Popup edit mode actions
+
+- `Rotate`: cycle popup option list
+- `Click`: apply selection, close popup
+  - most chips return to `NowPlaying`
+  - `Settings` chip opens `Settings` layer instead
+
+#### QuickEdit actions by chip (current behavior)
+
+- `Band`: apply per-band runtime state to radio
+- `Step`: change FM/AM step for current modulation
+- `Bandwidth`, `Agc`, `Sql`, `Avc`, `Sys`: apply runtime settings and mark settings dirty
+- `Favorite`: save current or tune to selected favorite
+- `Fine`: set SSB BFO from popup value
+- `Mode`: switch `AM/LSB/USB` where band supports it
+
+### `Settings`
+
+- `Rotate`:
+  - browse mode (`settingsChipArmed = false`): move selected item
+  - edit mode (`settingsChipArmed = true`): change value for current item
+- `Click`: toggle edit mode for current item (no-op for non-editable items like `About`)
+- `Long press`:
+  - if edit mode is armed: disarm edit mode
+  - otherwise return to `QuickEdit` focused on `Settings`
+
+Current item order (`settings_model.h`):
+
+- `RDS -> EiBi -> Brightness -> Region -> SoftMute -> Theme -> UI Layout -> Scan Sens -> Scan Speed -> About`
+
+Notes:
+
+- Some items are placeholders in UI/behavior terms (`EiBi`, `Theme`, `UI Layout`) but are still present in the menu and persisted.
+- `SoftMute` is not editable in FM mode.
+
+### `DialPad`
+
+- Opened by long press in `Tune` or `Seek` (`NowPlaying`)
+- `Rotate`: move focus around 13 targets
+- `Single click`: activate focused target
+- `Long press`: exit without applying
+- Timeout (`5 s` inactivity): exit without applying
+- Error display:
+  - invalid parse/application shows `ERROR`
+  - click clears error immediately
+  - otherwise clears after `1.5 s`
+
+#### Dial-pad focus order (implemented)
+
+- `1,2,3,4,5,6,7,8,9,Back,0,AM,FM`
+
+#### Apply behavior
+
+- `AM`: parse input as AM-family frequency, infer band, tune/apply if valid
+- `FM`: parse input as FM frequency (10 kHz units), validate against current FM region, tune/apply if valid
+
+## Scan/seek UI feedback (current)
+
+- During ETM scan:
+  - `seekScan.active = true`
+  - `seekScan.scanning = true`
+  - progress shown as `pointsVisited / totalPoints`
+  - label changes to `SCAN FINE` when ETM is in `FineScan` or `VerifyScan`
+- During seek:
+  - `seekScan.active = true`
+  - `seekScan.seeking = true`
+
+## Source of truth
+
+- `src/main.cpp`
+- `include/quick_edit_model.h`
+- `include/settings_model.h`
+- `src/services/input_service.cpp`

@@ -1,10 +1,14 @@
 # Firmware Comparison: ats-mini-new vs ats-mini-signalscale
 
+> Status (2026-02-26): Comparison snapshot / analysis document.
+> Parts of this file predate later refactors (for example the ETM/seek split cleanup and `seek_service.cpp` rename) and should not be treated as current implementation-truth.
+> Use `docs/ARCHITECTURE.md`, `docs/FIRMWARE_MAP.md`, and source files for the current code structure.
+
 **Chip:** Silicon Labs SI4732 (AM/FM/SW) over I2C.  
 **MCU (both):** ESP32-S3 (Arduino framework).  
 **Driver (both):** PU2CLR SI4735 library 2.1.8 (I2C via `Wire`, 800 kHz).
 
-Ground truth: code paths and constants cited from both repositories. Where something is missing, it is called out.
+Ground truth at the time this comparison snapshot was written: code paths and constants cited from both repositories. Where something is missing, it is called out.
 
 ---
 
@@ -39,11 +43,11 @@ Ground truth: code paths and constants cited from both repositories. Where somet
 | **Seek timeout** | 45 s (`app::kSeekTimeoutMs`) via `g_rx.setMaxSeekTime()`. | 600 s (`SEEK_TIMEOUT`). | B allows much longer seek. |
 | **Scan** | **Non-blocking** state machine. Per point: set freq → wait `g_scanSettleMs` (60 FM / 80 AM-SSB / 30 other) → read RSSI/SNR → thresholds (FM 5/2, AM 10/3) → merge/store. | **Blocking** `for(; scanTickTime();)` in `scanRun()`. Mute → loop (10 ms poll, tune complete then read RSSI/SNR) → unmute. 200 points; no threshold filter for “station” (raw data). | A: UI/input alive during scan; B: main loop blocked for full scan. |
 | **Scan settle** | 60 / 80 / 30 ms by modulation (`settleDelayMsFor()`). `app_config.h` has `kScanSettleMs=85` but **not used** in seek_scan (uses 80 for AM/SSB). | Tuning delay set: FM 60 ms, AM/SSB 80 ms (`TUNE_DELAY_*`). Poll every 10 ms until tune complete. | Same effective settle idea; A has explicit per-step wait; B uses library tuning delay + poll. |
-| **Scan cancel** | `requestCancel()` / `g_cancelRequested`; checked in `tick()`; restores `g_scanRestoreKhz`. | `seekStop` (encoder/button); `checkStopSeeking()` in `scanTickTime()`. | Both support cancel; A is consistent with seek cancel. |
+| **Scan cancel** | ETM scan cancel via `services::etm::requestCancel()` (`Cancelling` phase restores tuned freq). Seek cancel is separate in `seek_service.cpp` and injects an input abort event for active seeks. | `seekStop` (encoder/button); `checkStopSeeking()` in `scanTickTime()`. | Both support cancel; implementation shape differs. |
 
 **Evidence (A):**  
 `radio_service.cpp` 266–274 (seek thresholds), 360 (`isValidSeekResult`), 595–652 (`seek()`).  
-`seek_scan_service.cpp` 74, 106–117 (`settleDelayMsFor`), 601–719 (`tick()`: SeekPending blocks on `radio::seek()`; scan advances with `g_nextActionMs`).
+Current code split note: seek is in `seek_service.cpp` (namespace `services::seekscan`) and scan is in `etm_scan_service.cpp`; this older evidence line predates that cleanup split.
 
 **Evidence (B):**  
 `Scan.cpp` 5–8, 107–158, 197–215: `scanRun` → `for(; scanTickTime();)`; `SI4735-fixed.h` 67–91 (`seekStationProgress` loop).  
@@ -139,7 +143,7 @@ Ground truth: code paths and constants cited from both repositories. Where somet
 | **UI** | `ui_service.cpp`: render, drawScreen, throttling, signal/battery. | `Draw.cpp`, `Layout-*.cpp`, `Themes.cpp`; `drawScreen()` when `needRedraw`. |
 | **Input** | `input_service.cpp`: encoder table, acceleration, button debounce, abort flag. | `Rotary.cpp`, `Button.cpp`; encoder/button in `.ino` and Menu. |
 | **Storage** | `settings_service.cpp`: NVS Preferences, schema V2 blob, tune debounce, save tick. | `Storage.cpp`: NVS namespaces (settings, bands, memories), LittleFS; `prefsTickTime()`, `STORE_TIME` 10 s. |
-| **Seek/scan** | `seek_scan_service.cpp`: requestSeek/Scan/Cancel, tick state machine (seek blocking, scan non-blocking). | `Scan.cpp` (blocking scan); seek in `.ino`/Menu via `doSeek()`. |
+| **Seek/scan** | `seek_service.cpp` (seek only, blocking via `radio::seek()`) + `etm_scan_service.cpp` (non-blocking scan state machine). | `Scan.cpp` (blocking scan); seek in `.ino`/Menu via `doSeek()`. |
 | **RDS** | `rds_service.cpp`: tick, decode, commit to state. | RDS in main loop (`RDS_CHECK_TIME` 250 ms), status in Draw/WebControl. |
 | **Clock** | `clock_service.cpp`: tick, NTP implied by state. | NTP in loop (60 s), clock in Draw. |
 

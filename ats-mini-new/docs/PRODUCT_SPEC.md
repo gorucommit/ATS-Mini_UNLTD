@@ -1,5 +1,8 @@
 # Product Spec v0.1 (Locked)
 
+> Status (2026-02-26): Target-behavior specification document, not an implementation-status document.
+> The firmware intentionally diverges from this file in some areas while features are in progress. For current implemented behavior, use `docs/ARCHITECTURE.md`, `docs/FIRMWARE_MAP.md`, `docs/ETM_SCAN.md`, `docs/UI_INTERACTION_SPEC.md`, and source under `src/` / `include/`.
+
 This spec defines target behavior for the custom firmware foundation before final visual design.
 
 ## 0) UX Framework (3 Layers)

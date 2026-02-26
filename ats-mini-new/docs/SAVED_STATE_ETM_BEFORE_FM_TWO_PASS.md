@@ -1,5 +1,9 @@
 # Saved state: before FM two-pass ETM enhancement
 
+> Status (2026-02-26): Historical planning/assessment/session document.
+> It may not reflect the current firmware implementation exactly. For current implementation docs, use docs/ARCHITECTURE.md, docs/FIRMWARE_MAP.md, docs/ETM_SCAN.md, docs/UI_INTERACTION_SPEC.md, and source under src/ and include/
+
+
 **To return to this state:**
 
 ```bash

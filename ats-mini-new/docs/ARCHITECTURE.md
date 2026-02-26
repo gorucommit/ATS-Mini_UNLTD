@@ -1,59 +1,85 @@
 # Architecture
 
-The codebase is split so UX rewrites do not destabilize radio behavior.
+Implementation-focused architecture summary for the current firmware.
 
-## Core State
-- Canonical state type is `app::AppState` in `/Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new/include/app_state.h`.
-- `app::AppState` is a plain struct hub shared by services.
-- Mutation policy:
-  - `input` emits events only.
-  - `radio` applies/reads hardware state.
-  - `rds` decodes RDS groups, applies commit/stale policy, and writes committed RDS fields.
-  - `clock` derives display time and applies CT-backed time base when enabled.
-  - `seekscan` mutates seek/scan-related fields and drives seek/scan flow.
-  - `ui` reads state and renders only.
-  - `main.cpp` is coordinator and owns orchestration.
+## Core state model
 
-## Modules
-- `services::radio`: SI473x control, tuning, modulation, volume, RF metrics.
-- `services::rds`: FM RDS polling/decoding, voting, quality/stale policy, committed PS/RT/PI/PTY/CT state.
-- `services::clock`: display clock state, synthetic clock fallback, CT-backed UTC base + local offset application.
-- `services::input`: encoder/button processing and gesture event extraction.
-- `services::ui`: rendering and transient UI feedback only.
-- `services::seekscan`: seek/scan algorithm, hit gating/merge, found-station navigation.
-- `services::settings`: persistent state load/save with validation.
-- `include/bandplan.h`: canonical band list and defaults.
-- `include/hardware_pins.h`: single source of truth for board wiring.
-- `include/app_state.h`: canonical runtime state schema.
+- Canonical runtime state: `include/app_state.h` (`app::AppState`)
+- `main.cpp` owns the single `AppState` instance and orchestrates all service calls
+- Services mostly operate on `AppState&` and avoid hidden business state, with a few internal runtime caches/state machines (UI cache, ETM scanner state, RDS decoder runtime, radio runtime snapshots)
 
-## Dependency Rules
-- Primary one-way rule:
-  - `input -> app_state`
-  - `ui -> app_state`
-  - `radio -> app_state`
-  - `clock -> app_state`
-  - `rds -> app_state`
-- Explicit allowed exception:
-  - `seekscan -> radio` (Option A, selected intentionally for deterministic hardware behavior and lower complexity).
-  - Rationale: seek/scan must issue tune commands and read RSSI/SNR in tight loops.
-  - `rds -> radio` (selected for raw RDS group polling through `radio_service` hardware API).
-  - `rds -> clock` (selected so CT updates stay out of `ui` and `main` business logic).
-- Prohibited:
-  - `ui -> radio` direct control.
-  - `input -> radio` direct control.
-  - Business logic in rendering code.
+## Service roles (current)
 
-## Coordinator Contract
-- `/Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new/src/main.cpp` is the runtime coordinator.
-- Responsibilities:
-  - Poll input and decode actions.
-  - Dispatch state transitions.
-  - Trigger `seekscan` ticks/requests.
-  - Apply radio updates.
-  - Trigger `rds` and `clock` ticks.
-  - Drive settings persistence.
-  - Schedule UI refresh.
+- `services::input`
+  - Encoder ISR + button debounce/multi-click/press detection
+  - Emits gesture events and abort signals
+- `services::radio`
+  - SI4735 hardware access (mutex-protected)
+  - Band/mode reconfiguration, tuning, seek, runtime radio settings
+  - Raw RDS group polling bridge
+- `services::seekscan` (file: `src/services/seek_service.cpp`)
+  - One-shot seek orchestration only
+  - Namespace name kept for compatibility; scan moved out to ETM
+- `services::etm`
+  - ETM scan engine (coarse + FM verify/fine where configured)
+  - Found-station memory and navigation in scan mode
+- `services::rds`
+  - FM RDS decode, voting/debouncing, quality, stale clearing
+- `services::clock`
+  - Display clock, synthetic time fallback, RDS CT base application
+- `services::settings`
+  - Preferences/NVS load/save, schema migration, sanitization
+- `services::ui`
+  - TFT sprite rendering, signal/battery polling for display, volume HUD
+- `services::aie`
+  - Acoustic Inertia Engine anti-click envelope during tuning in `Tune + NowPlaying`
 
-## Design Guardrails
-- Keep baseline reference copies under `/Users/beegee/Documents/ats mini/ats-mini-UNLTD/references/` unchanged.
-- Treat `/Users/beegee/Documents/ats mini/ats-mini-signalscale` as inspiration only.
+## Main coordinator (`src/main.cpp`)
+
+`main.cpp` is the runtime controller and does all cross-service orchestration:
+
+- startup sequence (`setup()`):
+  - safe radio power rail enable
+  - UI boot screen
+  - settings load + sanitize
+  - radio init/apply
+  - AIE/input init
+- loop scheduling (`loop()`):
+  - context sync (`seekscan`, `etm`)
+  - input tick / gesture consumption
+  - rotation + click dispatch by UI layer and operation mode
+  - AIE tick
+  - UI-layer timeouts (quick edit, dial pad)
+  - active operation tick (`etm` scan first, else seek)
+  - deferred tune persistence flush
+  - radio/rds/clock/settings ticks
+  - throttled UI render
+
+## Dependency direction (practical rules)
+
+- `main.cpp` may call any service
+- `ui` reads `AppState` and does not directly control business logic
+- `input` emits events/abort flags; no direct radio control
+- `radio` is the only SI4735 hardware control surface for the app
+- Allowed cross-service dependencies used intentionally:
+  - `seekscan -> radio`
+  - `etm -> radio`
+  - `rds -> radio`
+  - `rds -> clock`
+  - `aie -> radio`
+
+## File map (high value)
+
+- `include/app_state.h` — canonical state schema
+- `include/app_services.h` — service interfaces
+- `include/bandplan.h` — band tables / region behavior
+- `src/main.cpp` — orchestration + UI event routing
+- `src/services/radio_service.cpp` — SI4735 integration
+- `src/services/seek_service.cpp` — seek wrapper
+- `src/services/etm_scan_service.cpp` — scan engine
+- `src/services/ui_service.cpp` — renderer and display telemetry
+
+## Notes
+
+- Some docs in `docs/` are planning/assessment snapshots and are intentionally not implementation-truth documents.
+- When in doubt, source code is authoritative.

@@ -1,91 +1,72 @@
 # ats-mini-new
 
-Custom firmware for the ATS-Mini portable radio. ESP32-S3 + SI4735 + TFT, built with **Arduino CLI** and flashed with **esptool**.
+ATS-Mini custom firmware (`ESP32-S3 + SI4735 + TFT`) with a service-based architecture (`main.cpp` orchestrator + radio/input/ui/rds/clock/settings/seek/etm services).
 
-## Goals
+## Current reality (2026-02-26)
 
-- Minimal, understandable architecture.
-- Rebuild menus, bands, seek, and scan from scratch.
-- Use `ats-mini-signalscale` for inspiration only.
+- Runtime entry: `src/main.cpp` (`setup()` / `loop()`)
+- Seek service file: `src/services/seek_service.cpp`
+  - Namespace remains `services::seekscan` (name kept for API stability)
+- Scan engine: `src/services/etm_scan_service.cpp`
+- Build configs present and tracked:
+  - `platformio.ini`
+  - `sketch.yaml`
 
-## Requirements
+## Build options
 
-- **Arduino CLI** — for building
-- **esptool** — for flashing (install via pip: `pip install esptool`)
-- **ESP32 Arduino core 3.3.6** — installed via Arduino CLI
+Both build paths are currently present in the repo. PlatformIO is the most direct path because `platformio.ini` is actively maintained and checked in next to the firmware source.
 
-We do **not** use PlatformIO. Build and flash use Arduino CLI + esptool only.
+### Option A: PlatformIO (recommended)
 
-## Quick start
-
-### 1. Install Arduino CLI and ESP32 core
+From the repo root or this directory:
 
 ```bash
-# Arduino CLI (e.g. via Homebrew)
-brew install arduino-cli
-
-# Add ESP32 board support
-arduino-cli config add board_manager.additional_urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
-arduino-cli core update-index
-arduino-cli core install esp32:esp32@3.3.6
+cd ats-mini-new
+pio run
 ```
 
-### 2. Build
-
-From this directory (or repo root):
+Serial monitor (example):
 
 ```bash
+pio device monitor -b 115200
+```
+
+Notes:
+- `platformio.ini` writes build output to `../test-builds/platformio/build`
+- Environment: `ats-mini-s3`
+
+### Option B: Arduino CLI (profile also present)
+
+```bash
+cd ats-mini-new
 arduino-cli compile --profile ats-mini-s3 --build-path "../test-builds/arduino-cli/esp32.esp32.esp32s3"
 ```
 
-### 3. Flash
+The Arduino CLI profile is defined in `sketch.yaml` and pins ESP32 core/library versions.
 
-Connect the radio via USB. Find the port (e.g. `/dev/cu.usbmodem2101` on macOS). Then:
+## Flashing
 
-```bash
-BUILD="../test-builds/arduino-cli/esp32.esp32.esp32s3"
-BOOT_APP0="$HOME/Library/Arduino15/packages/esp32/hardware/esp32/3.3.6/tools/partitions/boot_app0.bin"
-
-esptool --chip esp32s3 --port /dev/cu.usbmodem2101 --baud 921600 write_flash \
-  0x0 "$BUILD/ats-mini-new.ino.bootloader.bin" \
-  0x8000 "$BUILD/ats-mini-new.ino.partitions.bin" \
-  0xe000 "$BOOT_APP0" \
-  0x10000 "$BUILD/ats-mini-new.ino.bin"
-```
-
-Adjust `--port` to your device (e.g. `/dev/cu.usbmodem101`, `COM3` on Windows).
-
-### 4. Monitor serial
-
-```bash
-# macOS/Linux
-screen /dev/cu.usbmodem2101 115200
-# or
-arduino-cli monitor -p /dev/cu.usbmodem2101 -c baudrate=115200
-```
+Use your preferred toolchain output (`pio run -t upload` or `esptool`). If flashing manually with `esptool`, make sure offsets and partition images match the selected build output.
 
 ## Project layout
 
-| Path        | Purpose                          |
-|-------------|----------------------------------|
-| `src/`      | Application entry and services   |
-| `include/`  | App config, bandplan, pin map, state |
-| `docs/`     | Architecture, specs, milestones  |
-| `tft_setup.h` | TFT_eSPI setup for this firmware |
+| Path | Purpose |
+|---|---|
+| `src/` | `main.cpp` and service implementations |
+| `include/` | app state, service interfaces, band plan, config, models |
+| `docs/` | architecture and implementation docs (plus historical plans/assessments) |
+| `tft_setup.h` | project-local TFT_eSPI setup |
+| `platformio.ini` | PlatformIO build config |
+| `sketch.yaml` | Arduino CLI build profile |
+| `partitions.csv` | ESP32 partition layout |
 
-## Configuration
+## Docs you should trust for current behavior
 
-- **sketch.yaml** — Arduino CLI profile (board FQBN, platform, libraries)
-- **platformio.ini** — Present for legacy compatibility; **not used** for build or flash
+- `docs/ARCHITECTURE.md`
+- `docs/FIRMWARE_MAP.md`
+- `docs/ETM_SCAN.md`
+- `docs/UI_INTERACTION_SPEC.md`
 
-## Recent implementation notes
+## Historical / planning docs
 
-- FM RDS/CT port status, behavior contract, fixes: `docs/RDS_PORT_2026-02-22.md`
-- Brightness control (Settings, min 20, no zero) and frequency dial pad (long-press in TUNE/SEEK)
-
-## Documentation
-
-- `docs/PRODUCT_SPEC.md` — Product behavior contract
-- `docs/UI_INTERACTION_SPEC.md` — State-action matrix
-- `docs/MVP_BASELINE.md` — On-device verification
-- `docs/MILESTONES.md` — Roadmap
+Several files in `docs/` are design plans, assessments, and session notes. They are useful for context, but source code is the final truth when they disagree.

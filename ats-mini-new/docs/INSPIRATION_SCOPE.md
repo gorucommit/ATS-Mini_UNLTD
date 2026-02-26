@@ -1,5 +1,7 @@
 # Inspiration Scope (signalscale)
 
+> Status (2026-02-26): Policy/reference-selection document. This defines how inspiration is used; it is not an implementation-status or behavior-spec document.
+
 Use `ats-mini-signalscale` only to extract ideas, not structure.
 
 Allowed:

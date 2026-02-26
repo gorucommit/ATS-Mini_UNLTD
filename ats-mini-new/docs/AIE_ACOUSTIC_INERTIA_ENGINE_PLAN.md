@@ -1,5 +1,9 @@
 # Acoustic Inertia Engine (AIE) — Implementation Plan & Viability Assessment
 
+> Status (2026-02-26): Historical planning/assessment/session document.
+> It may not reflect the current firmware implementation exactly. For current implementation docs, use docs/ARCHITECTURE.md, docs/FIRMWARE_MAP.md, docs/ETM_SCAN.md, docs/UI_INTERACTION_SPEC.md, and source under src/ and include/
+
+
 **Spec version:** 1.0  
 **Target:** ESP32-S3 (dual core) + SI4735  
 **Objective:** Eliminate digital "chuffing" and switching transients during VFO rotation by replacing them with a soft-attack audio "bloom" (high-fidelity, phase-coherent feel).  
