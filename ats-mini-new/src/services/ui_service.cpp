@@ -1656,13 +1656,14 @@ void render(const app::AppState& state) {
 
   const uint32_t nowMs = millis();
   const bool scanActive = state.seekScan.active && state.seekScan.scanning;
+  const bool seekOrScanActive = state.seekScan.active && (state.seekScan.seeking || state.seekScan.scanning);
   const uint32_t minFrameMs = scanActive ? kUiScanFrameMs : kUiFrameMs;
   if (nowMs - g_lastRenderMs < minFrameMs) {
     return;
   }
 
   bool signalChanged = false;
-  if (!scanActive && nowMs - g_lastSignalPollMs >= kSignalPollMs) {
+  if (!seekOrScanActive && nowMs - g_lastSignalPollMs >= kSignalPollMs) {
     signalChanged = readSignalQuality();
     g_lastSignalPollMs = nowMs;
   }

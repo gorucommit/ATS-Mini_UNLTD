@@ -510,6 +510,8 @@ bool stopSeekingCallback() {
   return false;
 }
 
+void showSeekProgressCallback(uint16_t frequencyKhz) { services::seekscan::notifySeekProgress(frequencyKhz); }
+
 }  // namespace
 
 void prepareBootPower() {
@@ -680,9 +682,10 @@ bool seekImpl(app::AppState& state, int8_t direction, bool allowHoldAbort, bool 
     g_rx.setSeekAmSpacing(seekSpacingKhz);
   }
 
-  g_rx.seekStationProgress(nullptr, stopSeekingCallback, direction >= 0 ? 1 : 0);
+  g_rx.seekStationProgress(showSeekProgressCallback, stopSeekingCallback, direction >= 0 ? 1 : 0);
   uint16_t nextFrequency = g_rx.getCurrentFrequency();
-  bool found = !g_seekAborted && isValidSeekResult(state, nextFrequency, startFrequency, bandMinKhz, bandMaxKhz);
+  bool found =
+      !g_seekAborted && nextFrequency >= bandMinKhz && nextFrequency <= bandMaxKhz && nextFrequency != startFrequency;
 
   if (retryOppositeEdge && !found && !g_seekAborted) {
     const uint16_t restartFrequency = direction >= 0 ? bandMinKhz : bandMaxKhz;
@@ -690,9 +693,10 @@ bool seekImpl(app::AppState& state, int8_t direction, bool allowHoldAbort, bool 
       g_rx.setFrequency(restartFrequency);
       delay(20);
       services::input::clearAbortRequest();
-      g_rx.seekStationProgress(nullptr, stopSeekingCallback, direction >= 0 ? 1 : 0);
+      g_rx.seekStationProgress(showSeekProgressCallback, stopSeekingCallback, direction >= 0 ? 1 : 0);
       nextFrequency = g_rx.getCurrentFrequency();
-      found = !g_seekAborted && isValidSeekResult(state, nextFrequency, startFrequency, bandMinKhz, bandMaxKhz);
+      found =
+          !g_seekAborted && nextFrequency >= bandMinKhz && nextFrequency <= bandMaxKhz && nextFrequency != startFrequency;
     }
   }
 

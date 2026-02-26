@@ -22,6 +22,7 @@ struct ContextKey {
 
 Operation g_operation = Operation::None;
 int8_t g_direction = 1;
+app::AppState* g_activeSeekState = nullptr;
 
 ContextKey g_context = {0xFF, 0, 9, app::FmRegion::World};
 
@@ -51,6 +52,7 @@ bool sameContext(const ContextKey& lhs, const ContextKey& rhs) {
 
 void clearOperationState() {
   g_operation = Operation::None;
+  g_activeSeekState = nullptr;
 }
 
 void publishSeekCompleteState(app::AppState& state, bool found) {
@@ -97,6 +99,18 @@ bool busy() { return g_operation != Operation::None; }
 
 void syncContext(app::AppState& state) { updateContext(state); }
 
+void notifySeekProgress(uint16_t frequencyKhz) {
+  if (g_operation != Operation::Seeking || g_activeSeekState == nullptr) {
+    return;
+  }
+
+  app::AppState& state = *g_activeSeekState;
+  state.radio.frequencyKhz = frequencyKhz;
+  state.radio.bfoHz = 0;
+  state.seekScan.bestFrequencyKhz = frequencyKhz;
+  services::ui::render(state);
+}
+
 bool tick(app::AppState& state) {
   updateContext(state);
 
@@ -110,6 +124,7 @@ bool tick(app::AppState& state) {
   state.seekScan.direction = g_direction;
 
   g_operation = Operation::Seeking;
+  g_activeSeekState = &state;
   const bool found = services::radio::seek(state, g_direction);
 
   uint8_t rssi = 0;
@@ -122,7 +137,7 @@ bool tick(app::AppState& state) {
   publishSeekCompleteState(state, found);
 
   clearOperationState();
-  return found;
+  return true;
 }
 
 }  // namespace services::seekscan

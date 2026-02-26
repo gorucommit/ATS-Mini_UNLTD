@@ -90,6 +90,7 @@ void requestSeek(int8_t direction);
 void requestCancel();
 bool busy();
 void syncContext(app::AppState& state);
+void notifySeekProgress(uint16_t frequencyKhz);
 bool tick(app::AppState& state);
 }  // namespace seekscan
 
