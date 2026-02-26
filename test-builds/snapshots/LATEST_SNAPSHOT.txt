@@ -1,1 +1,0 @@
-test-builds/snapshots/2026-02-26-185445-click-window-fix

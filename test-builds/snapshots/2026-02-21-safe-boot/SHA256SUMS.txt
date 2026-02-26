@@ -1,5 +1,0 @@
-0c610374e97ec84b9c5816eba2c78a7f33eb2b3df62d95641230c38e278f5e3c  ats-mini-new.ino.bin
-f96b0924b33989a8bafb6ad7449f7c83a5541b2e0785c8cad572a3907bed05fd  ats-mini-new.ino.bootloader.bin
-8fd54d5dfce6985b0277eedab34eb9d12e4cb2fa8a3af3f0631d17f4eac11b18  ats-mini-new.ino.merged.bin
-e62c77319610898fb524685f371a95a100686bea384cf43df43503a243dd303c  ats-mini-new.ino.partitions.bin
-1aa169c73dad6c2ad22f5291c75799b2b5a5b06e1226f073ae1ca8759dea9e67  flash_args

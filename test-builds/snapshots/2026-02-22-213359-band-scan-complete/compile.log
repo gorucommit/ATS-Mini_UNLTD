@@ -1,6 +1,0 @@
-arduino-cli compile . --profile ats-mini-s3 --build-path ../test-builds/arduino-cli/snapshot-2026-02-22-213359
-The library PU2CLR SI4735 has been automatically added from sketch project.
-The library TFT_eSPI has been automatically added from sketch project.
-WARNING: Partition has name 'littlefs' which is a partition subtype, but this partition has non-matching type 0x1 and subtype 0x82. Mistake in partition table?
-Sketch uses 462267 bytes (2%) of program storage space. Maximum is 16777216 bytes.
-Global variables use 32288 bytes (9%) of dynamic memory, leaving 295392 bytes for local variables. Maximum is 327680 bytes.

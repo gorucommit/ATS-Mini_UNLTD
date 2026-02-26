@@ -1,4 +1,0 @@
-9a6a0bc317da37af223f43ffdf3fab6f62fe6f5d0adbff17d7b34e67906eafeb  /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new/test-builds/2026-02-21-scan-click-fix/ats-mini-new.ino.bin
-f96b0924b33989a8bafb6ad7449f7c83a5541b2e0785c8cad572a3907bed05fd  /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new/test-builds/2026-02-21-scan-click-fix/ats-mini-new.ino.bootloader.bin
-83e85deb7be735a5272329a38136a1b694c95ab4009ffc9355b41debcecda4ba  /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new/test-builds/2026-02-21-scan-click-fix/ats-mini-new.ino.merged.bin
-e62c77319610898fb524685f371a95a100686bea384cf43df43503a243dd303c  /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new/test-builds/2026-02-21-scan-click-fix/ats-mini-new.ino.partitions.bin
