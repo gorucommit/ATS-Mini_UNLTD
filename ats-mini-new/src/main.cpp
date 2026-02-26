@@ -23,49 +23,106 @@ constexpr uint32_t kQuickEditTimeoutMs = 10000;
 constexpr uint32_t kQuickEditFocusResumeMs = 8000;
 constexpr uint32_t kTunePersistIdleMs = 1200;
 constexpr uint32_t kDialPadTimeoutMs = 5000;
+constexpr uint32_t kDialPadErrorDisplayMs = 1500;
 
 void applyRadioState(bool persistSettings);
 
-inline uint8_t dialPadDigitCountForBand(uint8_t bandIndex) {
-  const app::BandDef& band = app::kBandPlan[bandIndex];
-  const uint16_t maxKhz = app::bandMaxKhzFor(band, g_state.global.fmRegion);
-  return maxKhz >= 10000 ? 5 : 4;
+
+inline uint8_t fmBandIndex() {
+  return app::defaultFmBandIndex();
 }
 
-void initDialPadFromCurrentFrequency() {
-  g_state.ui.dialPadBandIndex = g_state.radio.bandIndex;
-  const uint8_t digitCount = dialPadDigitCountForBand(g_state.ui.dialPadBandIndex);
-  g_state.ui.dialPadDigitCount = digitCount;
-  g_state.ui.dialPadCursor = 0;
-  uint32_t value = g_state.radio.frequencyKhz;
-  for (uint8_t i = digitCount; i > 0; --i) {
-    g_state.ui.dialPadDigits[i - 1] = static_cast<char>('0' + (value % 10));
-    value /= 10;
+// Find band index for AM frequency (kHz). Returns 255 if no band contains it.
+uint8_t findAmBandForKhz(uint16_t khz) {
+  for (uint8_t i = 0; i < app::kBandCount; ++i) {
+    const app::BandDef& band = app::kBandPlan[i];
+    if (band.id == app::BandId::FM) continue;
+    const uint16_t minK = app::bandMinKhzFor(band, g_state.global.fmRegion);
+    const uint16_t maxK = app::bandMaxKhzFor(band, g_state.global.fmRegion);
+    if (khz >= minK && khz <= maxK) return i;
   }
+  return 255;
 }
 
-void dialPadApplyFrequency() {
-  const uint8_t digitCount = g_state.ui.dialPadDigitCount;
-  uint32_t value = 0;
+// Parse digits for FM: store as kHz = MHz*100 (e.g. 97.3 MHz -> 9730)
+uint16_t parseDialPadFmKhz(uint8_t digitCount, const char* digits) {
+  uint32_t v = 0;
   for (uint8_t i = 0; i < digitCount; ++i) {
-    char c = g_state.ui.dialPadDigits[i];
-    if (c < '0' || c > '9') {
-      c = '0';
-    }
-    value = value * 10 + static_cast<uint32_t>(c - '0');
+    v = v * 10 + static_cast<uint32_t>(digits[i] - '0');
   }
-  const app::BandDef& band = app::kBandPlan[g_state.ui.dialPadBandIndex];
-  const uint16_t minKhz = app::bandMinKhzFor(band, g_state.global.fmRegion);
-  const uint16_t maxKhz = app::bandMaxKhzFor(band, g_state.global.fmRegion);
-  if (value < minKhz) {
-    value = minKhz;
+  // 1 digit X -> X0.0 MHz -> X*1000, 2 -> XX.0 -> v*100, 3 -> X.XX -> v*10, 4 -> XX.XX -> v
+  if (digitCount == 1) v *= 1000;
+  else if (digitCount == 2) v *= 100;
+  else if (digitCount == 3) v *= 10;
+  return static_cast<uint16_t>(v);
+}
+
+// Parse digits for AM: 1-2 digits * 1000, 3-5 direct kHz
+uint32_t parseDialPadAmKhz(uint8_t digitCount, const char* digits) {
+  uint32_t v = 0;
+  for (uint8_t i = 0; i < digitCount; ++i) {
+    v = v * 10 + static_cast<uint32_t>(digits[i] - '0');
   }
-  if (value > maxKhz) {
-    value = maxKhz;
-  }
-  g_state.radio.bandIndex = g_state.ui.dialPadBandIndex;
-  g_state.radio.frequencyKhz = static_cast<uint16_t>(value);
+  if (digitCount <= 2) v *= 1000;
+  return v;
+}
+
+// Check if 5-digit value could be valid for FM or AM
+bool dialPadFiveDigitCouldBeValid(uint32_t value) {
+  if (value > 0xFFFF) return false;
+  const app::FmRegionProfile prof = app::fmRegionProfile(g_state.global.fmRegion);
+  if (value >= prof.fmMinKhz && value <= prof.fmMaxKhz) return true;
+  if (findAmBandForKhz(static_cast<uint16_t>(value)) != 255) return true;
+  return false;
+}
+
+void initDialPadEmpty() {
+  g_state.ui.dialPadDigitCount = 0;
+  for (int i = 0; i < 5; ++i) g_state.ui.dialPadDigits[i] = '0';
+  g_state.ui.dialPadFocusIndex = 0;
+  g_state.ui.dialPadErrorShowing = 0;
+  g_state.ui.dialPadErrorUntilMs = 0;
+  g_state.ui.dialPadEnteredByUser = 1;
+}
+
+void dialPadShowError() {
+  g_state.ui.dialPadErrorShowing = 1;
+  g_state.ui.dialPadErrorUntilMs = millis() + kDialPadErrorDisplayMs;
+}
+
+void dialPadClearAndReset() {
+  g_state.ui.dialPadDigitCount = 0;
+  g_state.ui.dialPadErrorShowing = 0;
+  g_state.ui.dialPadErrorUntilMs = 0;
+}
+
+bool dialPadTryApplyFm() {
+  const uint8_t n = g_state.ui.dialPadDigitCount;
+  if (n == 0) return false;
+  if (n > 4) return false;  // FM max 4 digits
+  uint16_t khz = parseDialPadFmKhz(n, g_state.ui.dialPadDigits);
+  const app::FmRegionProfile prof = app::fmRegionProfile(g_state.global.fmRegion);
+  if (khz < prof.fmMinKhz || khz > prof.fmMaxKhz) return false;
+  g_state.radio.bandIndex = fmBandIndex();
+  g_state.radio.frequencyKhz = khz;
+  g_state.radio.modulation = app::Modulation::FM;
   applyRadioState(true);
+  return true;
+}
+
+bool dialPadTryApplyAm() {
+  const uint8_t n = g_state.ui.dialPadDigitCount;
+  if (n == 0) return false;
+  uint32_t khz32 = parseDialPadAmKhz(n, g_state.ui.dialPadDigits);
+  if (khz32 > 0xFFFF) return false;
+  uint16_t khz = static_cast<uint16_t>(khz32);
+  const uint8_t bandIdx = findAmBandForKhz(khz);
+  if (bandIdx == 255) return false;
+  g_state.radio.bandIndex = bandIdx;
+  g_state.radio.frequencyKhz = khz;
+  g_state.radio.modulation = app::Modulation::AM;
+  applyRadioState(true);
+  return true;
 }
 
 int32_t snapToGrid(int32_t frequencyKhz, int32_t originKhz, uint8_t spacingKhz, int8_t direction) {
@@ -726,21 +783,13 @@ void handleRotation(int8_t delta) {
       handleSettingsRotation(direction, repeats);
       break;
     case app::UiLayer::DialPad: {
+      if (g_state.ui.dialPadErrorShowing) break;
       g_dialPadLastInputMs = millis();
-      const uint8_t cursor = g_state.ui.dialPadCursor;
-      if (cursor >= g_state.ui.dialPadDigitCount) {
-        break;
-      }
-      int8_t d = g_state.ui.dialPadDigits[cursor] - '0';
-      d += direction;
-      if (d < 0) {
-        d += 10;
-      }
-      d %= 10;
-      if (d < 0) {
-        d += 10;
-      }
-      g_state.ui.dialPadDigits[cursor] = static_cast<char>('0' + d);
+      int16_t idx = static_cast<int16_t>(g_state.ui.dialPadFocusIndex);
+      idx -= direction;
+      if (idx < 0) idx = 12;
+      else if (idx > 12) idx = 0;
+      g_state.ui.dialPadFocusIndex = static_cast<uint8_t>(idx);
       break;
     }
   }
@@ -758,11 +807,45 @@ void handleSingleClick() {
 
   if (g_state.ui.layer == app::UiLayer::DialPad) {
       g_dialPadLastInputMs = millis();
-      if (g_state.ui.dialPadCursor + 1 >= g_state.ui.dialPadDigitCount) {
-        dialPadApplyFrequency();
-        setNowPlayingLayer();
+      if (g_state.ui.dialPadErrorShowing) {
+        dialPadClearAndReset();
+        return;
+      }
+      const uint8_t focus = g_state.ui.dialPadFocusIndex;
+      if (focus <= 9) {
+        // Digit 1-9 (0-8) or 0 (9)
+        char digit = (focus == 9) ? '0' : static_cast<char>('1' + focus);
+        if (g_state.ui.dialPadDigitCount >= 5) return;
+        g_state.ui.dialPadDigits[g_state.ui.dialPadDigitCount++] = digit;
+        if (g_state.ui.dialPadDigitCount == 5) {
+          uint32_t v = 0;
+          for (uint8_t i = 0; i < 5; ++i)
+            v = v * 10 + (g_state.ui.dialPadDigits[i] - '0');
+          if (!dialPadFiveDigitCouldBeValid(v)) {
+            g_state.ui.dialPadDigitCount = 0;
+            dialPadShowError();
+          }
+        }
+      } else if (focus == 10) {
+        // Back
+        if (g_state.ui.dialPadDigitCount > 0)
+          --g_state.ui.dialPadDigitCount;
+      } else if (focus == 11) {
+        // AM
+        if (dialPadTryApplyAm()) {
+          setNowPlayingLayer();
+          g_state.ui.dialPadEnteredByUser = 0;
+        } else {
+          dialPadShowError();
+        }
       } else {
-        ++g_state.ui.dialPadCursor;
+        // FM (focus == 12)
+        if (dialPadTryApplyFm()) {
+          setNowPlayingLayer();
+          g_state.ui.dialPadEnteredByUser = 0;
+        } else {
+          dialPadShowError();
+        }
       }
       return;
     }
@@ -829,7 +912,7 @@ void handleLongPress() {
         // If false (e.g. SSB), scan not available; no feedback for now
       } else if (g_state.ui.operation == app::OperationMode::Tune || g_state.ui.operation == app::OperationMode::Seek) {
         g_state.ui.layer = app::UiLayer::DialPad;
-        initDialPadFromCurrentFrequency();
+        initDialPadEmpty();
         g_dialPadLastInputMs = millis();
       }
       return;
@@ -855,6 +938,7 @@ void handleLongPress() {
       return;
 
     case app::UiLayer::DialPad:
+      g_state.ui.dialPadEnteredByUser = 0;
       setNowPlayingLayer();
       return;
   }
@@ -956,7 +1040,10 @@ void loop() {
 
   if (g_state.ui.layer == app::UiLayer::DialPad) {
     const uint32_t nowMs = millis();
-    if (nowMs - g_dialPadLastInputMs >= kDialPadTimeoutMs) {
+    if (g_state.ui.dialPadErrorShowing && nowMs >= g_state.ui.dialPadErrorUntilMs) {
+      dialPadClearAndReset();
+    } else if (nowMs - g_dialPadLastInputMs >= kDialPadTimeoutMs) {
+      g_state.ui.dialPadEnteredByUser = 0;
       setNowPlayingLayer();
     }
   }

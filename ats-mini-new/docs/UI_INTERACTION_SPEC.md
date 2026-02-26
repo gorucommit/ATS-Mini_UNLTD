@@ -99,9 +99,10 @@ This file defines encoder/button behavior as a state-action contract.
 - `Long press`: back one level.
 
 ### DIAL PAD
-- `Rotate`: select digit/symbol.
-- `Click`: commit selected digit.
-- `Confirm action`: apply frequency and exit.
+- `Rotate`: move highlight over digit (1–9, 0), Back, AM, or FM.
+- `Press` on digit: append to buffer (max 5).
+- `Press` on Back: remove last digit.
+- `Press` on AM or FM: parse buffer, validate, apply frequency and exit, or show ERROR.
 - `Long press`: exit without applying.
 - `Timeout 5s`: exit without applying.
 

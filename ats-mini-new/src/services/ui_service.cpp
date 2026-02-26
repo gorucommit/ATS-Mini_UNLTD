@@ -91,6 +91,7 @@ struct UiRenderKey {
 
   uint8_t dialPadCursor;
   uint32_t dialPadDigitsHash;
+  uint8_t dialPadErrorShowing;
 };
 
 uint32_t g_lastRenderMs = 0;
@@ -300,13 +301,15 @@ UiRenderKey buildRenderKey(const app::AppState& state) {
   key.favoriteNamesHash = favoritePopupVisible ? g_cachedFavoriteNamesHash : 0U;
 
   if (state.ui.layer == app::UiLayer::DialPad) {
-    key.dialPadCursor = state.ui.dialPadCursor;
+    key.dialPadCursor = state.ui.dialPadFocusIndex;
     key.dialPadDigitsHash = textHashN(
         state.ui.dialPadDigits,
         static_cast<size_t>(state.ui.dialPadDigitCount));
+    key.dialPadErrorShowing = state.ui.dialPadErrorShowing;
   } else {
     key.dialPadCursor = 0;
     key.dialPadDigitsHash = 0;
+    key.dialPadErrorShowing = 0;
   }
 
   return key;
@@ -358,7 +361,8 @@ bool sameRenderKey(const UiRenderKey& lhs, const UiRenderKey& rhs) {
          lhs.favoritesHash == rhs.favoritesHash &&
          lhs.favoriteNamesHash == rhs.favoriteNamesHash &&
          lhs.dialPadCursor == rhs.dialPadCursor &&
-         lhs.dialPadDigitsHash == rhs.dialPadDigitsHash;
+         lhs.dialPadDigitsHash == rhs.dialPadDigitsHash &&
+         lhs.dialPadErrorShowing == rhs.dialPadErrorShowing;
 }
 
 uint16_t modeAccent(app::OperationMode operation) {
@@ -1217,75 +1221,85 @@ void drawSettingsScreen(const app::AppState& state) {
 }
 
 void drawDialPadScreen(const app::AppState& state) {
-  const uint8_t bandIndex = state.ui.dialPadBandIndex < app::kBandCount
-      ? state.ui.dialPadBandIndex
-      : app::defaultFmBandIndex();
-  const app::BandDef& band = app::kBandPlan[bandIndex];
   const uint8_t digitCount = state.ui.dialPadDigitCount;
-  const uint8_t cursor = state.ui.dialPadCursor < digitCount ? state.ui.dialPadCursor : 0;
+  const uint8_t focus = state.ui.dialPadFocusIndex;
+  const bool errorShowing = state.ui.dialPadErrorShowing != 0;
 
   g_spr.fillSprite(kColorBg);
 
   g_spr.setTextDatum(TL_DATUM);
   g_spr.setTextFont(2);
   g_spr.setTextColor(kColorChipFocus, kColorBg);
-  g_spr.drawString("FREQUENCY", 10, 8);
+  g_spr.drawString("FREQUENCY", 10, 6);
 
-  const bool isFm = band.id == app::BandId::FM;
-  char displayBuf[12];
-  int displayLen;
-  int cursorCharIndex;  // index into display string where cursor is
-  if (isFm && digitCount >= 4) {
-    if (digitCount >= 5) {
-      displayLen = snprintf(displayBuf, sizeof(displayBuf), "%c%c%c.%c%c",
-                            state.ui.dialPadDigits[0], state.ui.dialPadDigits[1], state.ui.dialPadDigits[2],
-                            state.ui.dialPadDigits[3], state.ui.dialPadDigits[4]);
-      cursorCharIndex = cursor < 3 ? cursor : cursor + 1;  // decimal at index 3
-    } else {
-      displayLen = snprintf(displayBuf, sizeof(displayBuf), "%c%c.%c%c",
-                            state.ui.dialPadDigits[0], state.ui.dialPadDigits[1],
-                            state.ui.dialPadDigits[2], state.ui.dialPadDigits[3]);
-      cursorCharIndex = cursor < 2 ? cursor : cursor + 1;  // decimal at index 2
-    }
+  // Digit display area
+  constexpr int dispY = 28;
+  if (errorShowing) {
+    g_spr.setTextFont(2);
+    g_spr.setTextColor(kColorText, kColorBg);
+    g_spr.drawString("ERROR", 10, dispY);
   } else {
-    displayLen = 0;
-    for (uint8_t i = 0; i < digitCount && displayLen < static_cast<int>(sizeof(displayBuf) - 1); ++i) {
-      displayBuf[displayLen++] = state.ui.dialPadDigits[i];
+    char disp[12] = "_ _ _ _ _";
+    for (uint8_t i = 0; i < 5; ++i) {
+      disp[i * 2] = (i < digitCount) ? state.ui.dialPadDigits[i] : '_';
     }
-    displayBuf[displayLen] = '\0';
-    cursorCharIndex = cursor;
+    g_spr.setTextFont(2);
+    g_spr.setTextColor(kColorText, kColorBg);
+    g_spr.drawString(disp, 10, dispY);
   }
 
-  const int digitW = 18;
-  const int digitH = 24;
-  const int totalW = isFm ? (displayLen * digitW) : (digitCount * digitW);
-  const int startX = (kUiWidth - totalW) / 2;
-  const int freqY = 52;
+  // 3x4 dialpad: 1-9, then row4: Back, 0, AM|FM
+  constexpr int cellW = 48;
+  constexpr int cellH = 26;
+  constexpr int pad = 4;
+  const int gridLeft = (kUiWidth - (3 * cellW + 2 * pad)) / 2;
+  const int gridTop = 52;
 
-  g_spr.setTextFont(4);
-  g_spr.setTextDatum(TL_DATUM);
-  for (int i = 0; i < displayLen; ++i) {
-    const int x = startX + i * digitW;
-    if (displayBuf[i] == '.') {
-      g_spr.setTextColor(kColorText, kColorBg);
-      g_spr.drawString(".", x, freqY);
-      continue;
-    }
-    const bool highlight = (i == cursorCharIndex);
-    if (highlight) {
-      g_spr.fillRoundRect(x - 2, freqY - 2, digitW + 2, digitH + 4, 3, kColorChipFocus);
-      g_spr.setTextColor(kColorText, kColorChipFocus);
+  static const char* kLabels[] = {"1","2","3","4","5","6","7","8","9","0","<-"};
+  for (int i = 0; i < 11; ++i) {
+    int row, col;
+    if (i < 9) {
+      row = i / 3;
+      col = i % 3;
+    } else if (i == 9) {
+      row = 3;
+      col = 1;
     } else {
-      g_spr.setTextColor(kColorText, kColorBg);
+      row = 3;
+      col = 0;
     }
-    char ch[2] = { displayBuf[i], '\0' };
-    g_spr.drawString(ch, x, freqY);
+    const int x = gridLeft + col * (cellW + pad);
+    const int y = gridTop + row * (cellH + pad);
+    const bool focused = (static_cast<uint8_t>(i) == focus);
+    if (focused) g_spr.fillRoundRect(x, y, cellW, cellH, 3, kColorChipFocus);
+    g_spr.drawRoundRect(x, y, cellW, cellH, 3, focused ? kColorChipFocus : kColorMuted);
+    g_spr.setTextColor(focused ? kColorText : kColorMuted, focused ? kColorChipFocus : kColorBg);
+    g_spr.setTextFont(2);
+    g_spr.drawString(kLabels[i], x + (cellW - 8) / 2, y + 4);
+  }
+  // Last cell: AM | FM (col 2, row 3)
+  {
+    const int x = gridLeft + 2 * (cellW + pad);
+    const int y = gridTop + 3 * (cellH + pad);
+    const int halfW = (cellW - 2) / 2;
+    const int amX = x;
+    const int fmX = x + halfW + 2;
+    const bool amFocused = (focus == 11);
+    const bool fmFocused = (focus == 12);
+    g_spr.drawRoundRect(x, y, cellW, cellH, 3, (amFocused || fmFocused) ? kColorChipFocus : kColorMuted);
+    if (amFocused) g_spr.fillRoundRect(amX + 1, y + 1, halfW, cellH - 2, 2, kColorChipFocus);
+    g_spr.setTextColor(amFocused ? kColorText : kColorMuted, amFocused ? kColorChipFocus : kColorBg);
+    g_spr.setTextFont(1);
+    g_spr.drawString("AM", amX + 6, y + 8);
+    if (fmFocused) g_spr.fillRoundRect(fmX, y + 1, halfW, cellH - 2, 2, kColorChipFocus);
+    g_spr.setTextColor(fmFocused ? kColorText : kColorMuted, fmFocused ? kColorChipFocus : kColorBg);
+    g_spr.drawString("FM", fmX + 6, y + 8);
   }
 
   g_spr.setTextDatum(TL_DATUM);
   g_spr.setTextFont(1);
   g_spr.setTextColor(kColorMuted, kColorBg);
-  g_spr.drawString("Rotate: digit  Click: next  Long: cancel", 10, kUiHeight - 20);
+  g_spr.drawString("Rotate: select  Press: choose  Long: cancel", 10, kUiHeight - 14);
 
   if (volumeHudVisible(millis())) {
     drawVolumeHud(state);
@@ -1295,7 +1309,7 @@ void drawDialPadScreen(const app::AppState& state) {
 }
 
 void drawScreen(const app::AppState& state) {
-  if (state.ui.layer == app::UiLayer::DialPad) {
+  if (state.ui.layer == app::UiLayer::DialPad && state.ui.dialPadEnteredByUser) {
     drawDialPadScreen(state);
     return;
   }
