@@ -109,7 +109,7 @@ struct UiState {
   // Dial pad (frequency entry) – valid when layer == DialPad
   uint8_t dialPadDigitCount;    // 0..5, number of digits entered
   char dialPadDigits[5];        // '0'-'9', indices 0..digitCount-1
-  uint8_t dialPadFocusIndex;    // 0..12 (1-9, 0, Back, AM, FM)
+  uint8_t dialPadFocusIndex;    // 0..12 (1-9, Back, 0, AM, FM)
   uint8_t dialPadErrorShowing;  // 1 when "ERROR" displayed
   uint32_t dialPadErrorUntilMs;
   uint8_t dialPadEnteredByUser; // 1 = entered via long-press (boot guard)

@@ -812,9 +812,9 @@ void handleSingleClick() {
         return;
       }
       const uint8_t focus = g_state.ui.dialPadFocusIndex;
-      if (focus <= 9) {
-        // Digit 1-9 (0-8) or 0 (9)
-        char digit = (focus == 9) ? '0' : static_cast<char>('1' + focus);
+      if (focus <= 8) {
+        // Digit 1-9 (indices 0-8)
+        char digit = static_cast<char>('1' + focus);
         if (g_state.ui.dialPadDigitCount >= 5) return;
         g_state.ui.dialPadDigits[g_state.ui.dialPadDigitCount++] = digit;
         if (g_state.ui.dialPadDigitCount == 5) {
@@ -826,10 +826,23 @@ void handleSingleClick() {
             dialPadShowError();
           }
         }
-      } else if (focus == 10) {
+      } else if (focus == 9) {
         // Back
         if (g_state.ui.dialPadDigitCount > 0)
           --g_state.ui.dialPadDigitCount;
+      } else if (focus == 10) {
+        // Digit 0
+        if (g_state.ui.dialPadDigitCount >= 5) return;
+        g_state.ui.dialPadDigits[g_state.ui.dialPadDigitCount++] = '0';
+        if (g_state.ui.dialPadDigitCount == 5) {
+          uint32_t v = 0;
+          for (uint8_t i = 0; i < 5; ++i)
+            v = v * 10 + (g_state.ui.dialPadDigits[i] - '0');
+          if (!dialPadFiveDigitCouldBeValid(v)) {
+            g_state.ui.dialPadDigitCount = 0;
+            dialPadShowError();
+          }
+        }
       } else if (focus == 11) {
         // AM
         if (dialPadTryApplyAm()) {

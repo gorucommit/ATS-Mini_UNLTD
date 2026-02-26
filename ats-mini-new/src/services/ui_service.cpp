@@ -1248,14 +1248,14 @@ void drawDialPadScreen(const app::AppState& state) {
     g_spr.drawString(disp, 10, dispY);
   }
 
-  // 3x4 dialpad: 1-9, then row4: Back, 0, AM|FM
+  // 3x4 dialpad: 1-9, then row4: Back, 0, AM|FM. Focus order: 1..9, Back, 0, AM, FM.
   constexpr int cellW = 48;
   constexpr int cellH = 26;
   constexpr int pad = 4;
   const int gridLeft = (kUiWidth - (3 * cellW + 2 * pad)) / 2;
   const int gridTop = 52;
 
-  static const char* kLabels[] = {"1","2","3","4","5","6","7","8","9","0","<-"};
+  static const char* kLabels[] = {"1","2","3","4","5","6","7","8","9","<-","0"};
   for (int i = 0; i < 11; ++i) {
     int row, col;
     if (i < 9) {
@@ -1263,14 +1263,15 @@ void drawDialPadScreen(const app::AppState& state) {
       col = i % 3;
     } else if (i == 9) {
       row = 3;
-      col = 1;
+      col = 0;  // Back left
     } else {
       row = 3;
-      col = 0;
+      col = 1;  // 0 center
     }
     const int x = gridLeft + col * (cellW + pad);
     const int y = gridTop + row * (cellH + pad);
-    const bool focused = (static_cast<uint8_t>(i) == focus);
+    const uint8_t focusIdx = static_cast<uint8_t>(i);
+    const bool focused = (focusIdx == focus);
     if (focused) g_spr.fillRoundRect(x, y, cellW, cellH, 3, kColorChipFocus);
     g_spr.drawRoundRect(x, y, cellW, cellH, 3, focused ? kColorChipFocus : kColorMuted);
     g_spr.setTextColor(focused ? kColorText : kColorMuted, focused ? kColorChipFocus : kColorBg);
@@ -1295,11 +1296,6 @@ void drawDialPadScreen(const app::AppState& state) {
     g_spr.setTextColor(fmFocused ? kColorText : kColorMuted, fmFocused ? kColorChipFocus : kColorBg);
     g_spr.drawString("FM", fmX + 6, y + 8);
   }
-
-  g_spr.setTextDatum(TL_DATUM);
-  g_spr.setTextFont(1);
-  g_spr.setTextColor(kColorMuted, kColorBg);
-  g_spr.drawString("Rotate: select  Press: choose  Long: cancel", 10, kUiHeight - 14);
 
   if (volumeHudVisible(millis())) {
     drawVolumeHud(state);
