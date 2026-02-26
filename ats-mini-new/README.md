@@ -12,41 +12,67 @@ ATS-Mini custom firmware (`ESP32-S3 + SI4735 + TFT`) with a service-based archit
   - `platformio.ini`
   - `sketch.yaml`
 
-## Build options
+## Build and flash (canonical workflow)
 
-Both build paths are currently present in the repo. PlatformIO is the most direct path because `platformio.ini` is actively maintained and checked in next to the firmware source.
+The canonical workflow for this firmware is `arduino-cli` + serial upload (and optional `esptool` manual flash).
 
-### Option A: PlatformIO (recommended)
+The Arduino CLI profile is defined in `sketch.yaml` and pins the intended board/core/library versions:
 
-From the repo root or this directory:
+- Profile: `ats-mini-s3`
+- Board target: `esp32:esp32:esp32s3` (ESP32-S3)
 
-```bash
-cd ats-mini-new
-pio run
-```
-
-Serial monitor (example):
-
-```bash
-pio device monitor -b 115200
-```
-
-Notes:
-- `platformio.ini` writes build output to `../test-builds/platformio/build`
-- Environment: `ats-mini-s3`
-
-### Option B: Arduino CLI (profile also present)
+### Build (quick compile check)
 
 ```bash
 cd ats-mini-new
-arduino-cli compile --profile ats-mini-s3 --build-path "../test-builds/arduino-cli/esp32.esp32.esp32s3"
+arduino-cli compile --profile ats-mini-s3 .
 ```
 
-The Arduino CLI profile is defined in `sketch.yaml` and pins ESP32 core/library versions.
+### Build and save binaries (recommended)
 
-## Flashing
+Use an explicit output directory. Do not rely on `--export-binaries` here because this project uses a `build` symlink.
 
-Use your preferred toolchain output (`pio run -t upload` or `esptool`). If flashing manually with `esptool`, make sure offsets and partition images match the selected build output.
+```bash
+cd ats-mini-new
+arduino-cli compile --profile ats-mini-s3 --output-dir /tmp/ats-mini-s3-build .
+```
+
+### Find the USB serial port
+
+```bash
+arduino-cli board list
+```
+
+### Upload with Arduino CLI (prebuilt binaries)
+
+From any directory (quote the sketch path because the repo path contains spaces):
+
+```bash
+arduino-cli upload --profile ats-mini-s3 -p /dev/cu.usbmodemXXXX --input-dir /tmp/ats-mini-s3-build '/Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new'
+```
+
+### Manual flash with esptool (optional)
+
+If you prefer flashing with `esptool.py`, use the merged image produced by the compile step:
+
+```bash
+esptool.py --chip esp32s3 --port /dev/cu.usbmodemXXXX --baud 921600 write_flash 0x0 /tmp/ats-mini-s3-build/ats-mini-new.ino.merged.bin
+```
+
+### Common pitfall (important)
+
+Do not compile this firmware with generic `--fqbn esp32:esp32:esp32`.
+
+- Use `--profile ats-mini-s3` instead.
+- Using the wrong FQBN can compile the wrong `TFT_eSPI` target path and produce misleading errors.
+
+## Alternative build config (optional)
+
+`platformio.ini` is still tracked in the repo, but it is not the canonical workflow documented above.
+
+## Flashing notes
+
+- A partition warning about `littlefs` naming/type may appear during compile. It has been observed as non-blocking for build/upload.
 
 ## Project layout
 

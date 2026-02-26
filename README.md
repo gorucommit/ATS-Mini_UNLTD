@@ -24,7 +24,20 @@ Planning/spec/assessment docs in `ats-mini-new/docs/` are kept for design histor
 
 ## Build / flash
 
-See `ats-mini-new/README.md` for current build and flash instructions. The firmware tree currently keeps both PlatformIO and Arduino CLI configurations.
+Canonical workflow for this repo is `arduino-cli` + serial flash (or `esptool`) using the `ats-mini-s3` sketch profile.
+
+- Build (from `ats-mini-new/`): `arduino-cli compile --profile ats-mini-s3 .`
+- Build artifacts (recommended): `arduino-cli compile --profile ats-mini-s3 --output-dir /tmp/ats-mini-s3-build .`
+- Detect port: `arduino-cli board list`
+- Upload (quote sketch path because repo path has spaces):
+  - `arduino-cli upload --profile ats-mini-s3 -p /dev/cu.usbmodemXXXX --input-dir /tmp/ats-mini-s3-build '/Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new'`
+
+Important:
+
+- Do not use generic `--fqbn esp32:esp32:esp32` for this firmware. Use profile `ats-mini-s3` (ESP32-S3).
+- `ats-mini-new/build` is a symlink, so prefer `--output-dir` instead of `--export-binaries`.
+
+See `ats-mini-new/README.md` for the expanded firmware-specific build/flash notes. Repo-local AI instructions are also documented in `AGENTS.md`.
 
 ## Repo layout
 
