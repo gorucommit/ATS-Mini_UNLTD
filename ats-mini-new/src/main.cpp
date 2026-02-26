@@ -1020,8 +1020,10 @@ void loop() {
   services::etm::syncContext(g_state);
 
   uint32_t clickWindowMs = app::kMultiClickWindowMs;
-  if (g_state.ui.layer == app::UiLayer::QuickEdit || g_state.ui.layer == app::UiLayer::Settings) {
-    clickWindowMs = app::kMenuClickWindowMs;
+  if (g_state.ui.layer == app::UiLayer::QuickEdit ||
+      g_state.ui.layer == app::UiLayer::Settings ||
+      g_state.ui.layer == app::UiLayer::DialPad) {
+    clickWindowMs = app::kImmediateClickWindowMs;
   }
   services::input::setMultiClickWindowMs(clickWindowMs);
 

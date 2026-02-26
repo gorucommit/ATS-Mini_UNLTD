@@ -1,1 +1,1 @@
-test-builds/snapshots/2026-02-26-180718-Frequency-input
+test-builds/snapshots/2026-02-26-185445-click-window-fix

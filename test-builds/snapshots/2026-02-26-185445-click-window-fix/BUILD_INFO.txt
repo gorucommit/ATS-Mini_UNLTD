@@ -1,0 +1,12 @@
+snapshot: 2026-02-26-185445-click-window-fix
+description: Click window fix (0ms for menus/dialpad, 500ms NowPlaying)
+branch: main
+created_utc: 2026-02-26T18:54:45Z
+sketch_dir: /Users/beegee/Documents/ats mini/ats-mini-UNLTD/ats-mini-new
+profile: ats-mini-s3
+build_system: arduino-cli
+build_path: /Users/beegee/Documents/ats mini/ats-mini-UNLTD/test-builds/arduino-cli/esp32.esp32.esp32s3
+git_toplevel: /Users/beegee/Documents/ats mini/ats-mini-UNLTD
+git_head: a55c568
+
+To return: git checkout a55c568
