@@ -87,11 +87,9 @@ void tick(const app::AppState& state);
 
 namespace seekscan {
 void requestSeek(int8_t direction);
-void requestScan(int8_t direction);
 void requestCancel();
 bool busy();
 void syncContext(app::AppState& state);
-bool navigateFound(app::AppState& state, int8_t direction);
 bool tick(app::AppState& state);
 }  // namespace seekscan
 

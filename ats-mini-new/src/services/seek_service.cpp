@@ -83,11 +83,6 @@ void requestSeek(int8_t direction) {
   g_operation = Operation::SeekPending;
 }
 
-void requestScan(int8_t /* direction */) {
-  // Scan is handled by services::etm::requestScan(); no-op here.
-  (void)0;
-}
-
 void requestCancel() {
   if (g_operation == Operation::SeekPending) {
     clearOperationState();
@@ -101,19 +96,6 @@ void requestCancel() {
 bool busy() { return g_operation != Operation::None; }
 
 void syncContext(app::AppState& state) { updateContext(state); }
-
-bool navigateFound(app::AppState& state, int8_t direction) {
-  updateContext(state);
-  if (direction > 0) {
-    services::etm::navigateNext(state);
-    return true;
-  }
-  if (direction < 0) {
-    services::etm::navigatePrev(state);
-    return true;
-  }
-  return false;
-}
 
 bool tick(app::AppState& state) {
   updateContext(state);
