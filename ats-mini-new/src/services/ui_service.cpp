@@ -88,11 +88,23 @@ struct UiRenderKey {
 
   uint32_t favoritesHash;
   uint32_t favoriteNamesHash;
+
+  uint8_t dialPadCursor;
+  uint32_t dialPadDigitsHash;
 };
 
 uint32_t g_lastRenderMs = 0;
 uint32_t g_lastSignalPollMs = 0;
 uint32_t g_lastBatteryPollMs = 0;
+uint8_t g_lastBacklightDuty = 0;
+#if defined(ARDUINO_ARCH_ESP32) && defined(ESP_ARDUINO_VERSION) && (ESP_ARDUINO_VERSION >= 30000)
+#define ATS_USE_LEDC_PIN_API 1  // Arduino ESP32 3.x: ledcAttach(pin,...), ledcWrite(pin, duty)
+#else
+#define ATS_USE_LEDC_PIN_API 0  // Arduino ESP32 2.x / PIO: ledcSetup+ledcAttachPin, ledcWrite(channel, duty)
+#endif
+static constexpr uint8_t kBacklightChannel = 0;
+static constexpr uint32_t kBacklightFreqHz = 5000;
+static constexpr uint8_t kBacklightResolutionBits = 8;
 uint32_t g_signalUpdateCounter = 0;
 uint8_t g_lastRssi = 0;
 uint8_t g_lastSnr = 0;
@@ -287,6 +299,16 @@ UiRenderKey buildRenderKey(const app::AppState& state) {
                                     state.ui.quickEditItem == app::QuickEditItem::Favorite;
   key.favoriteNamesHash = favoritePopupVisible ? g_cachedFavoriteNamesHash : 0U;
 
+  if (state.ui.layer == app::UiLayer::DialPad) {
+    key.dialPadCursor = state.ui.dialPadCursor;
+    key.dialPadDigitsHash = textHashN(
+        state.ui.dialPadDigits,
+        static_cast<size_t>(state.ui.dialPadDigitCount));
+  } else {
+    key.dialPadCursor = 0;
+    key.dialPadDigitsHash = 0;
+  }
+
   return key;
 }
 
@@ -334,7 +356,9 @@ bool sameRenderKey(const UiRenderKey& lhs, const UiRenderKey& rhs) {
          lhs.uiLayout == rhs.uiLayout &&
          lhs.zoomMenu == rhs.zoomMenu &&
          lhs.favoritesHash == rhs.favoritesHash &&
-         lhs.favoriteNamesHash == rhs.favoriteNamesHash;
+         lhs.favoriteNamesHash == rhs.favoriteNamesHash &&
+         lhs.dialPadCursor == rhs.dialPadCursor &&
+         lhs.dialPadDigitsHash == rhs.dialPadDigitsHash;
 }
 
 uint16_t modeAccent(app::OperationMode operation) {
@@ -1192,7 +1216,89 @@ void drawSettingsScreen(const app::AppState& state) {
   g_spr.pushSprite(0, 0);
 }
 
+void drawDialPadScreen(const app::AppState& state) {
+  const uint8_t bandIndex = state.ui.dialPadBandIndex < app::kBandCount
+      ? state.ui.dialPadBandIndex
+      : app::defaultFmBandIndex();
+  const app::BandDef& band = app::kBandPlan[bandIndex];
+  const uint8_t digitCount = state.ui.dialPadDigitCount;
+  const uint8_t cursor = state.ui.dialPadCursor < digitCount ? state.ui.dialPadCursor : 0;
+
+  g_spr.fillSprite(kColorBg);
+
+  g_spr.setTextDatum(TL_DATUM);
+  g_spr.setTextFont(2);
+  g_spr.setTextColor(kColorChipFocus, kColorBg);
+  g_spr.drawString("FREQUENCY", 10, 8);
+
+  const bool isFm = band.id == app::BandId::FM;
+  char displayBuf[12];
+  int displayLen;
+  int cursorCharIndex;  // index into display string where cursor is
+  if (isFm && digitCount >= 4) {
+    if (digitCount >= 5) {
+      displayLen = snprintf(displayBuf, sizeof(displayBuf), "%c%c%c.%c%c",
+                            state.ui.dialPadDigits[0], state.ui.dialPadDigits[1], state.ui.dialPadDigits[2],
+                            state.ui.dialPadDigits[3], state.ui.dialPadDigits[4]);
+      cursorCharIndex = cursor < 3 ? cursor : cursor + 1;  // decimal at index 3
+    } else {
+      displayLen = snprintf(displayBuf, sizeof(displayBuf), "%c%c.%c%c",
+                            state.ui.dialPadDigits[0], state.ui.dialPadDigits[1],
+                            state.ui.dialPadDigits[2], state.ui.dialPadDigits[3]);
+      cursorCharIndex = cursor < 2 ? cursor : cursor + 1;  // decimal at index 2
+    }
+  } else {
+    displayLen = 0;
+    for (uint8_t i = 0; i < digitCount && displayLen < static_cast<int>(sizeof(displayBuf) - 1); ++i) {
+      displayBuf[displayLen++] = state.ui.dialPadDigits[i];
+    }
+    displayBuf[displayLen] = '\0';
+    cursorCharIndex = cursor;
+  }
+
+  const int digitW = 18;
+  const int digitH = 24;
+  const int totalW = isFm ? (displayLen * digitW) : (digitCount * digitW);
+  const int startX = (kUiWidth - totalW) / 2;
+  const int freqY = 52;
+
+  g_spr.setTextFont(4);
+  g_spr.setTextDatum(TL_DATUM);
+  for (int i = 0; i < displayLen; ++i) {
+    const int x = startX + i * digitW;
+    if (displayBuf[i] == '.') {
+      g_spr.setTextColor(kColorText, kColorBg);
+      g_spr.drawString(".", x, freqY);
+      continue;
+    }
+    const bool highlight = (i == cursorCharIndex);
+    if (highlight) {
+      g_spr.fillRoundRect(x - 2, freqY - 2, digitW + 2, digitH + 4, 3, kColorChipFocus);
+      g_spr.setTextColor(kColorText, kColorChipFocus);
+    } else {
+      g_spr.setTextColor(kColorText, kColorBg);
+    }
+    char ch[2] = { displayBuf[i], '\0' };
+    g_spr.drawString(ch, x, freqY);
+  }
+
+  g_spr.setTextDatum(TL_DATUM);
+  g_spr.setTextFont(1);
+  g_spr.setTextColor(kColorMuted, kColorBg);
+  g_spr.drawString("Rotate: digit  Click: next  Long: cancel", 10, kUiHeight - 20);
+
+  if (volumeHudVisible(millis())) {
+    drawVolumeHud(state);
+  }
+
+  g_spr.pushSprite(0, 0);
+}
+
 void drawScreen(const app::AppState& state) {
+  if (state.ui.layer == app::UiLayer::DialPad) {
+    drawDialPadScreen(state);
+    return;
+  }
   if (state.ui.layer == app::UiLayer::Settings) {
     drawSettingsScreen(state);
     return;
@@ -1437,8 +1543,20 @@ bool begin() {
   readBatteryStatus();
   g_lastBatteryPollMs = millis();
 
+#if defined(ARDUINO_ARCH_ESP32)
+  g_lastBacklightDuty = app::settings::kBrightnessMin;
+#if ATS_USE_LEDC_PIN_API
+  ledcAttach(hw::kPinLcdBacklight, kBacklightFreqHz, kBacklightResolutionBits);
+  ledcWrite(hw::kPinLcdBacklight, g_lastBacklightDuty);
+#else
+  ledcSetup(kBacklightChannel, kBacklightFreqHz, kBacklightResolutionBits);
+  ledcAttachPin(hw::kPinLcdBacklight, kBacklightChannel);
+  ledcWrite(kBacklightChannel, g_lastBacklightDuty);
+#endif
+#else
   pinMode(hw::kPinLcdBacklight, OUTPUT);
   digitalWrite(hw::kPinLcdBacklight, LOW);
+#endif
 
   g_tft.begin();
   g_tft.setRotation(3);
@@ -1451,7 +1569,16 @@ bool begin() {
     g_tft.setTextDatum(MC_DATUM);
     g_tft.drawString("ATS MINI", kUiWidth / 2, (kUiHeight / 2) - 8, 2);
     g_tft.drawString("UI fallback", kUiWidth / 2, (kUiHeight / 2) + 12, 2);
+#if defined(ARDUINO_ARCH_ESP32)
+    g_lastBacklightDuty = 255;
+#if ATS_USE_LEDC_PIN_API
+    ledcWrite(hw::kPinLcdBacklight, g_lastBacklightDuty);
+#else
+    ledcWrite(kBacklightChannel, g_lastBacklightDuty);
+#endif
+#else
     digitalWrite(hw::kPinLcdBacklight, HIGH);
+#endif
     return false;
   }
 
@@ -1464,7 +1591,16 @@ bool begin() {
   g_spr.setTextFont(1);
   g_spr.drawString("Booting...", kUiWidth / 2, (kUiHeight / 2) + 10);
   g_spr.pushSprite(0, 0);
+#if defined(ARDUINO_ARCH_ESP32)
+  g_lastBacklightDuty = 180;
+#if ATS_USE_LEDC_PIN_API
+  ledcWrite(hw::kPinLcdBacklight, g_lastBacklightDuty);
+#else
+  ledcWrite(kBacklightChannel, g_lastBacklightDuty);
+#endif
+#else
   digitalWrite(hw::kPinLcdBacklight, HIGH);
+#endif
   return true;
 }
 
@@ -1496,6 +1632,18 @@ void notifyVolumeAdjust(uint8_t volume) {
 }
 
 void render(const app::AppState& state) {
+  const uint8_t duty = app::settings::clampBrightness(state.global.brightness);
+  if (duty != g_lastBacklightDuty) {
+    g_lastBacklightDuty = duty;
+#if defined(ARDUINO_ARCH_ESP32)
+#if ATS_USE_LEDC_PIN_API
+    ledcWrite(hw::kPinLcdBacklight, g_lastBacklightDuty);
+#else
+    ledcWrite(kBacklightChannel, g_lastBacklightDuty);
+#endif
+#endif
+  }
+
   const uint32_t nowMs = millis();
   const bool scanActive = state.seekScan.active && state.seekScan.scanning;
   const uint32_t minFrameMs = scanActive ? kUiScanFrameMs : kUiFrameMs;

@@ -24,9 +24,11 @@ enum class Item : uint8_t {
 };
 
 inline constexpr uint8_t kItemCount = 10;
+inline constexpr uint8_t kBrightnessMin = 20;   // Never allow 0 so user can always see menu
 inline constexpr uint8_t kBrightnessStep = 10;
 inline constexpr uint8_t kBrightnessMax = 250;
-inline constexpr uint8_t kBrightnessOptionCount = (kBrightnessMax / kBrightnessStep) + 1;
+inline constexpr uint8_t kBrightnessOptionCount =
+    ((kBrightnessMax - kBrightnessMin) / kBrightnessStep) + 1;
 inline constexpr uint8_t kSoftMuteOptionCount = 33;  // 0..32
 
 inline constexpr Item itemFromIndex(uint8_t index) {
@@ -135,16 +137,25 @@ inline constexpr const char* layoutLabel(UiLayout layout) {
 }
 
 inline uint8_t brightnessToIndex(uint8_t brightness) {
-  uint8_t clamped = brightness;
-  if (clamped > kBrightnessMax) {
-    clamped = kBrightnessMax;
+  if (brightness < kBrightnessMin) {
+    return 0;
   }
-  return static_cast<uint8_t>(clamped / kBrightnessStep);
+  if (brightness > kBrightnessMax) {
+    return kBrightnessOptionCount - 1;
+  }
+  return static_cast<uint8_t>((brightness - kBrightnessMin) / kBrightnessStep);
 }
 
 inline uint8_t brightnessFromIndex(uint8_t index) {
-  const uint16_t value = static_cast<uint16_t>(index % kBrightnessOptionCount) * kBrightnessStep;
+  const uint8_t idx = index % kBrightnessOptionCount;
+  const uint16_t value = kBrightnessMin + static_cast<uint16_t>(idx) * kBrightnessStep;
   return static_cast<uint8_t>(value > kBrightnessMax ? kBrightnessMax : value);
+}
+
+inline uint8_t clampBrightness(uint8_t brightness) {
+  if (brightness < kBrightnessMin) return kBrightnessMin;
+  if (brightness > kBrightnessMax) return kBrightnessMax;
+  return brightness;
 }
 
 inline uint8_t valueIndexForCurrent(const AppState& state, Item item) {

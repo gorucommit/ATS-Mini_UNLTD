@@ -17,10 +17,56 @@ uint32_t g_lastQuickEditFocusMs = 0;
 bool g_hasQuickEditFocusHistory = false;
 uint32_t g_lastTuneChangeMs = 0;
 bool g_tunePersistPending = false;
+uint32_t g_dialPadLastInputMs = 0;
 
 constexpr uint32_t kQuickEditTimeoutMs = 10000;
 constexpr uint32_t kQuickEditFocusResumeMs = 8000;
 constexpr uint32_t kTunePersistIdleMs = 1200;
+constexpr uint32_t kDialPadTimeoutMs = 5000;
+
+void applyRadioState(bool persistSettings);
+
+inline uint8_t dialPadDigitCountForBand(uint8_t bandIndex) {
+  const app::BandDef& band = app::kBandPlan[bandIndex];
+  const uint16_t maxKhz = app::bandMaxKhzFor(band, g_state.global.fmRegion);
+  return maxKhz >= 10000 ? 5 : 4;
+}
+
+void initDialPadFromCurrentFrequency() {
+  g_state.ui.dialPadBandIndex = g_state.radio.bandIndex;
+  const uint8_t digitCount = dialPadDigitCountForBand(g_state.ui.dialPadBandIndex);
+  g_state.ui.dialPadDigitCount = digitCount;
+  g_state.ui.dialPadCursor = 0;
+  uint32_t value = g_state.radio.frequencyKhz;
+  for (uint8_t i = digitCount; i > 0; --i) {
+    g_state.ui.dialPadDigits[i - 1] = static_cast<char>('0' + (value % 10));
+    value /= 10;
+  }
+}
+
+void dialPadApplyFrequency() {
+  const uint8_t digitCount = g_state.ui.dialPadDigitCount;
+  uint32_t value = 0;
+  for (uint8_t i = 0; i < digitCount; ++i) {
+    char c = g_state.ui.dialPadDigits[i];
+    if (c < '0' || c > '9') {
+      c = '0';
+    }
+    value = value * 10 + static_cast<uint32_t>(c - '0');
+  }
+  const app::BandDef& band = app::kBandPlan[g_state.ui.dialPadBandIndex];
+  const uint16_t minKhz = app::bandMinKhzFor(band, g_state.global.fmRegion);
+  const uint16_t maxKhz = app::bandMaxKhzFor(band, g_state.global.fmRegion);
+  if (value < minKhz) {
+    value = minKhz;
+  }
+  if (value > maxKhz) {
+    value = maxKhz;
+  }
+  g_state.radio.bandIndex = g_state.ui.dialPadBandIndex;
+  g_state.radio.frequencyKhz = static_cast<uint16_t>(value);
+  applyRadioState(true);
+}
 
 int32_t snapToGrid(int32_t frequencyKhz, int32_t originKhz, uint8_t spacingKhz, int8_t direction) {
   int32_t offset = (frequencyKhz - originKhz) % spacingKhz;
@@ -679,8 +725,24 @@ void handleRotation(int8_t delta) {
     case app::UiLayer::Settings:
       handleSettingsRotation(direction, repeats);
       break;
-    case app::UiLayer::DialPad:
+    case app::UiLayer::DialPad: {
+      g_dialPadLastInputMs = millis();
+      const uint8_t cursor = g_state.ui.dialPadCursor;
+      if (cursor >= g_state.ui.dialPadDigitCount) {
+        break;
+      }
+      int8_t d = g_state.ui.dialPadDigits[cursor] - '0';
+      d += direction;
+      if (d < 0) {
+        d += 10;
+      }
+      d %= 10;
+      if (d < 0) {
+        d += 10;
+      }
+      g_state.ui.dialPadDigits[cursor] = static_cast<char>('0' + d);
       break;
+    }
   }
 }
 
@@ -695,8 +757,15 @@ void handleSingleClick() {
   }
 
   if (g_state.ui.layer == app::UiLayer::DialPad) {
-    return;
-  }
+      g_dialPadLastInputMs = millis();
+      if (g_state.ui.dialPadCursor + 1 >= g_state.ui.dialPadDigitCount) {
+        dialPadApplyFrequency();
+        setNowPlayingLayer();
+      } else {
+        ++g_state.ui.dialPadCursor;
+      }
+      return;
+    }
 
   if (g_state.ui.layer == app::UiLayer::Settings) {
     handleSettingsClick();
@@ -760,6 +829,8 @@ void handleLongPress() {
         // If false (e.g. SSB), scan not available; no feedback for now
       } else if (g_state.ui.operation == app::OperationMode::Tune || g_state.ui.operation == app::OperationMode::Seek) {
         g_state.ui.layer = app::UiLayer::DialPad;
+        initDialPadFromCurrentFrequency();
+        g_dialPadLastInputMs = millis();
       }
       return;
 
@@ -879,6 +950,13 @@ void loop() {
   if (g_state.ui.layer == app::UiLayer::QuickEdit) {
     const uint32_t nowMs = millis();
     if (nowMs - g_quickEditLastInputMs >= kQuickEditTimeoutMs) {
+      setNowPlayingLayer();
+    }
+  }
+
+  if (g_state.ui.layer == app::UiLayer::DialPad) {
+    const uint32_t nowMs = millis();
+    if (nowMs - g_dialPadLastInputMs >= kDialPadTimeoutMs) {
       setNowPlayingLayer();
     }
   }

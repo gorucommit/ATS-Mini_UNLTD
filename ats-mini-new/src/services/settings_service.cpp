@@ -5,6 +5,7 @@
 #include "../../include/app_services.h"
 #include "../../include/bandplan.h"
 #include "../../include/etm_scan.h"
+#include "../../include/settings_model.h"
 
 namespace services::settings {
 namespace {
@@ -182,6 +183,8 @@ void sanitizeGlobal(app::GlobalSettings& global) {
     global.wifiMode = app::WifiMode::Off;
   }
 
+  global.brightness = app::settings::clampBrightness(global.brightness);
+
   global.agcEnabled = global.agcEnabled ? 1 : 0;
   global.avcLevel = clampValue<uint8_t>(global.avcLevel, 0, 63);
 
@@ -280,7 +283,7 @@ void migrateLegacyGlobal(const GlobalSettingsV2Legacy& legacy, app::GlobalSettin
   global.volume = legacy.volume;
   global.lastBandIndex = legacy.lastBandIndex;
   global.wifiMode = legacy.wifiMode;
-  global.brightness = legacy.brightness;
+  global.brightness = app::settings::clampBrightness(legacy.brightness);
   global.agcEnabled = legacy.agcEnabled;
   global.avcLevel = legacy.avcLevel;
   global.softMuteEnabled = legacy.softMuteEnabled;

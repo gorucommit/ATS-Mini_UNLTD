@@ -1,16 +1,16 @@
 # Acoustic Inertia Engine (AIE) — Combined Implementation Plan
 
-**Document Version:** 2.1 (Combined, Revised)  
+**Document Version:** 2.2  
 **Date:** 2026-02-22  
-**Status:** Planning / Ready for Implementation  
+**Status:** Implemented & Tested  
 
 ---
 
 ## 1. Executive Summary
 
-The Acoustic Inertia Engine (AIE) is a proposed feature to eliminate digital "chuffing" and switching transients during VFO rotation on the ATS-Mini UNLTD. This document combines the implementation assessment with the viability analysis to provide a complete, actionable implementation plan.
+The Acoustic Inertia Engine (AIE) eliminates digital "chuffing" and switching transients during VFO rotation on the ATS-Mini UNLTD. This document combines the implementation assessment with the viability analysis and records the implemented, tested configuration.
 
-**Verdict:** ✅ **Technically Feasible** — All required components are accessible and the ESP32-S3 dual-core architecture is well-suited for this feature.
+**Verdict:** ✅ **Implemented & Tested** — AIE is in firmware (Phase 1 + Phase 2 + anti-click refinements). On-device testing confirms it does a good job; the combined configuration (adaptive dwell, bloom pre-charge, soft drop) was validated as best.
 
 ---
 
@@ -25,6 +25,8 @@ The Acoustic Inertia Engine (AIE) is a proposed feature to eliminate digital "ch
 | Bloom (release) | \(T_{bloom}\) | 150 ms | Sigmoid ramp-up after last encoder pulse |
 
 **Note:** Original spec had 5 ms volume ramp for DROP. Revised approach: use `setAudioMute(1)` (and thus the mute pin) for **instant** DROP, then sigmoid bloom via `setVolume()` for release. This avoids 5 ms I2C timing concerns and is more reliable.
+
+**As implemented (validated):** Optional 2 ms soft drop (micro-fade) before mute; adaptive dwell (FM 65 ms, AM/SSB 40 ms); 2 ms bloom pre-charge + min volume 2 for anti-click. See §17.
 
 ### 2.2 Mathematical Model
 
@@ -571,10 +573,10 @@ inline constexpr float kSigmoidK = 0.05f;
 - [x] Envelope tick: re-read `now` and `lastMoveTimeUs` each tick; no blocking `while (elapsed < 40ms)`
 
 **Testing:**
-- [ ] Test with all step sizes (1 kHz, 5 kHz, 9 kHz, 10 kHz, 20 kHz)
-- [ ] Test with all modulation modes (FM, AM, SSB)
-- [ ] Verify AIE only runs when Tune + NowPlaying (not in Quick Edit / Seek / Scan)
-- [ ] Verify user mute button still works and is not overridden by bloom
+- [x] Test with all step sizes (1 kHz, 5 kHz, 9 kHz, 10 kHz, 20 kHz)
+- [x] Test with all modulation modes (FM, AM, SSB)
+- [x] Verify AIE only runs when Tune + NowPlaying (not in Quick Edit / Seek / Scan)
+- [x] Verify user mute button still works and is not overridden by bloom
 
 ---
 
@@ -587,4 +589,22 @@ inline constexpr float kSigmoidK = 0.05f;
 
 ---
 
-**Document Status:** Combined Implementation Plan v2.1 — Revised with instant DROP, UI gating, main-driven notify, and single-thread-first. Ready for implementation.
+## 17. Implemented & Tested (2026-02-22)
+
+**Status:** AIE is implemented and on-device tested. Behaviour is good; the following configuration was validated as best and is on `main`.
+
+**Implemented:**
+- Phase 1 (single-thread) and Phase 2 (1 ms `esp_timer` envelope + radio mutex).
+- Anti-click refinements (tested as three single-feature variants plus combined):
+  - **Adaptive dwell:** FM 65 ms, AM/SSB 40 ms (FM PLL/stereo needs longer to settle).
+  - **Bloom pre-charge:** 2 ms with mute on, volume 1, then unmute; avoids hard 0→1 step.
+  - **Anti-click min volume:** First bloom step ≥ 2 (no 0→1 pop).
+  - **Soft drop:** 2 ms micro-fade (current → half → 0) before mute to avoid “mute slam”.
+
+**Current constants** (`include/aie_engine.h`): `kDwellMs = 40`, `kDwellFmMs = 65`, `kBloomMs = 150`, `kPrechargeMs = 2`, `kBloomMinVolume = 2`, `kSoftDropMs = 2`.
+
+**Files:** `include/aie_engine.h`, `src/services/aie_engine.cpp`; radio: `applyVolumeOnly()`, `setAieMuted()`, mutex around all SI4735 access.
+
+---
+
+**Document Status:** Combined Implementation Plan v2.2 — Implemented, tested, and validated. Configuration above is the chosen production setup.

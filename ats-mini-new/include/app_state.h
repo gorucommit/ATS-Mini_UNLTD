@@ -106,6 +106,11 @@ struct UiState {
   uint8_t quickEditPopupIndex;
   bool settingsChipArmed;
   bool muted;
+  // Dial pad (frequency entry) – valid when layer == DialPad
+  uint8_t dialPadBandIndex;
+  uint8_t dialPadDigitCount;  // 4 or 5
+  uint8_t dialPadCursor;      // 0 .. dialPadDigitCount
+  char dialPadDigits[6];      // '0'-'9', not null-terminated; length = dialPadDigitCount
 };
 
 struct SeekScanState {

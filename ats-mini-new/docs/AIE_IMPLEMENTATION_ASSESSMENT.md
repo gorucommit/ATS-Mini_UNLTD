@@ -3,15 +3,15 @@
 **Document Version:** 1.0  
 **Date:** 2026-02-22  
 **Author:** Engineering Analysis  
-**Status:** Planning / No Implementation
+**Status:** Superseded by implementation — see AIE_COMBINED_IMPLEMENTATION_PLAN.md (v2.2, Implemented & Tested)
 
 ---
 
 ## 1. Executive Summary
 
-The Acoustic Inertia Engine (AIE) is a proposed feature to eliminate digital "chuffing" and switching transients during VFO rotation on the ATS-Mini UNLTD. This document assesses the technical feasibility, visibility into required components, and provides a detailed implementation plan.
+The Acoustic Inertia Engine (AIE) eliminates digital "chuffing" and switching transients during VFO rotation on the ATS-Mini UNLTD. This document assessed technical feasibility and visibility; implementation and testing are recorded in **AIE_COMBINED_IMPLEMENTATION_PLAN.md**.
 
-**Verdict:** ✅ **Technically Feasible** — All required components are accessible and the ESP32-S3 dual-core architecture is well-suited for this feature.
+**Verdict:** ✅ **Implemented & Tested** — AIE is in firmware; on-device testing confirms it does a good job.
 
 ---
 
