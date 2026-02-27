@@ -106,7 +106,7 @@ void notifySeekProgress(uint16_t frequencyKhz) {
 
   app::AppState& state = *g_activeSeekState;
   state.radio.frequencyKhz = frequencyKhz;
-  state.radio.bfoHz = 0;
+  state.radio.ssbTuneOffsetHz = 0;
   state.seekScan.bestFrequencyKhz = frequencyKhz;
   services::ui::render(state);
 }

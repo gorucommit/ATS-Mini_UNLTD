@@ -60,6 +60,7 @@ uint8_t g_rsqCacheSnr = 0;
 const char* g_lastError = "not-initialized";
 app::RadioState g_lastApplied{};
 app::FmRegion g_lastAppliedRegion = app::FmRegion::World;
+int16_t g_lastAppliedSsbCalHz = 0;
 bool g_hasRuntimeSnapshot = false;
 bool g_rdsConfiguredForFm = false;
 
@@ -133,6 +134,21 @@ uint8_t mapSsbBandwidthIndex(uint8_t quickIndex) {
   return kSsbBwMap[quickIndex % (sizeof(kSsbBwMap) / sizeof(kSsbBwMap[0]))];
 }
 
+int16_t activeSsbCalibrationHz(const app::AppState& state) {
+  if (state.radio.bandIndex >= app::kBandCount) {
+    return 0;
+  }
+
+  const app::BandRuntimeState& bandState = state.perBand[state.radio.bandIndex];
+  if (state.radio.modulation == app::Modulation::USB) {
+    return bandState.usbCalibrationHz;
+  }
+  if (state.radio.modulation == app::Modulation::LSB) {
+    return bandState.lsbCalibrationHz;
+  }
+  return 0;
+}
+
 void applyBandwidthSetting(const app::AppState& state) {
   if (state.radio.bandIndex >= app::kBandCount) {
     return;
@@ -145,7 +161,9 @@ void applyBandwidthSetting(const app::AppState& state) {
   }
 
   if (app::isSsb(state.radio.modulation)) {
-    g_rx.setSSBAudioBandwidth(mapSsbBandwidthIndex(bwIndex));
+    const uint8_t mapped = mapSsbBandwidthIndex(bwIndex);
+    g_rx.setSSBAudioBandwidth(mapped);
+    g_rx.setSSBSidebandCutoffFilter((mapped == 0 || mapped == 4 || mapped == 5) ? 0 : 1);
     return;
   }
 
@@ -591,8 +609,8 @@ void applyStepProperties(const app::RadioState& radio) {
     return;
   }
 
-  g_rx.setFrequencyStep(radio.amStepKhz);
   if (radio.modulation == app::Modulation::AM) {
+    g_rx.setFrequencyStep(radio.amStepKhz);
     g_rx.setSeekAmSpacing(radio.amStepKhz);
   }
 }
@@ -619,9 +637,11 @@ void configureModeAndBand(const app::AppState& state) {
       g_ssbPatchLoaded = true;
     }
 
-    g_rx.setSSB(bandMinKhz, bandMaxKhz, radio.frequencyKhz, radio.amStepKhz, ssbMode(radio.modulation));
+    const int16_t calibrationHz = activeSsbCalibrationHz(state);
+    g_rx.setSSB(bandMinKhz, bandMaxKhz, radio.frequencyKhz, 0, ssbMode(radio.modulation));
     g_rx.setSSBAutomaticVolumeControl(1);
-    g_rx.setSSBBfo(-radio.bfoHz);
+    g_rx.setSSBBfo(-(radio.ssbTuneOffsetHz + calibrationHz));
+    g_lastAppliedSsbCalHz = calibrationHz;
   }
 
   configureSeekProperties(state);
@@ -731,6 +751,9 @@ void apply(const app::AppState& state) {
 
   if (fullReconfigure) {
     configureModeAndBand(state);
+    if (!app::isSsb(radio.modulation)) {
+      g_lastAppliedSsbCalHz = 0;
+    }
     g_hasRuntimeSnapshot = false;
     resetSquelchStateLocked(true);
     invalidateRsqCacheLocked();
@@ -751,8 +774,14 @@ void apply(const app::AppState& state) {
       }
     }
 
-    if (app::isSsb(radio.modulation) && radio.bfoHz != g_lastApplied.bfoHz) {
-      g_rx.setSSBBfo(-radio.bfoHz);
+    if (app::isSsb(radio.modulation)) {
+      const int16_t calibrationHz = activeSsbCalibrationHz(state);
+      if (radio.ssbTuneOffsetHz != g_lastApplied.ssbTuneOffsetHz || calibrationHz != g_lastAppliedSsbCalHz) {
+        g_rx.setSSBBfo(-(radio.ssbTuneOffsetHz + calibrationHz));
+        g_lastAppliedSsbCalHz = calibrationHz;
+      }
+    } else {
+      g_lastAppliedSsbCalHz = 0;
     }
 
     if (!services::aie::ownsVolume() && radio.volume != g_lastApplied.volume) {
@@ -859,7 +888,7 @@ bool seekImpl(app::AppState& state, int8_t direction, bool allowHoldAbort, bool 
   }
 
   state.radio.frequencyKhz = finalFrequency;
-  state.radio.bfoHz = 0;
+  state.radio.ssbTuneOffsetHz = 0;
 
   g_lastApplied = state.radio;
   g_lastAppliedRegion = state.global.fmRegion;

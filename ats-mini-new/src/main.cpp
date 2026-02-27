@@ -24,6 +24,7 @@ constexpr uint32_t kQuickEditFocusResumeMs = 8000;
 constexpr uint32_t kTunePersistIdleMs = 1200;
 constexpr uint32_t kDialPadTimeoutMs = 5000;
 constexpr uint32_t kDialPadErrorDisplayMs = 1500;
+constexpr int16_t kMaxSsbTuneOffsetHz = 14000;
 
 void applyRadioState(bool persistSettings);
 
@@ -106,6 +107,7 @@ bool dialPadTryApplyFm() {
   g_state.radio.bandIndex = fmBandIndex();
   g_state.radio.frequencyKhz = khz;
   g_state.radio.modulation = app::Modulation::FM;
+  g_state.radio.ssbTuneOffsetHz = 0;
   applyRadioState(true);
   return true;
 }
@@ -121,8 +123,45 @@ bool dialPadTryApplyAm() {
   g_state.radio.bandIndex = bandIdx;
   g_state.radio.frequencyKhz = khz;
   g_state.radio.modulation = app::Modulation::AM;
+  g_state.radio.ssbTuneOffsetHz = 0;
   applyRadioState(true);
   return true;
+}
+
+uint32_t tunedFrequencyHz(const app::RadioState& radio) {
+  if (radio.modulation == app::Modulation::FM) {
+    return static_cast<uint32_t>(radio.frequencyKhz) * 10000UL;
+  }
+
+  const int32_t baseHz = static_cast<int32_t>(radio.frequencyKhz) * 1000;
+  const int32_t compositeHz = app::isSsb(radio.modulation) ? (baseHz + radio.ssbTuneOffsetHz) : baseHz;
+  return compositeHz > 0 ? static_cast<uint32_t>(compositeHz) : 0;
+}
+
+void restoreFrequencyFromMemory(const app::MemorySlot& slot) {
+  g_state.radio.bandIndex = slot.bandIndex;
+  g_state.radio.modulation = slot.modulation;
+
+  if (slot.modulation == app::Modulation::FM) {
+    g_state.radio.frequencyKhz = static_cast<uint16_t>((slot.frequencyHz + 5000UL) / 10000UL);
+    g_state.radio.ssbTuneOffsetHz = 0;
+    return;
+  }
+
+  if (app::isSsb(slot.modulation)) {
+    int32_t carrierKhz = static_cast<int32_t>(slot.frequencyHz / 1000UL);
+    int32_t offsetHz = static_cast<int32_t>(slot.frequencyHz % 1000UL);
+    if (offsetHz > 500) {
+      ++carrierKhz;
+      offsetHz -= 1000;
+    }
+    g_state.radio.frequencyKhz = carrierKhz > 0 ? static_cast<uint16_t>(carrierKhz) : 0;
+    g_state.radio.ssbTuneOffsetHz = static_cast<int16_t>(offsetHz);
+    return;
+  }
+
+  g_state.radio.frequencyKhz = static_cast<uint16_t>(slot.frequencyHz / 1000UL);
+  g_state.radio.ssbTuneOffsetHz = 0;
 }
 
 int32_t snapToGrid(int32_t frequencyKhz, int32_t originKhz, uint8_t spacingKhz, int8_t direction) {
@@ -180,27 +219,30 @@ void normalizeRadioStateForBand(app::RadioState& radio, app::FmRegion region) {
 
   if (band.defaultMode == app::Modulation::FM && !band.allowSsb) {
     radio.modulation = app::Modulation::FM;
-    radio.bfoHz = 0;
+    radio.ssbTuneOffsetHz = 0;
     return;
   }
 
   if (radio.modulation == app::Modulation::FM) {
     radio.modulation = app::Modulation::AM;
-    radio.bfoHz = 0;
+    radio.ssbTuneOffsetHz = 0;
   }
 
   if (!band.allowSsb && app::isSsb(radio.modulation)) {
     radio.modulation = app::Modulation::AM;
-    radio.bfoHz = 0;
+    radio.ssbTuneOffsetHz = 0;
   }
 
   if (!app::isSsb(radio.modulation)) {
-    radio.bfoHz = 0;
+    radio.ssbTuneOffsetHz = 0;
   }
 }
 
 void applyRadioState(bool persistSettings) {
   normalizeRadioStateForBand(g_state.radio, g_state.global.fmRegion);
+  if (app::isSsb(g_state.radio.modulation) && g_state.ui.operation == app::OperationMode::Scan) {
+    g_state.ui.operation = app::OperationMode::Tune;
+  }
   app::syncPersistentStateFromRadio(g_state);
   services::seekscan::syncContext(g_state);
   services::radio::apply(g_state);
@@ -249,12 +291,13 @@ void setOperation(app::OperationMode operation) {
 }
 
 void cycleOperationMode() {
+  const bool ssbMode = app::isSsb(g_state.radio.modulation);
   switch (g_state.ui.operation) {
     case app::OperationMode::Tune:
       setOperation(app::OperationMode::Seek);
       break;
     case app::OperationMode::Seek:
-      setOperation(app::OperationMode::Scan);
+      setOperation(ssbMode ? app::OperationMode::Tune : app::OperationMode::Scan);
       break;
     case app::OperationMode::Scan:
       setOperation(app::OperationMode::Tune);
@@ -299,34 +342,38 @@ void changeFrequency(int8_t direction, int8_t repeats) {
   const uint16_t bandMinKhz = app::bandMinKhzFor(band, g_state.global.fmRegion);
   const uint16_t bandMaxKhz = app::bandMaxKhzFor(band, g_state.global.fmRegion);
   const uint16_t oldFrequencyKhz = g_state.radio.frequencyKhz;
-  const int16_t oldBfoHz = g_state.radio.bfoHz;
+  const int16_t oldSsbOffsetHz = g_state.radio.ssbTuneOffsetHz;
 
   if (app::isSsb(g_state.radio.modulation)) {
     int32_t nextFrequencyKhz = g_state.radio.frequencyKhz;
-    int32_t nextBfoHz = g_state.radio.bfoHz;
+    int32_t nextOffsetHz = g_state.radio.ssbTuneOffsetHz;
+    const uint16_t stepHz = g_state.radio.ssbStepHz > 0 ? g_state.radio.ssbStepHz : 1000;
     while (repeats-- > 0) {
-      nextBfoHz += static_cast<int32_t>(direction) * app::kBfoStepHz;
+      nextOffsetHz += static_cast<int32_t>(direction) * static_cast<int32_t>(stepHz);
 
-      while (nextBfoHz >= 500) {
-        ++nextFrequencyKhz;
-        nextBfoHz -= 1000;
+      while (nextOffsetHz > kMaxSsbTuneOffsetHz) {
+        nextFrequencyKhz += 1;
+        nextOffsetHz -= 1000;
       }
-      while (nextBfoHz <= -500) {
-        --nextFrequencyKhz;
-        nextBfoHz += 1000;
+      while (nextOffsetHz < -kMaxSsbTuneOffsetHz) {
+        nextFrequencyKhz -= 1;
+        nextOffsetHz += 1000;
       }
 
-      if (nextFrequencyKhz > bandMaxKhz) {
+      const int32_t compositeHz = nextFrequencyKhz * 1000 + nextOffsetHz;
+      if (compositeHz > static_cast<int32_t>(bandMaxKhz) * 1000) {
         nextFrequencyKhz = bandMinKhz;
-      } else if (nextFrequencyKhz < bandMinKhz) {
+        nextOffsetHz = 0;
+      } else if (compositeHz < static_cast<int32_t>(bandMinKhz) * 1000) {
         nextFrequencyKhz = bandMaxKhz;
+        nextOffsetHz = 0;
       }
     }
 
     g_state.radio.frequencyKhz = static_cast<uint16_t>(nextFrequencyKhz);
-    g_state.radio.bfoHz = static_cast<int16_t>(nextBfoHz);
+    g_state.radio.ssbTuneOffsetHz = static_cast<int16_t>(nextOffsetHz);
 
-    if (g_state.radio.frequencyKhz != oldFrequencyKhz || g_state.radio.bfoHz != oldBfoHz) {
+    if (g_state.radio.frequencyKhz != oldFrequencyKhz || g_state.radio.ssbTuneOffsetHz != oldSsbOffsetHz) {
       applyRadioState(false);
       scheduleTunePersist();
     }
@@ -359,7 +406,7 @@ void changeFrequency(int8_t direction, int8_t repeats) {
     }
 
     g_state.radio.frequencyKhz = static_cast<uint16_t>(nextFrequencyKhz);
-    if (g_state.radio.frequencyKhz != oldFrequencyKhz || g_state.radio.bfoHz != oldBfoHz) {
+    if (g_state.radio.frequencyKhz != oldFrequencyKhz || g_state.radio.ssbTuneOffsetHz != oldSsbOffsetHz) {
       applyRadioState(false);
       scheduleTunePersist();
     }
@@ -377,7 +424,7 @@ void changeFrequency(int8_t direction, int8_t repeats) {
   }
 
   g_state.radio.frequencyKhz = static_cast<uint16_t>(nextFrequencyKhz);
-  if (g_state.radio.frequencyKhz != oldFrequencyKhz || g_state.radio.bfoHz != oldBfoHz) {
+  if (g_state.radio.frequencyKhz != oldFrequencyKhz || g_state.radio.ssbTuneOffsetHz != oldSsbOffsetHz) {
     applyRadioState(false);
     scheduleTunePersist();
   }
@@ -415,7 +462,7 @@ void saveCurrentToFavorite() {
   const uint8_t slotIndex = static_cast<uint8_t>(g_state.global.memoryWriteIndex % app::kMemoryCount);
   app::MemorySlot& slot = g_state.memories[slotIndex];
   slot.used = 1;
-  slot.frequencyKhz = g_state.radio.frequencyKhz;
+  slot.frequencyHz = tunedFrequencyHz(g_state.radio);
   slot.bandIndex = g_state.radio.bandIndex;
   slot.modulation = g_state.radio.modulation;
   snprintf(slot.name, sizeof(slot.name), "MEM %02u", static_cast<unsigned>(slotIndex + 1));
@@ -423,16 +470,16 @@ void saveCurrentToFavorite() {
   g_state.global.memoryWriteIndex = static_cast<uint8_t>((slotIndex + 1) % app::kMemoryCount);
   services::settings::markDirty();
 
-  Serial.printf("[main] saved favorite -> MEM %02u (%u kHz)\n",
+  Serial.printf("[main] saved favorite -> MEM %02u (%lu Hz)\n",
                 static_cast<unsigned>(slotIndex + 1),
-                static_cast<unsigned>(slot.frequencyKhz));
+                static_cast<unsigned long>(slot.frequencyHz));
 }
 
-uint8_t quickPopupOptionCount() {
+uint16_t quickPopupOptionCount() {
   return app::quickedit::popupOptionCount(g_state, g_state.ui.quickEditItem);
 }
 
-uint8_t quickPopupIndexForCurrentValue() {
+uint16_t quickPopupIndexForCurrentValue() {
   return app::quickedit::popupIndexForCurrentValue(g_state, g_state.ui.quickEditItem);
 }
 
@@ -455,33 +502,35 @@ void applyQuickPopupSelection() {
     return;
   }
 
-  const uint8_t count = quickPopupOptionCount();
+  const uint16_t count = quickPopupOptionCount();
   if (count == 0) {
     g_state.ui.quickEditEditing = false;
     return;
   }
 
-  uint8_t idx = g_state.ui.quickEditPopupIndex;
+  uint16_t idx = g_state.ui.quickEditPopupIndex;
   if (idx >= count) {
-    idx = static_cast<uint8_t>(count - 1);
+    idx = static_cast<uint16_t>(count - 1);
   }
 
   bool exitQuickEdit = true;
   switch (g_state.ui.quickEditItem) {
     case app::QuickEditItem::Band:
-      app::applyBandRuntimeToRadio(g_state, idx);
+      app::applyBandRuntimeToRadio(g_state, static_cast<uint8_t>(idx));
       applyRadioState(true);
       break;
     case app::QuickEditItem::Step:
       if (g_state.radio.modulation == app::Modulation::FM) {
-        g_state.radio.fmStepKhz = app::fmStepKhzFromIndex(idx);
+        g_state.radio.fmStepKhz = app::fmStepKhzFromIndex(static_cast<uint8_t>(idx));
+      } else if (app::isSsb(g_state.radio.modulation)) {
+        g_state.radio.ssbStepHz = app::ssbStepHzFromIndex(static_cast<uint8_t>(idx));
       } else {
-        g_state.radio.amStepKhz = app::amStepKhzFromIndex(idx);
+        g_state.radio.amStepKhz = app::amStepKhzFromIndex(static_cast<uint8_t>(idx));
       }
       applyRadioState(true);
       break;
     case app::QuickEditItem::Bandwidth:
-      g_state.perBand[g_state.radio.bandIndex].bandwidthIndex = idx;
+      g_state.perBand[g_state.radio.bandIndex].bandwidthIndex = static_cast<uint8_t>(idx);
       services::radio::applyRuntimeSettings(g_state);
       services::settings::markDirty();
       break;
@@ -496,7 +545,7 @@ void applyQuickPopupSelection() {
       services::settings::markDirty();
       break;
     case app::QuickEditItem::Sql:
-      g_state.global.squelch = idx;
+      g_state.global.squelch = static_cast<uint8_t>(idx);
       services::radio::applyRuntimeSettings(g_state);
       services::settings::markDirty();
       break;
@@ -504,7 +553,7 @@ void applyQuickPopupSelection() {
       if (g_state.radio.modulation == app::Modulation::FM) {
         break;
       }
-      const uint8_t avc = app::quickedit::avcValueFromIndex(idx);
+      const uint8_t avc = app::quickedit::avcValueFromIndex(static_cast<uint8_t>(idx));
       if (app::isSsb(g_state.radio.modulation)) {
         g_state.global.avcSsbLevel = avc;
       } else {
@@ -545,20 +594,21 @@ void applyQuickPopupSelection() {
         uint8_t slotIndex = 0;
         if (app::quickedit::favoriteSlotByUsedIndex(g_state, static_cast<uint8_t>(idx - 1), &slotIndex)) {
           const app::MemorySlot& slot = g_state.memories[slotIndex];
-          g_state.radio.bandIndex = slot.bandIndex;
-          g_state.radio.frequencyKhz = slot.frequencyKhz;
-          g_state.radio.modulation = slot.modulation;
-          if (!app::isSsb(g_state.radio.modulation)) {
-            g_state.radio.bfoHz = 0;
-          }
+          restoreFrequencyFromMemory(slot);
           applyRadioState(true);
         }
       }
       break;
-    case app::QuickEditItem::Fine:
+    case app::QuickEditItem::Cal:
       if (app::isSsb(g_state.radio.modulation)) {
-        g_state.radio.bfoHz =
-            static_cast<int16_t>(app::quickedit::kFineMinHz + static_cast<int16_t>(idx) * app::quickedit::kFineStepHz);
+        const int16_t calibrationHz = static_cast<int16_t>(
+            app::quickedit::kCalMinHz + static_cast<int16_t>(idx) * app::quickedit::kCalStepHz);
+        app::BandRuntimeState& bandState = g_state.perBand[g_state.radio.bandIndex];
+        if (g_state.radio.modulation == app::Modulation::USB) {
+          bandState.usbCalibrationHz = calibrationHz;
+        } else if (g_state.radio.modulation == app::Modulation::LSB) {
+          bandState.lsbCalibrationHz = calibrationHz;
+        }
         applyRadioState(true);
       }
       break;
@@ -568,6 +618,9 @@ void applyQuickPopupSelection() {
         g_state.radio.modulation = app::Modulation::FM;
       } else {
         g_state.radio.modulation = idx == 0 ? app::Modulation::AM : (idx == 1 ? app::Modulation::LSB : app::Modulation::USB);
+      }
+      if (app::isSsb(g_state.radio.modulation) && g_state.ui.operation == app::OperationMode::Scan) {
+        g_state.ui.operation = app::OperationMode::Tune;
       }
       applyRadioState(true);
       break;
@@ -598,7 +651,7 @@ void handleQuickEditClick() {
 }
 
 app::settings::Item activeSettingsItem() {
-  return app::settings::itemFromIndex(g_state.ui.quickEditPopupIndex);
+  return app::settings::itemFromIndex(static_cast<uint8_t>(g_state.ui.quickEditPopupIndex));
 }
 
 void applyRegionDefaults() {
@@ -658,10 +711,10 @@ void handleSettingsRotation(int8_t direction, int8_t repeats) {
     while (repeats-- > 0) {
       if (direction > 0) {
         g_state.ui.quickEditPopupIndex =
-            static_cast<uint8_t>((g_state.ui.quickEditPopupIndex + 1) % app::settings::kItemCount);
+            static_cast<uint16_t>((g_state.ui.quickEditPopupIndex + 1) % app::settings::kItemCount);
       } else {
         g_state.ui.quickEditPopupIndex =
-            static_cast<uint8_t>((g_state.ui.quickEditPopupIndex + app::settings::kItemCount - 1) % app::settings::kItemCount);
+            static_cast<uint16_t>((g_state.ui.quickEditPopupIndex + app::settings::kItemCount - 1) % app::settings::kItemCount);
       }
     }
     return;
@@ -704,8 +757,12 @@ void handleNowPlayingRotation(int8_t direction, int8_t repeats) {
       break;
 
     case app::OperationMode::Seek:
-      g_state.seekScan.direction = direction;
-      services::seekscan::requestSeek(direction);
+      if (app::isSsb(g_state.radio.modulation)) {
+        changeFrequency(direction, repeats);
+      } else {
+        g_state.seekScan.direction = direction;
+        services::seekscan::requestSeek(direction);
+      }
       break;
 
     case app::OperationMode::Scan:
@@ -732,16 +789,16 @@ void handleQuickEditRotation(int8_t direction, int8_t repeats) {
     return;
   }
 
-  const uint8_t count = quickPopupOptionCount();
+  const uint16_t count = quickPopupOptionCount();
   if (count == 0) {
     return;
   }
 
   while (repeats-- > 0) {
     if (direction > 0) {
-      g_state.ui.quickEditPopupIndex = static_cast<uint8_t>((g_state.ui.quickEditPopupIndex + 1) % count);
+      g_state.ui.quickEditPopupIndex = static_cast<uint16_t>((g_state.ui.quickEditPopupIndex + 1) % count);
     } else {
-      g_state.ui.quickEditPopupIndex = static_cast<uint8_t>((g_state.ui.quickEditPopupIndex + count - 1) % count);
+      g_state.ui.quickEditPopupIndex = static_cast<uint16_t>((g_state.ui.quickEditPopupIndex + count - 1) % count);
     }
   }
 }
@@ -907,8 +964,9 @@ void handleLongPress() {
         (void)services::input::consumeEncoderDelta();
         if (services::etm::requestScan(g_state)) {
           // ETM scan started
+        } else if (app::isSsb(g_state.radio.modulation)) {
+          services::ui::notifyTransient("SCAN N/A IN SSB");
         }
-        // If false (e.g. SSB), scan not available; no feedback for now
       } else if (g_state.ui.operation == app::OperationMode::Tune || g_state.ui.operation == app::OperationMode::Seek) {
         g_state.ui.layer = app::UiLayer::DialPad;
         initDialPadEmpty();

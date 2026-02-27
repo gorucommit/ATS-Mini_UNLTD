@@ -40,7 +40,7 @@ enum class QuickEditItem : uint8_t {
   Sys = 5,
   Settings = 6,
   Favorite = 7,
-  Fine = 8,
+  Cal = 8,
   Mode = 9,
   Avc = 10,
 };
@@ -91,9 +91,10 @@ struct RadioState {
   uint8_t bandIndex;
   uint16_t frequencyKhz;
   Modulation modulation;
-  int16_t bfoHz;
+  int16_t ssbTuneOffsetHz;
   uint8_t amStepKhz;
   uint8_t fmStepKhz;
+  uint16_t ssbStepHz;
   uint8_t volume;
 };
 
@@ -103,7 +104,7 @@ struct UiState {
   UiLayer layer;
   QuickEditItem quickEditItem;
   bool quickEditEditing;
-  uint8_t quickEditPopupIndex;
+  uint16_t quickEditPopupIndex;
   bool settingsChipArmed;
   bool muted;
   // Dial pad (frequency entry) – valid when layer == DialPad
@@ -208,7 +209,7 @@ struct BandRuntimeState {
 
 struct MemorySlot {
   uint8_t used;
-  uint16_t frequencyKhz;
+  uint32_t frequencyHz;
   uint8_t bandIndex;
   Modulation modulation;
   char name[kMemoryNameCapacity];
@@ -311,9 +312,11 @@ inline constexpr bool bandSupportsModulation(uint8_t bandIndex, Modulation modul
 
 inline constexpr uint8_t kFmStepOptionsKhz[] = {5, 10, 20};
 inline constexpr uint8_t kAmStepOptionsKhz[] = {1, 5, 9, 10};
+inline constexpr uint16_t kSsbStepOptionsHz[] = {10, 25, 50, 100, 500, 1000, 5000, 9000, 10000};
 
 inline constexpr size_t kFmStepOptionCount = sizeof(kFmStepOptionsKhz) / sizeof(kFmStepOptionsKhz[0]);
 inline constexpr size_t kAmStepOptionCount = sizeof(kAmStepOptionsKhz) / sizeof(kAmStepOptionsKhz[0]);
+inline constexpr size_t kSsbStepOptionCount = sizeof(kSsbStepOptionsHz) / sizeof(kSsbStepOptionsHz[0]);
 
 inline constexpr uint8_t stepIndexFromKhz(const uint8_t* options, size_t count, uint8_t stepKhz) {
   for (size_t i = 0; i < count; ++i) {
@@ -326,6 +329,19 @@ inline constexpr uint8_t stepIndexFromKhz(const uint8_t* options, size_t count, 
 
 inline constexpr uint8_t stepKhzFromIndex(const uint8_t* options, size_t count, uint8_t stepIndex) {
   return count == 0 ? 1 : options[stepIndex % count];
+}
+
+inline constexpr uint8_t stepIndexFromHz(const uint16_t* options, size_t count, uint16_t stepHz) {
+  for (size_t i = 0; i < count; ++i) {
+    if (options[i] == stepHz) {
+      return static_cast<uint8_t>(i);
+    }
+  }
+  return 0;
+}
+
+inline constexpr uint16_t stepHzFromIndex(const uint16_t* options, size_t count, uint8_t stepIndex) {
+  return count == 0 ? 10 : options[stepIndex % count];
 }
 
 inline constexpr uint8_t fmStepIndexFromKhz(uint8_t stepKhz) {
@@ -342,6 +358,14 @@ inline constexpr uint8_t fmStepKhzFromIndex(uint8_t stepIndex) {
 
 inline constexpr uint8_t amStepKhzFromIndex(uint8_t stepIndex) {
   return stepKhzFromIndex(kAmStepOptionsKhz, kAmStepOptionCount, stepIndex);
+}
+
+inline constexpr uint8_t ssbStepIndexFromHz(uint16_t stepHz) {
+  return stepIndexFromHz(kSsbStepOptionsHz, kSsbStepOptionCount, stepHz);
+}
+
+inline constexpr uint16_t ssbStepHzFromIndex(uint8_t stepIndex) {
+  return stepHzFromIndex(kSsbStepOptionsHz, kSsbStepOptionCount, stepIndex);
 }
 
 inline constexpr uint8_t defaultFmBandIndex() {
@@ -377,8 +401,13 @@ inline constexpr uint8_t defaultStepIndexForBand(const BandDef& band, FmRegion r
     return fmStepIndexFromKhz(10);
   }
 
+  if (isSsb(band.defaultMode)) {
+    // signalscale SSB default step: 1kHz.
+    return ssbStepIndexFromHz(1000);
+  }
+
   if (isHamBandId(band.id) || band.id == BandId::CB) {
-    // signalscale SSB/CB defaults: 1kHz.
+    // signalscale CB default step: 1kHz.
     return amStepIndexFromKhz(1);
   }
 
@@ -424,14 +453,10 @@ inline void syncPersistentStateFromRadio(AppState& state) {
 
   if (state.radio.modulation == Modulation::FM) {
     bandState.stepIndex = fmStepIndexFromKhz(state.radio.fmStepKhz);
+  } else if (isSsb(state.radio.modulation)) {
+    bandState.stepIndex = ssbStepIndexFromHz(state.radio.ssbStepHz);
   } else {
     bandState.stepIndex = amStepIndexFromKhz(state.radio.amStepKhz);
-  }
-
-  if (state.radio.modulation == Modulation::USB) {
-    bandState.usbCalibrationHz = state.radio.bfoHz;
-  } else if (state.radio.modulation == Modulation::LSB) {
-    bandState.lsbCalibrationHz = state.radio.bfoHz;
   }
 }
 
@@ -452,21 +477,23 @@ inline void applyBandRuntimeToRadio(AppState& state, uint8_t bandIndex) {
 
   if (state.radio.modulation == Modulation::FM) {
     state.radio.fmStepKhz = fmStepKhzFromIndex(bandState.stepIndex);
-    state.radio.bfoHz = 0;
+    state.radio.ssbTuneOffsetHz = 0;
+    state.radio.ssbStepHz = 1000;
   } else {
-    state.radio.amStepKhz = amStepKhzFromIndex(bandState.stepIndex);
-    if (state.radio.modulation == Modulation::USB) {
-      state.radio.bfoHz = bandState.usbCalibrationHz;
-    } else if (state.radio.modulation == Modulation::LSB) {
-      state.radio.bfoHz = bandState.lsbCalibrationHz;
+    if (isSsb(state.radio.modulation)) {
+      state.radio.ssbStepHz = ssbStepHzFromIndex(bandState.stepIndex);
+      state.radio.amStepKhz = 1;
     } else {
-      state.radio.bfoHz = 0;
+      state.radio.amStepKhz = amStepKhzFromIndex(bandState.stepIndex);
+      state.radio.ssbStepHz = 1000;
     }
+    state.radio.ssbTuneOffsetHz = 0;
   }
 
   if (!bandSupportsModulation(bandIndex, state.radio.modulation)) {
     state.radio.modulation = band.defaultMode;
-    state.radio.bfoHz = 0;
+    state.radio.ssbTuneOffsetHz = 0;
+    state.radio.ssbStepHz = 1000;
   }
 
   if (state.radio.frequencyKhz < bandMinKhz || state.radio.frequencyKhz > bandMaxKhz) {
@@ -480,9 +507,10 @@ inline AppState makeDefaultState() {
   state.radio.bandIndex = defaultFmBandIndex();
   state.radio.frequencyKhz = 9040;
   state.radio.modulation = Modulation::FM;
-  state.radio.bfoHz = 0;
+  state.radio.ssbTuneOffsetHz = 0;
   state.radio.amStepKhz = 1;
   state.radio.fmStepKhz = 10;
+  state.radio.ssbStepHz = 1000;
   state.radio.volume = 35;
 
   state.ui.operation = OperationMode::Tune;
@@ -544,7 +572,7 @@ inline AppState makeDefaultState() {
 
   for (uint8_t i = 0; i < kMemoryCount; ++i) {
     state.memories[i].used = 0;
-    state.memories[i].frequencyKhz = 0;
+    state.memories[i].frequencyHz = 0;
     state.memories[i].bandIndex = 0;
     state.memories[i].modulation = Modulation::AM;
     state.memories[i].name[0] = '\0';

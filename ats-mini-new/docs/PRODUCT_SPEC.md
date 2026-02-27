@@ -8,7 +8,7 @@ This spec defines target behavior for the custom firmware foundation before fina
 ## 0) UX Framework (3 Layers)
 - Layer 1: `Now Playing` (always visible)
   - Always-visible primary data: frequency, signal, and quick chips in a ring:
-    - `BAND -> STEP -> BW -> AGC/ATT -> SQL -> SYS(POWER/WiFi/SLEEP) -> SETTINGS -> FAV -> FINETUNE -> MODE -> BAND`
+    - `BAND -> STEP -> BW -> AGC/ATT -> SQL -> SYS(POWER/WiFi/SLEEP) -> SETTINGS -> FAV -> CAL(SSB only) -> MODE -> BAND`
   - All chips are always visible, including `SETTINGS`; click does not reveal chips, it activates focus/highlight on the ring.
   - Active focus highlight always indicates what encoder rotation currently controls.
 - Layer 2: `Quick Edit` (single-click workflow)
@@ -42,7 +42,10 @@ This spec defines target behavior for the custom firmware foundation before fina
 
 ## 1) Operating Model
 - Radio operation states: `TUNE`, `SEEK`, `SCAN`.
-- Double-click cycles operation state in this order: `TUNE -> SEEK -> SCAN -> TUNE`.
+- Double-click operation cycle is modulation-aware:
+  - non-SSB: `TUNE -> SEEK -> SCAN -> TUNE`
+  - USB/LSB: `TUNE -> SEEK -> TUNE` (scan skipped)
+- If operation is `SCAN` and modulation changes to USB/LSB, operation is forced to `TUNE`.
 - In all operation states, rotate while press-held controls volume.
 - During active `SEEK` or `SCAN`, only cancel is allowed.
 
@@ -50,10 +53,12 @@ This spec defines target behavior for the custom firmware foundation before fina
 - Rotate: change current focused value.
 - Single click:
   - In idle `TUNE`, idle `SEEK`, or idle `SCAN`: enter Quick Selection with focus restore behavior (last chip within resume window; otherwise `BAND`).
-- Double click: cycle operation state (`TUNE/SEEK/SCAN`).
+- Double click: cycle operation state (SSB skips `SCAN`).
 - Long press:
   - In idle `TUNE` and idle `SEEK`: open direct frequency-entry dial pad.
-  - In idle `SCAN`: start full-band scan.
+  - In idle `SCAN`:
+    - non-SSB: start full-band scan
+    - USB/LSB: scan is rejected and UI shows `SCAN N/A IN SSB`
   - In dialogs/menus/active operations: back/cancel.
 - Longer press: mute toggle.
 - Triple click: quick-save current station to favorites (shortcut).
@@ -81,7 +86,7 @@ This spec defines target behavior for the custom firmware foundation before fina
 - Quick Edit exit behavior:
   - Long press exits Quick Edit back to the parent operation state from which it was opened (`TUNE`, `SEEK`, or `SCAN`).
 - Quick Selection ring order (locked):
-  - `BAND -> STEP -> BW -> AGC/ATT -> SQL -> SYS(POWER/WiFi/SLEEP) -> SETTINGS -> FAV -> FINETUNE -> MODE -> BAND`
+  - `BAND -> STEP -> BW -> AGC/ATT -> SQL -> SYS(POWER/WiFi/SLEEP) -> SETTINGS -> FAV -> CAL(SSB only) -> MODE -> BAND`
 - `SYS` chip behavior:
   - Click enters `SYS` submenu with: `Battery Saver`, `Sleep Timer`, `Wi-Fi`, `BLE` (BLE may be hidden if disabled in build).
 - `SETTINGS` chip behavior:
@@ -90,6 +95,10 @@ This spec defines target behavior for the custom firmware foundation before fina
   - Click enters `FAV` actions with two options: `Save Current` and `Recall`.
   - `Save Current` is functionally equivalent to triple-click quick-save.
   - `Recall` opens favorites list for tuning.
+- `CAL` chip behavior:
+  - Visible/editable only in USB/LSB.
+  - Popup range is `-2000..+2000 Hz` with `10 Hz` step.
+  - Applies per-band, per-sideband calibration (USB and LSB independent).
 
 ## 3) Tune Behavior
 - Edge behavior per band: wrap.
@@ -97,7 +106,10 @@ This spec defines target behavior for the custom firmware foundation before fina
 - Encoder acceleration: same as `ats-mini-signalscale`.
   - Speed thresholds (ms): `350, 60, 45, 35, 25`
   - Acceleration factors: `1, 2, 4, 8, 16`
-- SSB BFO behavior: same as `ats-mini-signalscale` (step/range/display behavior).
+- SSB tuning uses normal encoder tuning with selectable SSB step set:
+  - `10, 25, 50, 100, 500 Hz, 1k, 5k, 9k, 10k`
+- SSB live tune offset is clamped/normalized to `±14000 Hz` with carry into carrier frequency.
+- SSB frequency display shows exact composite frequency (`carrier kHz * 1000 + live offset Hz`).
 - Direct frequency entry: required (long press opens dial pad).
 
 ## 4) Seek Behavior
@@ -142,7 +154,7 @@ This spec defines target behavior for the custom firmware foundation before fina
 - Scan range: `87.0 MHz` to `108.0 MHz`.
 - Scan step: fixed `100 kHz`.
 - After scan completes, encoder left/right navigates found stations.
-- Double-click still cycles `TUNE/SEEK/SCAN`.
+- Double-click still cycles `TUNE/SEEK/SCAN` in non-SSB.
 - If OIRT region option is enabled, FM band lower edge is extended by region profile and FM scan range extends accordingly.
 
 ### AM/SW scan rule
@@ -209,7 +221,7 @@ This spec defines target behavior for the custom firmware foundation before fina
 
 ## 10) Favorites and Scan Presets
 - Favorites slots: `20`.
-- Stored fields now: frequency + bandId.
+- Stored fields now: exact `frequencyHz` + `bandIndex` + `modulation` (+ name).
 - Future extension: add RDS/EiBi name fields.
 - When full: overwrite oldest entry (FIFO policy).
 - Band-scan presets/results are separate storage from favorites.

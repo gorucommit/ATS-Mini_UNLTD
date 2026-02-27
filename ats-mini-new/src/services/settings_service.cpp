@@ -1,6 +1,10 @@
 #include <Arduino.h>
 #include <Preferences.h>
 
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+
 #include "../../include/app_config.h"
 #include "../../include/app_services.h"
 #include "../../include/bandplan.h"
@@ -16,17 +20,65 @@ bool g_dirty = false;
 uint32_t g_lastDirtyMs = 0;
 
 constexpr uint32_t kMagic = 0x4154534D;  // ATSM
+constexpr uint16_t kSchemaV3 = 3;
 constexpr uint16_t kSchemaV2 = 2;
 constexpr uint8_t kLegacySchemaV1 = 1;
 constexpr char kBlobKey[] = "cfg2";
 
-struct PersistedPayloadV2 {
-  app::RadioState radio;
+constexpr int16_t kCalMinHz = -2000;
+constexpr int16_t kCalMaxHz = 2000;
+constexpr int16_t kMaxSsbTuneOffsetHz = 14000;
+
+constexpr uint8_t kFmBandwidthCount = 5;
+constexpr uint8_t kAmBandwidthCount = 7;
+constexpr uint8_t kSsbBandwidthCount = 6;
+
+struct PersistedRadioV3 {
+  uint8_t bandIndex;
+  uint16_t frequencyKhz;
+  app::Modulation modulation;
+  int16_t ssbTuneOffsetHz;
+  uint8_t amStepKhz;
+  uint8_t fmStepKhz;
+  uint16_t ssbStepHz;
+  uint8_t volume;
+};
+
+struct PersistedMemorySlotV3 {
+  uint8_t used;
+  uint32_t frequencyHz;
+  uint8_t bandIndex;
+  app::Modulation modulation;
+  char name[app::kMemoryNameCapacity];
+};
+
+struct PersistedPayloadV3 {
+  PersistedRadioV3 radio;
   app::GlobalSettings global;
   app::BandRuntimeState perBand[app::kBandCount];
-  app::MemorySlot memories[app::kMemoryCount];
+  PersistedMemorySlotV3 memories[app::kMemoryCount];
   app::NetworkCredentials network;
 };
+
+struct PersistedBlobV3 {
+  uint32_t magic;
+  uint16_t schema;
+  uint16_t payloadSize;
+  uint32_t checksum;
+  PersistedPayloadV3 payload;
+};
+
+struct PersistedRadioV2 {
+  uint8_t bandIndex;
+  uint16_t frequencyKhz;
+  app::Modulation modulation;
+  int16_t bfoHz;
+  uint8_t amStepKhz;
+  uint8_t fmStepKhz;
+  uint8_t volume;
+};
+
+using GlobalSettingsV2 = app::GlobalSettings;
 
 struct GlobalSettingsV2Legacy {
   uint8_t volume;
@@ -54,11 +106,27 @@ struct GlobalSettingsV2Legacy {
   uint8_t memoryWriteIndex;
 };
 
+struct PersistedMemorySlotV2 {
+  uint8_t used;
+  uint16_t frequencyKhz;
+  uint8_t bandIndex;
+  app::Modulation modulation;
+  char name[app::kMemoryNameCapacity];
+};
+
+struct PersistedPayloadV2 {
+  PersistedRadioV2 radio;
+  GlobalSettingsV2 global;
+  app::BandRuntimeState perBand[app::kBandCount];
+  PersistedMemorySlotV2 memories[app::kMemoryCount];
+  app::NetworkCredentials network;
+};
+
 struct PersistedPayloadV2Legacy {
-  app::RadioState radio;
+  PersistedRadioV2 radio;
   GlobalSettingsV2Legacy global;
   app::BandRuntimeState perBand[app::kBandCount];
-  app::MemorySlot memories[app::kMemoryCount];
+  PersistedMemorySlotV2 memories[app::kMemoryCount];
   app::NetworkCredentials network;
 };
 
@@ -102,6 +170,14 @@ bool isEmptyText(const char (&value)[N]) {
   return N == 0 || value[0] == '\0';
 }
 
+app::Modulation sanitizeModulationValue(app::Modulation modulation) {
+  const uint8_t raw = static_cast<uint8_t>(modulation);
+  if (raw > static_cast<uint8_t>(app::Modulation::AM)) {
+    return app::Modulation::AM;
+  }
+  return modulation;
+}
+
 uint8_t bandIndexForId(app::BandId id) {
   for (uint8_t i = 0; i < app::kBandCount; ++i) {
     if (app::kBandPlan[i].id == id) {
@@ -140,7 +216,7 @@ uint32_t checksumForBytes(const uint8_t* bytes, size_t length) {
   return acc;
 }
 
-uint16_t legacyChecksumFor(const app::RadioState& radio) {
+uint16_t legacyChecksumFor(const PersistedRadioV2& radio) {
   uint32_t acc = 2166136261u;
 
   const uint8_t bytes[] = {
@@ -163,9 +239,39 @@ uint16_t legacyChecksumFor(const app::RadioState& radio) {
   return static_cast<uint16_t>((acc >> 16) ^ (acc & 0xFFFF));
 }
 
-void clearMemorySlot(app::MemorySlot& slot) {
+int16_t quantizeCalibrationHz(int16_t value) {
+  int32_t clamped = clampValue<int32_t>(value, kCalMinHz, kCalMaxHz);
+  if (clamped >= 0) {
+    clamped = ((clamped + 5) / 10) * 10;
+  } else {
+    clamped = ((clamped - 5) / 10) * 10;
+  }
+  clamped = clampValue<int32_t>(clamped, kCalMinHz, kCalMaxHz);
+  return static_cast<int16_t>(clamped);
+}
+
+uint8_t nearestSsbStepIndexForHz(uint16_t hz) {
+  uint8_t best = 0;
+  uint32_t bestDiff = 0xFFFFFFFFUL;
+  for (uint8_t i = 0; i < app::kSsbStepOptionCount; ++i) {
+    const uint16_t candidate = app::kSsbStepOptionsHz[i];
+    const uint32_t diff = candidate > hz ? static_cast<uint32_t>(candidate - hz) : static_cast<uint32_t>(hz - candidate);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = i;
+    }
+  }
+  return best;
+}
+
+uint8_t mapLegacySsbStepIndex(uint8_t legacyIndex) {
+  const uint16_t legacyHz = static_cast<uint16_t>(app::amStepKhzFromIndex(legacyIndex)) * 1000U;
+  return nearestSsbStepIndexForHz(legacyHz);
+}
+
+void clearMemorySlot(PersistedMemorySlotV3& slot) {
   slot.used = 0;
-  slot.frequencyKhz = 0;
+  slot.frequencyHz = 0;
   slot.bandIndex = 0;
   slot.modulation = app::Modulation::AM;
   slot.name[0] = '\0';
@@ -304,11 +410,10 @@ void migrateLegacyGlobal(const GlobalSettingsV2Legacy& legacy, app::GlobalSettin
 
   global.avcAmLevel = 48;
   global.avcSsbLevel = 48;
-
   global.scanSensitivity = app::ScanSensitivity::High;
   global.scanSpeed = app::ScanSpeed::Thorough;
 
-  const uint8_t legacySoftMute = (legacy.softMuteEnabled ? clampValue<uint8_t>(legacy.softMuteMaxAttenuation, 0, 32) : 0);
+  const uint8_t legacySoftMute = legacy.softMuteEnabled ? clampValue<uint8_t>(legacy.softMuteMaxAttenuation, 0, 32) : 0;
   global.softMuteAmLevel = legacySoftMute;
   global.softMuteSsbLevel = legacySoftMute;
 }
@@ -322,19 +427,24 @@ void sanitizeBandRuntime(uint8_t bandIndex, app::BandRuntimeState& bandState, ap
     bandState.frequencyKhz = app::bandDefaultKhzFor(band, region);
   }
 
+  bandState.modulation = sanitizeModulationValue(bandState.modulation);
   if (!app::bandSupportsModulation(bandIndex, bandState.modulation)) {
     bandState.modulation = band.defaultMode;
   }
 
   if (bandState.modulation == app::Modulation::FM) {
     bandState.stepIndex = static_cast<uint8_t>(bandState.stepIndex % app::kFmStepOptionCount);
+    bandState.bandwidthIndex = static_cast<uint8_t>(bandState.bandwidthIndex % kFmBandwidthCount);
+  } else if (app::isSsb(bandState.modulation)) {
+    bandState.stepIndex = static_cast<uint8_t>(bandState.stepIndex % app::kSsbStepOptionCount);
+    bandState.bandwidthIndex = static_cast<uint8_t>(bandState.bandwidthIndex % kSsbBandwidthCount);
   } else {
     bandState.stepIndex = static_cast<uint8_t>(bandState.stepIndex % app::kAmStepOptionCount);
+    bandState.bandwidthIndex = static_cast<uint8_t>(bandState.bandwidthIndex % kAmBandwidthCount);
   }
 
-  bandState.bandwidthIndex = clampValue<uint8_t>(bandState.bandwidthIndex, 0, 15);
-  bandState.usbCalibrationHz = clampValue<int16_t>(bandState.usbCalibrationHz, -1999, 1999);
-  bandState.lsbCalibrationHz = clampValue<int16_t>(bandState.lsbCalibrationHz, -1999, 1999);
+  bandState.usbCalibrationHz = quantizeCalibrationHz(bandState.usbCalibrationHz);
+  bandState.lsbCalibrationHz = quantizeCalibrationHz(bandState.lsbCalibrationHz);
 
   if (!band.allowSsb) {
     bandState.usbCalibrationHz = 0;
@@ -342,10 +452,12 @@ void sanitizeBandRuntime(uint8_t bandIndex, app::BandRuntimeState& bandState, ap
   }
 }
 
-void sanitizeRadio(app::RadioState& radio, const app::BandRuntimeState* perBand, app::FmRegion region) {
+void sanitizeRadio(PersistedRadioV3& radio, const app::BandRuntimeState* perBand, app::FmRegion region) {
   if (radio.bandIndex >= app::kBandCount) {
     radio.bandIndex = app::defaultFmBandIndex();
   }
+
+  radio.modulation = sanitizeModulationValue(radio.modulation);
 
   const app::BandDef& band = app::kBandPlan[radio.bandIndex];
   const uint16_t bandMinKhz = app::bandMinKhzFor(band, region);
@@ -369,28 +481,31 @@ void sanitizeRadio(app::RadioState& radio, const app::BandRuntimeState* perBand,
 
   radio.volume = clampValue<uint8_t>(radio.volume, 0, 63);
 
-  if (radio.modulation == app::Modulation::FM) {
-    radio.fmStepKhz = app::fmStepKhzFromIndex(app::fmStepIndexFromKhz(radio.fmStepKhz));
-    radio.bfoHz = 0;
+  radio.fmStepKhz = app::fmStepKhzFromIndex(app::fmStepIndexFromKhz(radio.fmStepKhz));
+  radio.amStepKhz = app::amStepKhzFromIndex(app::amStepIndexFromKhz(radio.amStepKhz));
+
+  if (app::isSsb(radio.modulation)) {
+    const uint16_t stepHz = radio.ssbStepHz == 0 ? 1000 : radio.ssbStepHz;
+    radio.ssbStepHz = app::ssbStepHzFromIndex(nearestSsbStepIndexForHz(stepHz));
+    radio.ssbTuneOffsetHz = clampValue<int16_t>(radio.ssbTuneOffsetHz, -kMaxSsbTuneOffsetHz, kMaxSsbTuneOffsetHz);
   } else {
-    radio.amStepKhz = app::amStepKhzFromIndex(app::amStepIndexFromKhz(radio.amStepKhz));
-    if (!app::isSsb(radio.modulation)) {
-      radio.bfoHz = 0;
-    } else {
-      radio.bfoHz = clampValue<int16_t>(radio.bfoHz, -1999, 1999);
-    }
+    radio.ssbTuneOffsetHz = 0;
+    radio.ssbStepHz = 1000;
   }
 }
 
-void sanitizeMemories(app::MemorySlot* memories, app::FmRegion region) {
-  auto frequencyInBandRange = [region](const app::BandDef& band, uint16_t frequencyKhz) {
-    if (band.id != app::BandId::FM) {
-      const uint16_t bandMinKhz = app::bandMinKhzFor(band, region);
-      const uint16_t bandMaxKhz = app::bandMaxKhzFor(band, region);
-      return frequencyKhz >= bandMinKhz && frequencyKhz <= bandMaxKhz;
-    }
+bool memoryFrequencyInBandRange(const PersistedMemorySlotV3& slot, app::FmRegion region) {
+  if (slot.bandIndex >= app::kBandCount) {
+    return false;
+  }
 
-    // Keep FM memories valid across region switches (do not erase out-of-region presets).
+  const app::BandDef& band = app::kBandPlan[slot.bandIndex];
+  const app::Modulation modulation = sanitizeModulationValue(slot.modulation);
+  if (!app::bandSupportsModulation(slot.bandIndex, modulation)) {
+    return false;
+  }
+
+  if (modulation == app::Modulation::FM) {
     constexpr app::FmRegion kFmRegions[] = {
         app::FmRegion::World,
         app::FmRegion::US,
@@ -398,17 +513,23 @@ void sanitizeMemories(app::MemorySlot* memories, app::FmRegion region) {
         app::FmRegion::Oirt,
     };
     for (app::FmRegion candidate : kFmRegions) {
-      const uint16_t bandMinKhz = app::bandMinKhzFor(band, candidate);
-      const uint16_t bandMaxKhz = app::bandMaxKhzFor(band, candidate);
-      if (frequencyKhz >= bandMinKhz && frequencyKhz <= bandMaxKhz) {
+      const uint32_t minHz = static_cast<uint32_t>(app::bandMinKhzFor(band, candidate)) * 10000UL;
+      const uint32_t maxHz = static_cast<uint32_t>(app::bandMaxKhzFor(band, candidate)) * 10000UL;
+      if (slot.frequencyHz >= minHz && slot.frequencyHz <= maxHz) {
         return true;
       }
     }
     return false;
-  };
+  }
 
+  const uint32_t minHz = static_cast<uint32_t>(app::bandMinKhzFor(band, region)) * 1000UL;
+  const uint32_t maxHz = static_cast<uint32_t>(app::bandMaxKhzFor(band, region)) * 1000UL;
+  return slot.frequencyHz >= minHz && slot.frequencyHz <= maxHz;
+}
+
+void sanitizeMemories(PersistedMemorySlotV3* memories, app::FmRegion region) {
   for (uint8_t i = 0; i < app::kMemoryCount; ++i) {
-    app::MemorySlot& slot = memories[i];
+    PersistedMemorySlotV3& slot = memories[i];
     ensureNullTerminated(slot.name);
     slot.used = slot.used ? 1 : 0;
 
@@ -417,18 +538,8 @@ void sanitizeMemories(app::MemorySlot* memories, app::FmRegion region) {
       continue;
     }
 
-    if (slot.bandIndex >= app::kBandCount) {
-      clearMemorySlot(slot);
-      continue;
-    }
-
-    const app::BandDef& band = app::kBandPlan[slot.bandIndex];
-    if (!frequencyInBandRange(band, slot.frequencyKhz)) {
-      clearMemorySlot(slot);
-      continue;
-    }
-
-    if (!app::bandSupportsModulation(slot.bandIndex, slot.modulation)) {
+    slot.modulation = sanitizeModulationValue(slot.modulation);
+    if (!memoryFrequencyInBandRange(slot, region)) {
       clearMemorySlot(slot);
       continue;
     }
@@ -462,8 +573,16 @@ void sanitizeNetwork(app::NetworkCredentials& network) {
   }
 }
 
-void fillPayloadFromState(const app::AppState& state, PersistedPayloadV2& payload) {
-  payload.radio = state.radio;
+void fillPayloadFromState(const app::AppState& state, PersistedPayloadV3& payload) {
+  payload.radio.bandIndex = state.radio.bandIndex;
+  payload.radio.frequencyKhz = state.radio.frequencyKhz;
+  payload.radio.modulation = state.radio.modulation;
+  payload.radio.ssbTuneOffsetHz = state.radio.ssbTuneOffsetHz;
+  payload.radio.amStepKhz = state.radio.amStepKhz;
+  payload.radio.fmStepKhz = state.radio.fmStepKhz;
+  payload.radio.ssbStepHz = state.radio.ssbStepHz;
+  payload.radio.volume = state.radio.volume;
+
   payload.global = state.global;
 
   for (uint8_t i = 0; i < app::kBandCount; ++i) {
@@ -471,13 +590,17 @@ void fillPayloadFromState(const app::AppState& state, PersistedPayloadV2& payloa
   }
 
   for (uint8_t i = 0; i < app::kMemoryCount; ++i) {
-    payload.memories[i] = state.memories[i];
+    payload.memories[i].used = state.memories[i].used;
+    payload.memories[i].frequencyHz = state.memories[i].frequencyHz;
+    payload.memories[i].bandIndex = state.memories[i].bandIndex;
+    payload.memories[i].modulation = state.memories[i].modulation;
+    app::copyText(payload.memories[i].name, state.memories[i].name);
   }
 
   payload.network = state.network;
 }
 
-void syncDerivedFields(PersistedPayloadV2& payload) {
+void syncDerivedFields(PersistedPayloadV3& payload) {
   payload.global.volume = payload.radio.volume;
   payload.global.lastBandIndex = payload.radio.bandIndex;
 
@@ -491,18 +614,14 @@ void syncDerivedFields(PersistedPayloadV2& payload) {
 
   if (payload.radio.modulation == app::Modulation::FM) {
     activeBand.stepIndex = app::fmStepIndexFromKhz(payload.radio.fmStepKhz);
+  } else if (app::isSsb(payload.radio.modulation)) {
+    activeBand.stepIndex = app::ssbStepIndexFromHz(payload.radio.ssbStepHz);
   } else {
     activeBand.stepIndex = app::amStepIndexFromKhz(payload.radio.amStepKhz);
   }
-
-  if (payload.radio.modulation == app::Modulation::USB) {
-    activeBand.usbCalibrationHz = payload.radio.bfoHz;
-  } else if (payload.radio.modulation == app::Modulation::LSB) {
-    activeBand.lsbCalibrationHz = payload.radio.bfoHz;
-  }
 }
 
-void sanitizePayload(PersistedPayloadV2& payload) {
+void sanitizePayload(PersistedPayloadV3& payload) {
   sanitizeGlobal(payload.global);
 
   for (uint8_t i = 0; i < app::kBandCount; ++i) {
@@ -511,12 +630,21 @@ void sanitizePayload(PersistedPayloadV2& payload) {
 
   sanitizeRadio(payload.radio, payload.perBand, payload.global.fmRegion);
   syncDerivedFields(payload);
+  sanitizeBandRuntime(payload.radio.bandIndex, payload.perBand[payload.radio.bandIndex], payload.global.fmRegion);
   sanitizeMemories(payload.memories, payload.global.fmRegion);
   sanitizeNetwork(payload.network);
 }
 
-void applyPayloadToState(const PersistedPayloadV2& payload, app::AppState& state) {
-  state.radio = payload.radio;
+void applyPayloadToState(const PersistedPayloadV3& payload, app::AppState& state) {
+  state.radio.bandIndex = payload.radio.bandIndex;
+  state.radio.frequencyKhz = payload.radio.frequencyKhz;
+  state.radio.modulation = payload.radio.modulation;
+  state.radio.ssbTuneOffsetHz = payload.radio.ssbTuneOffsetHz;
+  state.radio.amStepKhz = payload.radio.amStepKhz;
+  state.radio.fmStepKhz = payload.radio.fmStepKhz;
+  state.radio.ssbStepHz = payload.radio.ssbStepHz;
+  state.radio.volume = payload.radio.volume;
+
   state.global = payload.global;
 
   for (uint8_t i = 0; i < app::kBandCount; ++i) {
@@ -524,7 +652,11 @@ void applyPayloadToState(const PersistedPayloadV2& payload, app::AppState& state
   }
 
   for (uint8_t i = 0; i < app::kMemoryCount; ++i) {
-    state.memories[i] = payload.memories[i];
+    state.memories[i].used = payload.memories[i].used;
+    state.memories[i].frequencyHz = payload.memories[i].frequencyHz;
+    state.memories[i].bandIndex = payload.memories[i].bandIndex;
+    state.memories[i].modulation = payload.memories[i].modulation;
+    app::copyText(state.memories[i].name, payload.memories[i].name);
   }
 
   state.network = payload.network;
@@ -533,6 +665,7 @@ void applyPayloadToState(const PersistedPayloadV2& payload, app::AppState& state
   state.seekScan.active = false;
   state.seekScan.seeking = false;
   state.seekScan.scanning = false;
+  state.seekScan.direction = 1;
   state.seekScan.bestFrequencyKhz = state.radio.frequencyKhz;
   state.seekScan.bestRssi = 0;
   state.seekScan.pointsVisited = 0;
@@ -543,32 +676,146 @@ void applyPayloadToState(const PersistedPayloadV2& payload, app::AppState& state
   state.seekScan.totalPoints = 0;
 }
 
+void migrateV2ToV3(const PersistedPayloadV2& source, PersistedPayloadV3& target) {
+  target.radio.bandIndex = source.radio.bandIndex;
+  target.radio.frequencyKhz = source.radio.frequencyKhz;
+  target.radio.modulation = sanitizeModulationValue(source.radio.modulation);
+  target.radio.ssbTuneOffsetHz = source.radio.bfoHz;
+  target.radio.amStepKhz = source.radio.amStepKhz;
+  target.radio.fmStepKhz = source.radio.fmStepKhz;
+  target.radio.ssbStepHz = 1000;
+  target.radio.volume = source.radio.volume;
+
+  target.global = source.global;
+
+  for (uint8_t i = 0; i < app::kBandCount; ++i) {
+    target.perBand[i] = source.perBand[i];
+    target.perBand[i].modulation = sanitizeModulationValue(target.perBand[i].modulation);
+    if (app::isSsb(target.perBand[i].modulation)) {
+      target.perBand[i].stepIndex = mapLegacySsbStepIndex(target.perBand[i].stepIndex);
+    }
+  }
+
+  for (uint8_t i = 0; i < app::kMemoryCount; ++i) {
+    const PersistedMemorySlotV2& srcSlot = source.memories[i];
+    PersistedMemorySlotV3& dstSlot = target.memories[i];
+    dstSlot.used = srcSlot.used ? 1 : 0;
+    dstSlot.bandIndex = srcSlot.bandIndex;
+    dstSlot.modulation = sanitizeModulationValue(srcSlot.modulation);
+    dstSlot.frequencyHz =
+        dstSlot.modulation == app::Modulation::FM ? static_cast<uint32_t>(srcSlot.frequencyKhz) * 10000UL
+                                                  : static_cast<uint32_t>(srcSlot.frequencyKhz) * 1000UL;
+    app::copyText(dstSlot.name, srcSlot.name);
+  }
+
+  target.network = source.network;
+
+  if (target.radio.bandIndex < app::kBandCount && app::isSsb(target.radio.modulation)) {
+    target.radio.ssbStepHz = app::ssbStepHzFromIndex(target.perBand[target.radio.bandIndex].stepIndex);
+  }
+}
+
+void migrateV2LegacyToV3(const PersistedPayloadV2Legacy& source, PersistedPayloadV3& target) {
+  target.radio.bandIndex = source.radio.bandIndex;
+  target.radio.frequencyKhz = source.radio.frequencyKhz;
+  target.radio.modulation = sanitizeModulationValue(source.radio.modulation);
+  target.radio.ssbTuneOffsetHz = source.radio.bfoHz;
+  target.radio.amStepKhz = source.radio.amStepKhz;
+  target.radio.fmStepKhz = source.radio.fmStepKhz;
+  target.radio.ssbStepHz = 1000;
+  target.radio.volume = source.radio.volume;
+
+  migrateLegacyGlobal(source.global, target.global);
+
+  for (uint8_t i = 0; i < app::kBandCount; ++i) {
+    target.perBand[i] = source.perBand[i];
+    target.perBand[i].modulation = sanitizeModulationValue(target.perBand[i].modulation);
+    if (app::isSsb(target.perBand[i].modulation)) {
+      target.perBand[i].stepIndex = mapLegacySsbStepIndex(target.perBand[i].stepIndex);
+    }
+  }
+
+  for (uint8_t i = 0; i < app::kMemoryCount; ++i) {
+    const PersistedMemorySlotV2& srcSlot = source.memories[i];
+    PersistedMemorySlotV3& dstSlot = target.memories[i];
+    dstSlot.used = srcSlot.used ? 1 : 0;
+    dstSlot.bandIndex = srcSlot.bandIndex;
+    dstSlot.modulation = sanitizeModulationValue(srcSlot.modulation);
+    dstSlot.frequencyHz =
+        dstSlot.modulation == app::Modulation::FM ? static_cast<uint32_t>(srcSlot.frequencyKhz) * 10000UL
+                                                  : static_cast<uint32_t>(srcSlot.frequencyKhz) * 1000UL;
+    app::copyText(dstSlot.name, srcSlot.name);
+  }
+
+  target.network = source.network;
+
+  if (target.radio.bandIndex < app::kBandCount && app::isSsb(target.radio.modulation)) {
+    target.radio.ssbStepHz = app::ssbStepHzFromIndex(target.perBand[target.radio.bandIndex].stepIndex);
+  }
+}
+
+bool loadV3Blob(app::AppState& state) {
+  const size_t blobSize = g_prefs.getBytesLength(kBlobKey);
+  if (blobSize != sizeof(PersistedBlobV3)) {
+    return false;
+  }
+
+  PersistedBlobV3 blob{};
+  if (g_prefs.getBytes(kBlobKey, &blob, sizeof(blob)) != sizeof(blob)) {
+    Serial.println("[settings] failed to read v3 blob");
+    return false;
+  }
+
+  if (blob.magic != kMagic || blob.schema != kSchemaV3 || blob.payloadSize != sizeof(PersistedPayloadV3)) {
+    Serial.println("[settings] invalid v3 header");
+    return false;
+  }
+
+  const uint32_t expectedChecksum = checksumForBytes(reinterpret_cast<const uint8_t*>(&blob.payload), sizeof(PersistedPayloadV3));
+  if (blob.checksum != expectedChecksum) {
+    Serial.println("[settings] v3 checksum mismatch");
+    return false;
+  }
+
+  PersistedPayloadV3 payload = blob.payload;
+  sanitizePayload(payload);
+  applyPayloadToState(payload, state);
+
+  Serial.println("[settings] restored v3 state");
+  return true;
+}
+
 bool loadV2Blob(app::AppState& state) {
   const size_t blobSize = g_prefs.getBytesLength(kBlobKey);
+
   if (blobSize == sizeof(PersistedBlobV2)) {
-    PersistedBlobV2 blob{};
-    if (g_prefs.getBytes(kBlobKey, &blob, sizeof(blob)) != sizeof(blob)) {
+    PersistedBlobV2 legacyBlob{};
+    if (g_prefs.getBytes(kBlobKey, &legacyBlob, sizeof(legacyBlob)) != sizeof(legacyBlob)) {
       Serial.println("[settings] failed to read v2 blob");
       return false;
     }
 
-    if (blob.magic != kMagic || blob.schema != kSchemaV2 || blob.payloadSize != sizeof(PersistedPayloadV2)) {
+    if (legacyBlob.magic != kMagic || legacyBlob.schema != kSchemaV2 || legacyBlob.payloadSize != sizeof(PersistedPayloadV2)) {
       Serial.println("[settings] invalid v2 header");
       return false;
     }
 
     const uint32_t expectedChecksum =
-        checksumForBytes(reinterpret_cast<const uint8_t*>(&blob.payload), sizeof(PersistedPayloadV2));
-    if (blob.checksum != expectedChecksum) {
+        checksumForBytes(reinterpret_cast<const uint8_t*>(&legacyBlob.payload), sizeof(PersistedPayloadV2));
+    if (legacyBlob.checksum != expectedChecksum) {
       Serial.println("[settings] v2 checksum mismatch");
       return false;
     }
 
-    PersistedPayloadV2 payload = blob.payload;
-    sanitizePayload(payload);
-    applyPayloadToState(payload, state);
+    PersistedPayloadV3 migrated{};
+    migrateV2ToV3(legacyBlob.payload, migrated);
+    sanitizePayload(migrated);
+    applyPayloadToState(migrated, state);
 
-    Serial.println("[settings] restored v2 state");
+    g_dirty = true;
+    g_lastDirtyMs = millis() - app::kSettingsSaveDebounceMs;
+
+    Serial.println("[settings] migrated v2 state to v3");
     return true;
   }
 
@@ -592,24 +839,15 @@ bool loadV2Blob(app::AppState& state) {
       return false;
     }
 
-    PersistedPayloadV2 payload{};
-    payload.radio = legacyBlob.payload.radio;
-    migrateLegacyGlobal(legacyBlob.payload.global, payload.global);
-    for (uint8_t i = 0; i < app::kBandCount; ++i) {
-      payload.perBand[i] = legacyBlob.payload.perBand[i];
-    }
-    for (uint8_t i = 0; i < app::kMemoryCount; ++i) {
-      payload.memories[i] = legacyBlob.payload.memories[i];
-    }
-    payload.network = legacyBlob.payload.network;
-
-    sanitizePayload(payload);
-    applyPayloadToState(payload, state);
+    PersistedPayloadV3 migrated{};
+    migrateV2LegacyToV3(legacyBlob.payload, migrated);
+    sanitizePayload(migrated);
+    applyPayloadToState(migrated, state);
 
     g_dirty = true;
     g_lastDirtyMs = millis() - app::kSettingsSaveDebounceMs;
 
-    Serial.println("[settings] migrated legacy-sized v2 blob");
+    Serial.println("[settings] migrated legacy-sized v2 state to v3");
     return true;
   }
 
@@ -623,14 +861,15 @@ bool loadLegacyV1(app::AppState& state) {
     return false;
   }
 
-  app::RadioState radio = state.radio;
-  radio.bandIndex = g_prefs.getUChar("band", radio.bandIndex);
-  radio.frequencyKhz = g_prefs.getUShort("freq", radio.frequencyKhz);
-  radio.modulation = static_cast<app::Modulation>(g_prefs.getUChar("mod", static_cast<uint8_t>(radio.modulation)));
-  radio.bfoHz = g_prefs.getShort("bfo", radio.bfoHz);
-  radio.amStepKhz = g_prefs.getUChar("ams", radio.amStepKhz);
-  radio.fmStepKhz = g_prefs.getUChar("fms", radio.fmStepKhz);
-  radio.volume = g_prefs.getUChar("vol", radio.volume);
+  PersistedRadioV2 radio{};
+  radio.bandIndex = g_prefs.getUChar("band", state.radio.bandIndex);
+  radio.frequencyKhz = g_prefs.getUShort("freq", state.radio.frequencyKhz);
+  radio.modulation = sanitizeModulationValue(
+      static_cast<app::Modulation>(g_prefs.getUChar("mod", static_cast<uint8_t>(state.radio.modulation))));
+  radio.bfoHz = g_prefs.getShort("bfo", state.radio.ssbTuneOffsetHz);
+  radio.amStepKhz = g_prefs.getUChar("ams", state.radio.amStepKhz);
+  radio.fmStepKhz = g_prefs.getUChar("fms", state.radio.fmStepKhz);
+  radio.volume = g_prefs.getUChar("vol", state.radio.volume);
 
   const uint16_t savedChecksum = g_prefs.getUShort("sum", 0);
   if (legacyChecksumFor(radio) != savedChecksum) {
@@ -645,31 +884,54 @@ bool loadLegacyV1(app::AppState& state) {
     radio.bandIndex = inferBandIndexFromFrequency(radio.frequencyKhz, radio.modulation);
   }
 
-  state.radio = radio;
-  app::syncPersistentStateFromRadio(state);
+  PersistedPayloadV3 migrated{};
+  fillPayloadFromState(state, migrated);
 
-  PersistedPayloadV2 migratedPayload{};
-  fillPayloadFromState(state, migratedPayload);
-  sanitizePayload(migratedPayload);
-  applyPayloadToState(migratedPayload, state);
+  migrated.radio.bandIndex = radio.bandIndex;
+  migrated.radio.frequencyKhz = radio.frequencyKhz;
+  migrated.radio.modulation = radio.modulation;
+  migrated.radio.ssbTuneOffsetHz = radio.bfoHz;
+  migrated.radio.amStepKhz = radio.amStepKhz;
+  migrated.radio.fmStepKhz = radio.fmStepKhz;
+  migrated.radio.ssbStepHz = 1000;
+  migrated.radio.volume = radio.volume;
+
+  if (migrated.radio.bandIndex < app::kBandCount) {
+    app::BandRuntimeState& bandState = migrated.perBand[migrated.radio.bandIndex];
+    bandState.frequencyKhz = migrated.radio.frequencyKhz;
+    bandState.modulation = migrated.radio.modulation;
+
+    if (migrated.radio.modulation == app::Modulation::FM) {
+      bandState.stepIndex = app::fmStepIndexFromKhz(migrated.radio.fmStepKhz);
+    } else if (app::isSsb(migrated.radio.modulation)) {
+      migrated.radio.ssbStepHz =
+          app::ssbStepHzFromIndex(nearestSsbStepIndexForHz(static_cast<uint16_t>(migrated.radio.amStepKhz) * 1000U));
+      bandState.stepIndex = app::ssbStepIndexFromHz(migrated.radio.ssbStepHz);
+    } else {
+      bandState.stepIndex = app::amStepIndexFromKhz(migrated.radio.amStepKhz);
+    }
+  }
+
+  sanitizePayload(migrated);
+  applyPayloadToState(migrated, state);
 
   g_dirty = true;
   g_lastDirtyMs = millis() - app::kSettingsSaveDebounceMs;
 
-  Serial.println("[settings] migrated legacy v1 state to v2");
+  Serial.println("[settings] migrated legacy v1 state to v3");
   return true;
 }
 
 void saveNow(const app::AppState& state) {
-  PersistedBlobV2 blob{};
+  PersistedBlobV3 blob{};
   blob.magic = kMagic;
-  blob.schema = kSchemaV2;
-  blob.payloadSize = sizeof(PersistedPayloadV2);
+  blob.schema = kSchemaV3;
+  blob.payloadSize = sizeof(PersistedPayloadV3);
 
   fillPayloadFromState(state, blob.payload);
   sanitizePayload(blob.payload);
 
-  blob.checksum = checksumForBytes(reinterpret_cast<const uint8_t*>(&blob.payload), sizeof(PersistedPayloadV2));
+  blob.checksum = checksumForBytes(reinterpret_cast<const uint8_t*>(&blob.payload), sizeof(PersistedPayloadV3));
 
   const size_t written = g_prefs.putBytes(kBlobKey, &blob, sizeof(blob));
   if (written != sizeof(blob)) {
@@ -697,6 +959,10 @@ bool begin() {
 bool load(app::AppState& state) {
   if (!g_ready) {
     return false;
+  }
+
+  if (loadV3Blob(state)) {
+    return true;
   }
 
   if (loadV2Blob(state)) {

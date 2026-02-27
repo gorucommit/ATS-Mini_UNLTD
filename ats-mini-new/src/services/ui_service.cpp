@@ -22,6 +22,7 @@ constexpr uint32_t kSignalPollMs = 80;
 constexpr uint32_t kBatteryPollMs = 2000;
 constexpr uint32_t kUiKeepAliveMs = 1200;
 constexpr uint32_t kVolumeHudMs = 1000;
+constexpr uint32_t kTransientHudMs = 1300;
 constexpr uint8_t kBatteryAdcReads = 10;
 constexpr float kBatteryAdcFactor = 1.702f;  // signalscale battery monitor calibration factor
 constexpr float kBatterySocLevel1 = 3.680f;  // 25%
@@ -45,13 +46,14 @@ struct UiRenderKey {
   uint8_t operation;
   uint8_t quickEditItem;
   uint8_t quickEditEditing;
-  uint8_t quickEditPopupIndex;
+  uint16_t quickEditPopupIndex;
   uint8_t settingsChipArmed;
 
   uint8_t bandIndex;
   uint8_t modulation;
   uint16_t frequencyKhz;
-  int16_t bfoHz;
+  int16_t ssbTuneOffsetHz;
+  uint16_t ssbStepHz;
   uint8_t amStepKhz;
   uint8_t fmStepKhz;
   uint8_t bandwidthIndex;
@@ -124,6 +126,10 @@ int32_t g_lastRenderedMinute = -1;
 uint32_t g_volumeHudUntilMs = 0;
 uint8_t g_volumeHudValue = 0;
 bool g_lastVolumeHudVisible = false;
+char g_transientHudText[32] = {0};
+uint32_t g_transientHudUntilMs = 0;
+bool g_lastTransientHudVisible = false;
+uint32_t g_lastTransientTextHash = 0;
 
 #if ATS_UI_DEBUG_LOG
 uint32_t g_lastSerialLogMs = 0;
@@ -202,7 +208,8 @@ uint32_t favoritesHash(const app::AppState& state) {
     }
 
     hash = hashMix(hash, slot.bandIndex);
-    hash = hashMix(hash, slot.frequencyKhz);
+    hash = hashMix(hash, static_cast<uint32_t>(slot.frequencyHz & 0xFFFFFFFFUL));
+    hash = hashMix(hash, static_cast<uint32_t>((slot.frequencyHz >> 16) & 0xFFFFUL));
     hash = hashMix(hash, static_cast<uint8_t>(slot.modulation));
   }
 
@@ -253,7 +260,8 @@ UiRenderKey buildRenderKey(const app::AppState& state) {
   key.bandIndex = bandIndex;
   key.modulation = static_cast<uint8_t>(state.radio.modulation);
   key.frequencyKhz = state.radio.frequencyKhz;
-  key.bfoHz = state.radio.bfoHz;
+  key.ssbTuneOffsetHz = state.radio.ssbTuneOffsetHz;
+  key.ssbStepHz = state.radio.ssbStepHz;
   key.amStepKhz = state.radio.amStepKhz;
   key.fmStepKhz = state.radio.fmStepKhz;
   key.bandwidthIndex = state.perBand[bandIndex].bandwidthIndex;
@@ -325,7 +333,8 @@ bool sameRenderKey(const UiRenderKey& lhs, const UiRenderKey& rhs) {
          lhs.bandIndex == rhs.bandIndex &&
          lhs.modulation == rhs.modulation &&
          lhs.frequencyKhz == rhs.frequencyKhz &&
-         lhs.bfoHz == rhs.bfoHz &&
+         lhs.ssbTuneOffsetHz == rhs.ssbTuneOffsetHz &&
+         lhs.ssbStepHz == rhs.ssbStepHz &&
          lhs.amStepKhz == rhs.amStepKhz &&
          lhs.fmStepKhz == rhs.fmStepKhz &&
          lhs.bandwidthIndex == rhs.bandwidthIndex &&
@@ -588,6 +597,14 @@ void formatFrequency(const app::RadioState& radio, char* freq, size_t freqSize, 
     return;
   }
 
+  if (app::isSsb(radio.modulation)) {
+    const int32_t compositeHz = static_cast<int32_t>(radio.frequencyKhz) * 1000 + radio.ssbTuneOffsetHz;
+    const uint32_t safeHz = compositeHz > 0 ? static_cast<uint32_t>(compositeHz) : 0U;
+    snprintf(freq, freqSize, "%u.%03u", static_cast<unsigned>(safeHz / 1000U), static_cast<unsigned>(safeHz % 1000U));
+    snprintf(unit, unitSize, "kHz");
+    return;
+  }
+
   snprintf(freq, freqSize, "%u", static_cast<unsigned>(radio.frequencyKhz));
   snprintf(unit, unitSize, "kHz");
 }
@@ -666,14 +683,25 @@ void drawFavoriteChip(int x, int y, int w, int h, bool focused, bool editing, bo
   g_spr.drawString("FAV", textX, y + (h / 2));
 }
 
+uint32_t tunedFrequencyHz(const app::RadioState& radio) {
+  if (radio.modulation == app::Modulation::FM) {
+    return static_cast<uint32_t>(radio.frequencyKhz) * 10000UL;
+  }
+
+  const int32_t baseHz = static_cast<int32_t>(radio.frequencyKhz) * 1000;
+  const int32_t compositeHz = app::isSsb(radio.modulation) ? (baseHz + radio.ssbTuneOffsetHz) : baseHz;
+  return compositeHz > 0 ? static_cast<uint32_t>(compositeHz) : 0U;
+}
+
 bool isCurrentFavorite(const app::AppState& state) {
+  const uint32_t currentHz = tunedFrequencyHz(state.radio);
   for (uint8_t i = 0; i < app::kMemoryCount; ++i) {
     const app::MemorySlot& slot = state.memories[i];
     if (!slot.used) {
       continue;
     }
     if (slot.bandIndex == state.radio.bandIndex &&
-        slot.frequencyKhz == state.radio.frequencyKhz &&
+        slot.frequencyHz == currentHz &&
         slot.modulation == state.radio.modulation) {
       return true;
     }
@@ -1040,6 +1068,10 @@ bool volumeHudVisible(uint32_t nowMs) {
   return nowMs < g_volumeHudUntilMs;
 }
 
+bool transientHudVisible(uint32_t nowMs) {
+  return g_transientHudText[0] != '\0' && nowMs < g_transientHudUntilMs;
+}
+
 void drawVolumeHud(const app::AppState& state) {
   (void)state;
 
@@ -1076,6 +1108,24 @@ void drawVolumeHud(const app::AppState& state) {
   g_spr.drawString(valueText, x + w - 6, y + 9);
 }
 
+void drawTransientHud() {
+  if (g_transientHudText[0] == '\0') {
+    return;
+  }
+
+  const int w = 210;
+  const int h = 24;
+  const int x = (kUiWidth - w) / 2;
+  const int y = kUiHeight - h - 40;
+
+  g_spr.fillRoundRect(x, y, w, h, 4, 0x0841);
+  g_spr.drawRoundRect(x, y, w, h, 4, kColorChipFocus);
+  g_spr.setTextDatum(MC_DATUM);
+  g_spr.setTextFont(1);
+  g_spr.setTextColor(kColorText, 0x0841);
+  g_spr.drawString(g_transientHudText, x + (w / 2), y + (h / 2));
+}
+
 void drawQuickPopup(const app::AppState& state) {
   if (!(state.ui.layer == app::UiLayer::QuickEdit && state.ui.quickEditEditing)) {
     return;
@@ -1084,12 +1134,12 @@ void drawQuickPopup(const app::AppState& state) {
     return;
   }
 
-  const uint8_t count = app::quickedit::popupOptionCount(state, state.ui.quickEditItem);
+  const uint16_t count = app::quickedit::popupOptionCount(state, state.ui.quickEditItem);
   if (count == 0) {
     return;
   }
 
-  const uint8_t selected = state.ui.quickEditPopupIndex % count;
+  const uint16_t selected = state.ui.quickEditPopupIndex % count;
   const int w = 172;
   const int h = 92;
   const app::quickedit::ChipRect anchor = app::quickedit::chipRect(state.ui.quickEditItem);
@@ -1113,7 +1163,7 @@ void drawQuickPopup(const app::AppState& state) {
 
   for (int row = 0; row < 5; ++row) {
     const int relative = row - 2;
-    const uint8_t option = static_cast<uint8_t>((selected + count + relative) % count);
+    const uint16_t option = static_cast<uint16_t>((selected + count + relative) % count);
     const int rowY = y + 18 + row * 14;
     const bool isSelected = relative == 0;
 
@@ -1216,6 +1266,9 @@ void drawSettingsScreen(const app::AppState& state) {
   if (volumeHudVisible(millis())) {
     drawVolumeHud(state);
   }
+  if (transientHudVisible(millis())) {
+    drawTransientHud();
+  }
 
   g_spr.pushSprite(0, 0);
 }
@@ -1300,6 +1353,9 @@ void drawDialPadScreen(const app::AppState& state) {
   if (volumeHudVisible(millis())) {
     drawVolumeHud(state);
   }
+  if (transientHudVisible(millis())) {
+    drawTransientHud();
+  }
 
   g_spr.pushSprite(0, 0);
 }
@@ -1327,16 +1383,26 @@ void drawScreen(const app::AppState& state) {
   const bool focusSys = quickEdit && state.ui.quickEditItem == app::QuickEditItem::Sys;
   const bool focusSettings = quickEdit && state.ui.quickEditItem == app::QuickEditItem::Settings;
   const bool focusFav = quickEdit && state.ui.quickEditItem == app::QuickEditItem::Favorite;
-  const bool focusFine = quickEdit && state.ui.quickEditItem == app::QuickEditItem::Fine;
+  const bool focusCal = quickEdit && state.ui.quickEditItem == app::QuickEditItem::Cal;
   const bool focusAvc = quickEdit && state.ui.quickEditItem == app::QuickEditItem::Avc;
   const bool focusMode = quickEdit && state.ui.quickEditItem == app::QuickEditItem::Mode;
-  const bool editableFine = app::quickedit::itemEditable(state, app::QuickEditItem::Fine);
+  const bool editableCal = app::quickedit::itemEditable(state, app::QuickEditItem::Cal);
   const bool editableAvc = app::quickedit::itemEditable(state, app::QuickEditItem::Avc);
   const bool editableMode = app::quickedit::itemEditable(state, app::QuickEditItem::Mode);
 
   char stepText[16];
-  const uint8_t stepKhz = state.radio.modulation == app::Modulation::FM ? state.radio.fmStepKhz : state.radio.amStepKhz;
-  snprintf(stepText, sizeof(stepText), "STEP:%u", static_cast<unsigned>(stepKhz));
+  if (state.radio.modulation == app::Modulation::FM) {
+    snprintf(stepText, sizeof(stepText), "STEP:%uk", static_cast<unsigned>(state.radio.fmStepKhz));
+  } else if (app::isSsb(state.radio.modulation)) {
+    const uint16_t stepHz = state.radio.ssbStepHz > 0 ? state.radio.ssbStepHz : 1000;
+    if (stepHz >= 1000 && (stepHz % 1000U) == 0U) {
+      snprintf(stepText, sizeof(stepText), "STEP:%uk", static_cast<unsigned>(stepHz / 1000U));
+    } else {
+      snprintf(stepText, sizeof(stepText), "STEP:%uHz", static_cast<unsigned>(stepHz));
+    }
+  } else {
+    snprintf(stepText, sizeof(stepText), "STEP:%uk", static_cast<unsigned>(state.radio.amStepKhz));
+  }
 
   char bwText[16];
   char bwValue[8];
@@ -1356,12 +1422,12 @@ void drawScreen(const app::AppState& state) {
   char clockText[8];
   formatClock(state, clockText, sizeof(clockText));
 
-  char fineText[16];
-  if (app::isSsb(state.radio.modulation)) {
-    snprintf(fineText, sizeof(fineText), "BFO:%+d", static_cast<int>(state.radio.bfoHz));
-  } else {
-    snprintf(fineText, sizeof(fineText), "BFO:0");
-  }
+  char calText[16];
+  const app::BandRuntimeState& bandState = state.perBand[state.radio.bandIndex];
+  const int16_t calHz = state.radio.modulation == app::Modulation::USB
+                            ? bandState.usbCalibrationHz
+                            : (state.radio.modulation == app::Modulation::LSB ? bandState.lsbCalibrationHz : 0);
+  snprintf(calText, sizeof(calText), "CAL:%+d", static_cast<int>(calHz));
 
   char avcText[16];
   if (state.radio.modulation == app::Modulation::FM) {
@@ -1379,7 +1445,7 @@ void drawScreen(const app::AppState& state) {
   g_spr.fillSprite(kColorBg);
   drawOperationSideFade(state.ui.operation);
 
-  const app::quickedit::ChipRect fineRect = app::quickedit::chipRect(app::QuickEditItem::Fine);
+  const app::quickedit::ChipRect calRect = app::quickedit::chipRect(app::QuickEditItem::Cal);
   const app::quickedit::ChipRect avcRect = app::quickedit::chipRect(app::QuickEditItem::Avc);
   const app::quickedit::ChipRect favRect = app::quickedit::chipRect(app::QuickEditItem::Favorite);
   const app::quickedit::ChipRect modeRect = app::quickedit::chipRect(app::QuickEditItem::Mode);
@@ -1391,7 +1457,9 @@ void drawScreen(const app::AppState& state) {
   const app::quickedit::ChipRect sysRect = app::quickedit::chipRect(app::QuickEditItem::Sys);
   const app::quickedit::ChipRect setRect = app::quickedit::chipRect(app::QuickEditItem::Settings);
 
-  drawChip(fineRect.x, fineRect.y, fineRect.w, fineRect.h, fineText, focusFine, popupOpen && focusFine, 1, editableFine);
+  if (editableCal) {
+    drawChip(calRect.x, calRect.y, calRect.w, calRect.h, calText, focusCal, popupOpen && focusCal, 1, editableCal);
+  }
   drawChip(avcRect.x, avcRect.y, avcRect.w, avcRect.h, avcText, focusAvc, popupOpen && focusAvc, 1, editableAvc);
   drawFavoriteChip(favRect.x, favRect.y, favRect.w, favRect.h, focusFav, popupOpen && focusFav, currentFavorite);
   g_spr.setTextDatum(MC_DATUM);
@@ -1449,25 +1517,51 @@ void drawScreen(const app::AppState& state) {
   char freqText[20];
   char unitText[8];
   formatFrequency(state.radio, freqText, sizeof(freqText), unitText, sizeof(unitText));
+  const bool ssbDisplay = app::isSsb(state.radio.modulation);
   const bool stereo = state.radio.modulation == app::Modulation::FM && g_lastSnr >= 12;
   const char* stereoText = stereo ? "ST" : "MO";
 
   const int kFreqY = 60;
   const int kUnitY = 70;
   const int kStereoY = 56;
+  const int kSsbColGap = 2;
   const int kFreqPreferredX = 150;
   const int kClusterPreferredX = 212;
   const int kLeftMargin = 6;
   const int kRightMargin = 6;
   const int kFreqClusterGap = 5;
 
+  char freqMainText[20];
+  char ssbFracText[8];
+  freqMainText[0] = '\0';
+  ssbFracText[0] = '\0';
+  if (ssbDisplay) {
+    const int32_t compositeHz = static_cast<int32_t>(state.radio.frequencyKhz) * 1000 + state.radio.ssbTuneOffsetHz;
+    const uint32_t safeHz = compositeHz > 0 ? static_cast<uint32_t>(compositeHz) : 0U;
+    snprintf(freqMainText, sizeof(freqMainText), "%u", static_cast<unsigned>(safeHz / 1000U));
+    snprintf(ssbFracText, sizeof(ssbFracText), ".%03u", static_cast<unsigned>(safeHz % 1000U));
+  } else {
+    snprintf(freqMainText, sizeof(freqMainText), "%s", freqText);
+  }
+
   int freqX = kFreqPreferredX;
   int clusterX = kClusterPreferredX;
 
-  const int freqW = g_spr.textWidth(freqText, 7);
+  const int freqMainW = g_spr.textWidth(freqMainText, 7);
+  const int freqMainH = g_spr.fontHeight(7);
   const int unitW = g_spr.textWidth(unitText, 2);
   const int stereoW = g_spr.textWidth(stereoText, 2);
-  const int clusterW = unitW > stereoW ? unitW : stereoW;
+  const int fracW = ssbDisplay ? g_spr.textWidth(ssbFracText, 2) : 0;
+  int ssbColumnW = unitW;
+  if (stereoW > ssbColumnW) {
+    ssbColumnW = stereoW;
+  }
+  if (fracW > ssbColumnW) {
+    ssbColumnW = fracW;
+  }
+
+  const int freqW = ssbDisplay ? (freqMainW + kSsbColGap + ssbColumnW) : freqMainW;
+  const int clusterW = ssbDisplay ? ssbColumnW : (unitW > stereoW ? unitW : stereoW);
   int maxClusterX = kUiWidth - kRightMargin - clusterW;
   if (maxClusterX < kClusterPreferredX) {
     maxClusterX = kClusterPreferredX;
@@ -1489,26 +1583,49 @@ void drawScreen(const app::AppState& state) {
   }
 
   freqRight = freqX + (freqW / 2);
-  const int minClusterX = (freqRight + kFreqClusterGap) > kClusterPreferredX ? (freqRight + kFreqClusterGap) : kClusterPreferredX;
-  if (clusterX < minClusterX) {
-    clusterX = minClusterX;
-  }
-  if (clusterX > maxClusterX) {
-    clusterX = maxClusterX;
+  if (!ssbDisplay) {
+    const int minClusterX = (freqRight + kFreqClusterGap) > kClusterPreferredX ? (freqRight + kFreqClusterGap) : kClusterPreferredX;
+    if (clusterX < minClusterX) {
+      clusterX = minClusterX;
+    }
+    if (clusterX > maxClusterX) {
+      clusterX = maxClusterX;
+    }
   }
 
   g_spr.setTextDatum(MC_DATUM);
   g_spr.setTextColor(kColorText, kColorBg);
   g_spr.setTextFont(7);
-  g_spr.drawString(freqText, freqX, kFreqY);
+  if (ssbDisplay) {
+    const int freqLeft = freqX - (freqW / 2);
+    const int freqMainCenterX = freqLeft + (freqMainW / 2);
+    clusterX = freqLeft + freqMainW + kSsbColGap;
+    const int ssbColumnCenterX = clusterX + (ssbColumnW / 2);
+    const int freqTop = kFreqY - (freqMainH / 2);
+    const int topHalfH = freqMainH / 2;
+    const int quarterH = topHalfH / 2;
+    const int topSlotCenterY = freqTop + (quarterH / 2);
+    const int middleSlotCenterY = freqTop + quarterH + (quarterH / 2);
+    const int bottomSlotCenterY = freqTop + topHalfH + ((freqMainH - topHalfH) / 2);
 
-  g_spr.setTextDatum(ML_DATUM);
-  g_spr.setTextFont(2);
-  g_spr.drawString(unitText, clusterX, kUnitY);
+    g_spr.drawString(freqMainText, freqMainCenterX, kFreqY);
 
-  g_spr.setTextColor(stereo ? kColorRssi : kColorMuted, kColorBg);
-  g_spr.setTextDatum(ML_DATUM);
-  g_spr.drawString(stereoText, clusterX, kStereoY);
+    g_spr.setTextDatum(MC_DATUM);
+    g_spr.setTextFont(2);
+    g_spr.setTextColor(stereo ? kColorRssi : kColorMuted, kColorBg);
+    g_spr.drawString(stereoText, ssbColumnCenterX, topSlotCenterY);
+    g_spr.setTextColor(kColorText, kColorBg);
+    g_spr.drawString(unitText, ssbColumnCenterX, middleSlotCenterY);
+    g_spr.drawString(ssbFracText, ssbColumnCenterX, bottomSlotCenterY);
+  } else {
+    g_spr.drawString(freqMainText, freqX, kFreqY);
+    g_spr.setTextDatum(ML_DATUM);
+    g_spr.setTextFont(2);
+    g_spr.setTextColor(kColorText, kColorBg);
+    g_spr.drawString(unitText, clusterX, kUnitY);
+    g_spr.setTextColor(stereo ? kColorRssi : kColorMuted, kColorBg);
+    g_spr.drawString(stereoText, clusterX, kStereoY);
+  }
 
   g_spr.setTextDatum(MC_DATUM);
   g_spr.setTextFont(1);
@@ -1540,6 +1657,9 @@ void drawScreen(const app::AppState& state) {
   drawQuickPopup(state);
   if (volumeHudVisible(millis())) {
     drawVolumeHud(state);
+  }
+  if (transientHudVisible(millis())) {
+    drawTransientHud();
   }
   g_spr.pushSprite(0, 0);
 }
@@ -1641,6 +1761,16 @@ void notifyVolumeAdjust(uint8_t volume) {
   g_volumeHudUntilMs = millis() + kVolumeHudMs;
 }
 
+void notifyTransient(const char* text) {
+  if (text == nullptr || text[0] == '\0') {
+    return;
+  }
+
+  strncpy(g_transientHudText, text, sizeof(g_transientHudText) - 1);
+  g_transientHudText[sizeof(g_transientHudText) - 1] = '\0';
+  g_transientHudUntilMs = millis() + kTransientHudMs;
+}
+
 void render(const app::AppState& state) {
   const uint8_t duty = app::settings::clampBrightness(state.global.brightness);
   if (duty != g_lastBacklightDuty) {
@@ -1655,6 +1785,10 @@ void render(const app::AppState& state) {
   }
 
   const uint32_t nowMs = millis();
+  if (g_transientHudText[0] != '\0' && nowMs >= g_transientHudUntilMs) {
+    g_transientHudText[0] = '\0';
+  }
+
   const bool scanActive = state.seekScan.active && state.seekScan.scanning;
   const bool seekOrScanActive = state.seekScan.active && (state.seekScan.seeking || state.seekScan.scanning);
   const uint32_t minFrameMs = scanActive ? kUiScanFrameMs : kUiFrameMs;
@@ -1679,10 +1813,15 @@ void render(const app::AppState& state) {
   const int32_t minuteToken = clockMinuteToken(state);
   const bool minuteChanged = g_lastRenderedMinute != minuteToken;
   const bool keepAliveDue = nowMs - g_lastRenderMs >= kUiKeepAliveMs;
-  const bool hudVisible = volumeHudVisible(nowMs);
-  const bool hudChanged = hudVisible != g_lastVolumeHudVisible;
+  const bool volumeVisible = volumeHudVisible(nowMs);
+  const bool volumeChanged = volumeVisible != g_lastVolumeHudVisible;
+  const bool transientVisible = transientHudVisible(nowMs);
+  const uint32_t transientHash = textHashN(g_transientHudText, sizeof(g_transientHudText));
+  const bool transientChanged =
+      transientVisible != g_lastTransientHudVisible || (transientVisible && transientHash != g_lastTransientTextHash);
 
-  if (!stateChanged && !signalChanged && !batteryChanged && !minuteChanged && !keepAliveDue && !hudVisible && !hudChanged) {
+  if (!stateChanged && !signalChanged && !batteryChanged && !minuteChanged && !keepAliveDue && !volumeVisible &&
+      !volumeChanged && !transientVisible && !transientChanged) {
     return;
   }
 
@@ -1710,7 +1849,9 @@ void render(const app::AppState& state) {
   g_lastRenderKey = renderKey;
   g_hasRenderKey = true;
   g_lastRenderedMinute = minuteToken;
-  g_lastVolumeHudVisible = hudVisible;
+  g_lastVolumeHudVisible = volumeVisible;
+  g_lastTransientHudVisible = transientVisible;
+  g_lastTransientTextHash = transientHash;
   g_lastRenderMs = nowMs;
 }
 

@@ -13,7 +13,9 @@ This document describes the behavior implemented in the current firmware source 
   - Layer/operation-dependent action
   - If seek/scan is active: treated as cancel request first
 - `Double click`
-  - In `NowPlaying` only: cycle operation `Tune -> Seek -> Scan -> Tune`
+  - In `NowPlaying` only: cycle operation
+    - non-SSB: `Tune -> Seek -> Scan -> Tune`
+    - USB/LSB: `Tune -> Seek -> Tune`
   - If seek/scan is active: treated as cancel request first
 - `Triple click`
   - In `NowPlaying` only: save current station to next favorite slot
@@ -42,13 +44,16 @@ This document describes the behavior implemented in the current firmware source 
 
 - `Rotate`: tune frequency
   - FM/AM: step tuning with wrap within current band
-  - SSB: BFO/frequency coupled tuning (`25 Hz` BFO steps, frequency rolls on ±500 Hz crossings)
+  - SSB: step tuning with selectable SSB step list (`10, 25, 50, 100, 500 Hz, 1k, 5k, 9k, 10k`)
+    - live offset normalizes at `±14000 Hz` with carry into carrier frequency
 - `Click`: enter `QuickEdit`
 - `Long press`: open `DialPad`
 
 ### Seek
 
-- `Rotate`: request one seek in direction of rotation
+- `Rotate`:
+  - non-SSB: request one seek in direction of rotation
+  - USB/LSB: manual tune fallback (same path as `Tune` rotate)
 - `Click`: enter `QuickEdit`
 - `Long press`: open `DialPad`
 
@@ -57,7 +62,8 @@ This document describes the behavior implemented in the current firmware source 
 - `Rotate`: navigate ETM found-station list (`prev/next`)
 - `Click`: enter `QuickEdit`
 - `Long press`: start ETM scan (`services::etm::requestScan`)
-  - In SSB, ETM scan request returns false (no UI error message is currently shown)
+  - In SSB, ETM scan request is rejected and UI shows transient `SCAN N/A IN SSB`
+- If modulation changes to USB/LSB while currently in `Scan`, operation is forced back to `Tune`.
 
 ## Active seek / scan cancellation
 
@@ -87,11 +93,11 @@ Quick Edit has two states:
 - On entry:
   - restore last focused item if within `8 s`
   - otherwise start at `Band`
-- Non-editable chips are skipped (e.g. `BFO` outside SSB, `AVC` in FM, `Mode` in fixed-FM bands)
+- Non-editable chips are skipped (e.g. `CAL` outside SSB, `AVC` in FM, `Mode` in fixed-FM bands)
 
 #### Focus order (implemented)
 
-- `Mode -> Band -> Step -> Bandwidth -> Agc -> Sql -> Sys -> Settings -> Fine (BFO) -> Avc -> Favorite`
+- `Mode -> Band -> Step -> Bandwidth -> Agc -> Sql -> Sys -> Settings -> Cal -> Avc -> Favorite`
 
 #### Browse mode actions
 
@@ -111,10 +117,10 @@ Quick Edit has two states:
 #### QuickEdit actions by chip (current behavior)
 
 - `Band`: apply per-band runtime state to radio
-- `Step`: change FM/AM step for current modulation
+- `Step`: change FM/AM/SSB step for current modulation
 - `Bandwidth`, `Agc`, `Sql`, `Avc`, `Sys`: apply runtime settings and mark settings dirty
 - `Favorite`: save current or tune to selected favorite
-- `Fine`: set SSB BFO from popup value
+- `Cal`: set SSB calibration (`-2000..+2000 Hz`, `10 Hz` step, USB/LSB stored independently per band)
 - `Mode`: switch `AM/LSB/USB` where band supports it
 
 ### `Settings`

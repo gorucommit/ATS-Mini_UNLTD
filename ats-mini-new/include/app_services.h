@@ -69,6 +69,7 @@ namespace ui {
 bool begin();
 void showBoot(const char* message);
 void notifyVolumeAdjust(uint8_t volume);
+void notifyTransient(const char* text);
 void render(const app::AppState& state);
 }  // namespace ui
 

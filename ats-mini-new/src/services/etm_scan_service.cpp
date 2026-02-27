@@ -384,7 +384,7 @@ class EtmScanner {
 
     if (!awaitingMeasure_) {
       state.radio.frequencyKhz = currentKhz_;
-      state.radio.bfoHz = 0;
+      state.radio.ssbTuneOffsetHz = 0;
       services::radio::apply(state);
       awaitingMeasure_ = true;
       nextActionMs_ = now + settleMs_;
@@ -549,7 +549,7 @@ class EtmScanner {
     app::EtmCandidate& c = candidates_[verifyCandidateIndex_];
     if (!verifyAwaitingMeasure_) {
       state.radio.frequencyKhz = c.frequencyKhz;
-      state.radio.bfoHz = 0;
+      state.radio.ssbTuneOffsetHz = 0;
       services::radio::apply(state);
       verifyAwaitingMeasure_ = true;
       nextActionMs_ = now + verifySettleMs_;
@@ -589,7 +589,7 @@ class EtmScanner {
 
     if (!fineAwaitingMeasure_) {
       state.radio.frequencyKhz = fineCurrentKhz_;
-      state.radio.bfoHz = 0;
+      state.radio.ssbTuneOffsetHz = 0;
       services::radio::apply(state);
       fineAwaitingMeasure_ = true;
       nextActionMs_ = now + fineSettleMs_;
@@ -741,7 +741,7 @@ class EtmScanner {
       memory_.cursor = 0;
 
     state.radio.frequencyKhz = tuneKhz;
-    state.radio.bfoHz = 0;
+    state.radio.ssbTuneOffsetHz = 0;
     services::radio::apply(state);
 
     state.seekScan.active = false;
@@ -790,13 +790,13 @@ class EtmScanner {
     if (memory_.cursor < 0 || memory_.cursor >= static_cast<int16_t>(memory_.count)) return;
     const app::EtmStation& s = memory_.stations[memory_.cursor];
     state.radio.frequencyKhz = s.frequencyKhz;
-    state.radio.bfoHz = 0;
+    state.radio.ssbTuneOffsetHz = 0;
     services::radio::apply(state);
   }
 
   bool tickCancelling(app::AppState& state) {
     state.radio.frequencyKhz = restoreKhz_;
-    state.radio.bfoHz = 0;
+    state.radio.ssbTuneOffsetHz = 0;
     services::radio::apply(state);
     candidateCount_ = 0;
     state.seekScan.active = false;

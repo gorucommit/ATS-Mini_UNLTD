@@ -16,9 +16,11 @@ inline constexpr uint8_t kAvcMin = 12;
 inline constexpr uint8_t kAvcMax = 90;
 inline constexpr uint8_t kAvcStep = 2;
 inline constexpr uint8_t kAvcOptionCount = static_cast<uint8_t>(((kAvcMax - kAvcMin) / kAvcStep) + 1);
-inline constexpr int16_t kFineMinHz = -500;
-inline constexpr int16_t kFineMaxHz = 500;
-inline constexpr int16_t kFineStepHz = 25;
+inline constexpr int16_t kCalMinHz = -2000;
+inline constexpr int16_t kCalMaxHz = 2000;
+inline constexpr int16_t kCalStepHz = 10;
+inline constexpr uint16_t kCalOptionCount =
+    static_cast<uint16_t>(((kCalMaxHz - kCalMinHz) / kCalStepHz) + 1);
 inline constexpr uint8_t kSysOptionCount = 10;
 
 struct ChipRect {
@@ -37,7 +39,7 @@ inline constexpr QuickEditItem kFocusOrder[] = {
     QuickEditItem::Sql,
     QuickEditItem::Sys,
     QuickEditItem::Settings,
-    QuickEditItem::Fine,
+    QuickEditItem::Cal,
     QuickEditItem::Avc,
     QuickEditItem::Favorite,
 };
@@ -62,8 +64,8 @@ inline constexpr const char* itemName(QuickEditItem item) {
       return "SETTINGS";
     case QuickEditItem::Favorite:
       return "FAV";
-    case QuickEditItem::Fine:
-      return "BFO";
+    case QuickEditItem::Cal:
+      return "CAL";
     case QuickEditItem::Avc:
       return "AVC";
     case QuickEditItem::Mode:
@@ -74,7 +76,7 @@ inline constexpr const char* itemName(QuickEditItem item) {
 
 inline constexpr ChipRect chipRect(QuickEditItem item) {
   switch (item) {
-    case QuickEditItem::Fine:
+    case QuickEditItem::Cal:
       return {4, 18, 46, 16};
     case QuickEditItem::Avc:
       return {4, 36, 46, 16};
@@ -111,7 +113,7 @@ inline uint8_t focusOrderIndex(QuickEditItem item) {
 
 inline bool itemEditable(const AppState& state, QuickEditItem item) {
   switch (item) {
-    case QuickEditItem::Fine:
+    case QuickEditItem::Cal:
       return isSsb(state.radio.modulation);
     case QuickEditItem::Avc:
       return state.radio.modulation != Modulation::FM;
@@ -122,6 +124,20 @@ inline bool itemEditable(const AppState& state, QuickEditItem item) {
     default:
       return true;
   }
+}
+
+inline int16_t activeCalibrationHz(const AppState& state) {
+  if (state.radio.bandIndex >= kBandCount) {
+    return 0;
+  }
+
+  if (state.radio.modulation == Modulation::USB) {
+    return state.perBand[state.radio.bandIndex].usbCalibrationHz;
+  }
+  if (state.radio.modulation == Modulation::LSB) {
+    return state.perBand[state.radio.bandIndex].lsbCalibrationHz;
+  }
+  return 0;
 }
 
 inline QuickEditItem moveFocus(QuickEditItem current, int8_t direction) {
@@ -241,12 +257,18 @@ inline uint8_t avcIndexFromValue(uint8_t value) {
   return static_cast<uint8_t>((clamped - kAvcMin) / kAvcStep);
 }
 
-inline uint8_t popupOptionCount(const AppState& state, QuickEditItem item) {
+inline uint16_t popupOptionCount(const AppState& state, QuickEditItem item) {
   switch (item) {
     case QuickEditItem::Band:
-      return static_cast<uint8_t>(kBandCount);
+      return static_cast<uint16_t>(kBandCount);
     case QuickEditItem::Step:
-      return static_cast<uint8_t>(state.radio.modulation == Modulation::FM ? kFmStepOptionCount : kAmStepOptionCount);
+      if (state.radio.modulation == Modulation::FM) {
+        return static_cast<uint16_t>(kFmStepOptionCount);
+      }
+      if (isSsb(state.radio.modulation)) {
+        return static_cast<uint16_t>(kSsbStepOptionCount);
+      }
+      return static_cast<uint16_t>(kAmStepOptionCount);
     case QuickEditItem::Bandwidth:
       return bandwidthCountFor(state.radio);
     case QuickEditItem::Agc:
@@ -260,26 +282,32 @@ inline uint8_t popupOptionCount(const AppState& state, QuickEditItem item) {
     case QuickEditItem::Settings:
       return 1;
     case QuickEditItem::Favorite:
-      return static_cast<uint8_t>(1 + usedFavoriteCount(state));
-    case QuickEditItem::Fine:
+      return static_cast<uint16_t>(1 + usedFavoriteCount(state));
+    case QuickEditItem::Cal:
       if (!isSsb(state.radio.modulation)) {
         return 1;
       }
-      return static_cast<uint8_t>(((kFineMaxHz - kFineMinHz) / kFineStepHz) + 1);
+      return kCalOptionCount;
     case QuickEditItem::Mode: {
       const BandDef& band = kBandPlan[state.radio.bandIndex];
       return band.defaultMode == Modulation::FM && !band.allowSsb ? 1 : 3;
     }
   }
-  return 1;
+  return static_cast<uint16_t>(1);
 }
 
-inline uint8_t popupIndexForCurrentValue(const AppState& state, QuickEditItem item) {
+inline uint16_t popupIndexForCurrentValue(const AppState& state, QuickEditItem item) {
   switch (item) {
     case QuickEditItem::Band:
       return state.radio.bandIndex;
     case QuickEditItem::Step:
-      return state.radio.modulation == Modulation::FM ? fmStepIndexFromKhz(state.radio.fmStepKhz) : amStepIndexFromKhz(state.radio.amStepKhz);
+      if (state.radio.modulation == Modulation::FM) {
+        return fmStepIndexFromKhz(state.radio.fmStepKhz);
+      }
+      if (isSsb(state.radio.modulation)) {
+        return ssbStepIndexFromHz(state.radio.ssbStepHz);
+      }
+      return amStepIndexFromKhz(state.radio.amStepKhz);
     case QuickEditItem::Bandwidth: {
       const uint8_t bw = state.perBand[state.radio.bandIndex].bandwidthIndex;
       return clampBandwidthIndexFor(state.radio, bw);
@@ -329,11 +357,11 @@ inline uint8_t popupIndexForCurrentValue(const AppState& state, QuickEditItem it
       return 0;
     case QuickEditItem::Favorite:
       return 0;
-    case QuickEditItem::Fine:
+    case QuickEditItem::Cal:
       if (!isSsb(state.radio.modulation)) {
         return 0;
       }
-      return static_cast<uint8_t>((static_cast<int32_t>(state.radio.bfoHz) - kFineMinHz) / kFineStepHz);
+      return static_cast<uint16_t>((static_cast<int32_t>(activeCalibrationHz(state)) - kCalMinHz) / kCalStepHz);
     case QuickEditItem::Mode: {
       const BandDef& band = kBandPlan[state.radio.bandIndex];
       if (band.defaultMode == Modulation::FM && !band.allowSsb) {
@@ -352,10 +380,10 @@ inline uint8_t popupIndexForCurrentValue(const AppState& state, QuickEditItem it
       }
     }
   }
-  return 0;
+  return static_cast<uint16_t>(0);
 }
 
-inline void formatPopupOption(const AppState& state, QuickEditItem item, uint8_t index, char* out, size_t outSize) {
+inline void formatPopupOption(const AppState& state, QuickEditItem item, uint16_t index, char* out, size_t outSize) {
   switch (item) {
     case QuickEditItem::Band:
       if (index < kBandCount) {
@@ -372,9 +400,18 @@ inline void formatPopupOption(const AppState& state, QuickEditItem item, uint8_t
       return;
     case QuickEditItem::Step:
       if (state.radio.modulation == Modulation::FM) {
-        snprintf(out, outSize, "%ukHz", static_cast<unsigned>(kFmStepOptionsKhz[index]));
+        const uint8_t safe = static_cast<uint8_t>(index % kFmStepOptionCount);
+        snprintf(out, outSize, "%ukHz", static_cast<unsigned>(kFmStepOptionsKhz[safe]));
+      } else if (isSsb(state.radio.modulation)) {
+        const uint16_t stepHz = kSsbStepOptionsHz[index % kSsbStepOptionCount];
+        if (stepHz >= 1000 && (stepHz % 1000) == 0) {
+          snprintf(out, outSize, "%ukHz", static_cast<unsigned>(stepHz / 1000));
+        } else {
+          snprintf(out, outSize, "%uHz", static_cast<unsigned>(stepHz));
+        }
       } else {
-        snprintf(out, outSize, "%ukHz", static_cast<unsigned>(kAmStepOptionsKhz[index]));
+        const uint8_t safe = static_cast<uint8_t>(index % kAmStepOptionCount);
+        snprintf(out, outSize, "%ukHz", static_cast<unsigned>(kAmStepOptionsKhz[safe]));
       }
       return;
     case QuickEditItem::Bandwidth: {
@@ -385,7 +422,8 @@ inline void formatPopupOption(const AppState& state, QuickEditItem item, uint8_t
       if (index == 0) {
         snprintf(out, outSize, "AUTO");
       } else {
-        snprintf(out, outSize, "LVL %u", static_cast<unsigned>(kAgcLevels[index - 1]));
+        const uint8_t safe = static_cast<uint8_t>((index - 1) % (sizeof(kAgcLevels) / sizeof(kAgcLevels[0])));
+        snprintf(out, outSize, "LVL %u", static_cast<unsigned>(kAgcLevels[safe]));
       }
       return;
     case QuickEditItem::Sql:
@@ -402,7 +440,7 @@ inline void formatPopupOption(const AppState& state, QuickEditItem item, uint8_t
       static const char* kSys[] = {
           "PWR NORM", "PWR SAVE", "WIFI OFF", "WIFI STA", "WIFI AP",
           "SLEEP OFF", "SLEEP 5m", "SLEEP 15m", "SLEEP 30m", "SLEEP 60m"};
-      snprintf(out, outSize, "%s", kSys[index]);
+      snprintf(out, outSize, "%s", kSys[index % kSysOptionCount]);
       return;
     }
     case QuickEditItem::Settings:
@@ -415,18 +453,34 @@ inline void formatPopupOption(const AppState& state, QuickEditItem item, uint8_t
         uint8_t slotIndex = 0;
         if (favoriteSlotByUsedIndex(state, static_cast<uint8_t>(index - 1), &slotIndex)) {
           const MemorySlot& slot = state.memories[slotIndex];
-          snprintf(out, outSize, "%s %u", slot.name, static_cast<unsigned>(slot.frequencyKhz));
+          if (slot.modulation == Modulation::FM) {
+            const uint32_t fmKhz100 = (slot.frequencyHz + 5000UL) / 10000UL;
+            snprintf(out,
+                     outSize,
+                     "%s %u.%02u",
+                     slot.name,
+                     static_cast<unsigned>(fmKhz100 / 100U),
+                     static_cast<unsigned>(fmKhz100 % 100U));
+          } else {
+            snprintf(out,
+                     outSize,
+                     "%s %u.%03u",
+                     slot.name,
+                     static_cast<unsigned>(slot.frequencyHz / 1000UL),
+                     static_cast<unsigned>(slot.frequencyHz % 1000UL));
+          }
         } else {
           snprintf(out, outSize, "EMPTY");
         }
       }
       return;
-    case QuickEditItem::Fine:
+    case QuickEditItem::Cal:
       if (isSsb(state.radio.modulation)) {
-        const int16_t bfoHz = static_cast<int16_t>(kFineMinHz + static_cast<int16_t>(index) * kFineStepHz);
-        snprintf(out, outSize, "BFO %+d", static_cast<int>(bfoHz));
+        const int16_t calibrationHz =
+            static_cast<int16_t>(kCalMinHz + static_cast<int16_t>(index % kCalOptionCount) * kCalStepHz);
+        snprintf(out, outSize, "CAL %+d", static_cast<int>(calibrationHz));
       } else {
-        snprintf(out, outSize, "BFO 0");
+        snprintf(out, outSize, "CAL 0");
       }
       return;
     case QuickEditItem::Mode: {
